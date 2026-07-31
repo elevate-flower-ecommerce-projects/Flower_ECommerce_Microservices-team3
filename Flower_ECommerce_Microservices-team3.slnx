@@ -1,1 +1,12 @@
-<Solution />
+<Solution>
+  <Project Path="Address &amp; Store Coverage Service/Address &amp; Store Coverage Service.csproj" />
+  <Project Path="API Gateway/API Gateway.csproj" />
+  <Project Path="Cart Service/Cart Service.csproj" />
+  <Project Path="Catalog Service/Catalog Service.csproj" />
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+  <Project Path="Identity service/Identity service.csproj" />
+  <Project Path="Order &amp; Fulfillment Service/Order &amp; Fulfillment Service.csproj" />
+  <Project Path="Payment Service/Payment Service.csproj" />
+</Solution>
