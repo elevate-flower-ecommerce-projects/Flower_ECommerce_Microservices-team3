@@ -4,13 +4,13 @@
   </Folder>
   <Folder Name="/Services/" />
   <Folder Name="/Services/Address &amp; Store Coverage/">
-    <Project Path="Address &amp; Store Coverage Service/Address &amp; Store Coverage Service.csproj" />
+    <Project Path="Services/Address &amp; Store Coverage/Address &amp; Store Coverage Service/Address &amp; Store Coverage Service.csproj" />
   </Folder>
   <Folder Name="/Services/Cart/">
-    <Project Path="Cart Service/Cart Service.csproj" />
+    <Project Path="Services/Cart/Cart Service/Cart Service.csproj" />
   </Folder>
   <Folder Name="/Services/Catalog/">
-    <Project Path="Catalog Service/Catalog Service.csproj" />
+    <Project Path="Services/Catalog/Catalog Service/Catalog Service.csproj" />
   </Folder>
   <Folder Name="/Services/Identity/">
     <Project Path="Services/Identity/Identity.Api/Identity.Api.csproj" Id="80c7f5fd-c114-4f58-96e0-fc6540c94bb4" />
@@ -19,10 +19,10 @@
     <Project Path="Services/Identity/Identity.Infrastructure/Identity.Infrastructure.csproj" Id="10e0d4b4-29a8-424b-bad3-aa80b20cde25" />
   </Folder>
   <Folder Name="/Services/Order &amp; Fulfillment/">
-    <Project Path="Order &amp; Fulfillment Service/Order &amp; Fulfillment Service.csproj" />
+    <Project Path="Services/Order &amp; Fulfillment/Order &amp; Fulfillment Service/Order &amp; Fulfillment Service.csproj" />
   </Folder>
   <Folder Name="/Services/Payment/">
-    <Project Path="Payment Service/Payment Service.csproj" />
+    <Project Path="Services/Payment/Payment Service/Payment Service.csproj" />
   </Folder>
   <Project Path="API Gateway/API Gateway.csproj" />
   <Project Path="docker-compose.dcproj">
