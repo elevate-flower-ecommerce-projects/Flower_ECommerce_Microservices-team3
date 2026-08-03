@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Blocks.Domain.Entities
+namespace Identity.Domain.Enums
 {
-    internal class Class1
+    public enum Gender
     {
+        Male,
+        Female
     }
 }
