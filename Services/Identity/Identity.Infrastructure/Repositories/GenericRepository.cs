@@ -45,6 +45,17 @@ namespace Identity.Infrastructure.Repositories
             _dbSet.Update(entity);
         }
 
+        public void UpdatePartial(T entity, params Expression<Func<T, object>>[] updatedProperties)
+        {
+            _context.Attach(entity);
+
+            var entry = _context.Entry(entity);
+            foreach (var property in updatedProperties)
+            {
+                entry.Property(property).IsModified = true;
+            }
+        }
+
         public void Delete(T entity)
         {
             _dbSet.Remove(entity);
