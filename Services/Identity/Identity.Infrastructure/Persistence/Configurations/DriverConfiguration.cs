@@ -5,15 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Identity.Infrastructure.Configurations
+namespace Identity.Infrastructure.Persistence.Configurations
 {
-    public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
+    public class DriverConfiguration : IEntityTypeConfiguration<Driver>
     {
-        public void Configure(EntityTypeBuilder<Customer> builder)
+        public void Configure(EntityTypeBuilder<Driver> builder)
         {
-            builder.HasOne(c => c.User)
+            builder.HasOne(d => d.User)
                 .WithOne()
-                .HasForeignKey<Customer>(c => c.UserId)
+                .HasForeignKey<Driver>(d => d.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

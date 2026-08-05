@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Identity.Infrastructure.Configurations
+namespace Identity.Infrastructure.Persistence.Configurations
 {
     public class UserConfiguration : IEntityTypeConfiguration<User>
     {

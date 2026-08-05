@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-namespace Identity.Infrastructure.Data
+namespace Identity.Infrastructure.Persistence.Data
 {
     public class FlowersAuthDbContext : DbContext
     {
