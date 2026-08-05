@@ -7,7 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Blocks.Contracts\Blocks.Contracts.csproj" />
     <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="MediatR" Version="14.2.0" />
   </ItemGroup>
 
 </Project>
