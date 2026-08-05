@@ -10,22 +10,22 @@ namespace Identity.Infrastructure.Persistence.Repositories
     public sealed class UnitOfWork(FlowersAuthDbContext context) : IUnitOfWork
     {
         private IDbContextTransaction? _currentTransaction;
-        private static readonly AsyncLocal<int> _transactionDepth = new();
+        private int _transactionDepth = 0;
 
         public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
         {
-            if (_transactionDepth.Value == 0)
+            if (_transactionDepth == 0)
             {
                 _currentTransaction = await context.Database.BeginTransactionAsync(cancellationToken);
             }
-            _transactionDepth.Value++;
+            _transactionDepth++;
         }
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            if (_transactionDepth.Value > 1)
+            if (_transactionDepth > 1)
             {
-                return 0; 
+                return 0;
             }
 
             return await context.SaveChangesAsync(cancellationToken);
@@ -33,9 +33,9 @@ namespace Identity.Infrastructure.Persistence.Repositories
 
         public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
         {
-            _transactionDepth.Value--;
+            _transactionDepth--;
 
-            if (_transactionDepth.Value == 0)
+            if (_transactionDepth == 0)
             {
                 try
                 {
@@ -64,7 +64,7 @@ namespace Identity.Infrastructure.Persistence.Repositories
 
         public async Task RollbackTransactionAsync()
         {
-            _transactionDepth.Value = 0;
+            _transactionDepth = 0;
 
             if (_currentTransaction != null)
             {
