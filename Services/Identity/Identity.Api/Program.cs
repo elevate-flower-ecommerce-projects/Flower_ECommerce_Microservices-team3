@@ -1,4 +1,5 @@
 using Blocks.Contracts.Interfaces;
+using Identity.Infrastructure.Services;
 using Identity.Api.Features.AdminLogin;
 using Identity.Api.Features.Register;
 using Identity.Application;
@@ -27,6 +28,8 @@ namespace Identity.Api
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IPasswordService, PasswordService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddSingleton<ILoginRateLimiter, LoginRateLimiter>();
+            builder.Services.AddMemoryCache();
 
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 

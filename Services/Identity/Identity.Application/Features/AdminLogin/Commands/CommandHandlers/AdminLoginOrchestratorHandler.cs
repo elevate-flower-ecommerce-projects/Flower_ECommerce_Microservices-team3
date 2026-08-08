@@ -17,6 +17,7 @@ namespace Identity.Application.Features.AdminLogin.Commands.CommandHandlers
         IPasswordService passwordService,
         ITokenService tokenService,
         IOptions<JwtSettings> jwtSettings,
+        ILoginRateLimiter rateLimiter,
         IMediator mediator,
         IUnitOfWork unitOfWork)
         : IRequestHandler<AdminLoginOrchestrator, Result<AdminLoginResponseVm>>
@@ -27,6 +28,10 @@ namespace Identity.Application.Features.AdminLogin.Commands.CommandHandlers
             AdminLoginOrchestrator request,
             CancellationToken cancellationToken)
         {
+            if (rateLimiter.IsBlocked(request.Email, request.IpAddress))
+                return Result.Failure<AdminLoginResponseVm>(
+                    Error.TooManyRequests("Too many failed attempts. Try again later."));
+
             var users = await userRepository.FindAsync(
                 u => u.Email == request.Email.ToLowerInvariant());
             var user = users.FirstOrDefault();
@@ -45,6 +50,8 @@ namespace Identity.Application.Features.AdminLogin.Commands.CommandHandlers
             {
                 if (failureOutcome.HasValue)
                 {
+                    rateLimiter.RecordFailure(request.Email, request.IpAddress);
+
                     await mediator.Send(new CreateAdminLoginAuditCommand(
                         request.Email, request.IpAddress, request.UserAgent, failureOutcome.Value),
                         cancellationToken);
@@ -52,6 +59,8 @@ namespace Identity.Application.Features.AdminLogin.Commands.CommandHandlers
                     await unitOfWork.CommitTransactionAsync(cancellationToken);
                     return Result.Failure<AdminLoginResponseVm>(Error.Unauthorized(GenericAuthError));
                 }
+
+                rateLimiter.Reset(request.Email, request.IpAddress);
 
                 var accessToken = tokenService.GenerateAccessToken(user!);
                 var refreshTokenValue = tokenService.GenerateRefreshToken();
