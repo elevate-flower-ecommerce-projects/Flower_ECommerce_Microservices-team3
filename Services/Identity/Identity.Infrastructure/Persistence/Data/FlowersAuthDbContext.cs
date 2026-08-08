@@ -1,4 +1,4 @@
-﻿using Identity.Domain.Entities;
+using Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,6 @@ namespace Identity.Infrastructure.Persistence.Data
     public class FlowersAuthDbContext : DbContext
     {
 
-
         public FlowersAuthDbContext(DbContextOptions<FlowersAuthDbContext> options) : base(options)
         {
         }
@@ -19,7 +18,7 @@ namespace Identity.Infrastructure.Persistence.Data
         public DbSet<Customer> Customers => Set<Customer>();
         public DbSet<Driver> Drivers => Set<Driver>();
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
-
+        public DbSet<AdminLoginAudit> AdminLoginAudits => Set<AdminLoginAudit>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
