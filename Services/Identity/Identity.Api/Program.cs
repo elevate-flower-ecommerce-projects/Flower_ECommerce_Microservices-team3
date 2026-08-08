@@ -1,6 +1,8 @@
 using Blocks.Contracts.Interfaces;
 using Identity.Api.Authorization;
 using Identity.Api.Features.AdminLogin;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Policy;
 using Identity.Api.Features.Register;
 using Identity.Infrastructure.Services;
 using Identity.Application;
@@ -56,6 +58,8 @@ namespace Identity.Api
                 options.AddPolicy(Policies.AdminOnly, policy =>
                     policy.RequireRole("Admin"));
             });
+            builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler,
+                AdminAuthorizationMiddlewareResultHandler>();
 
             builder.Services.AddApplication();
             builder.Services.AddControllers();
