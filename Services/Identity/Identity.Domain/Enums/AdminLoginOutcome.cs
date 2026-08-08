@@ -4,6 +4,7 @@ public enum AdminLoginOutcome
 {
     Success,
     InvalidCredentials,
+    AccountDisabled,
     NotAdminRole,
     RateLimited
 }
