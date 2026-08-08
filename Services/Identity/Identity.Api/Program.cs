@@ -1,4 +1,5 @@
 using Blocks.Contracts.Interfaces;
+using Identity.Api.Features.AdminLogin;
 using Identity.Api.Features.Register;
 using Identity.Application;
 using Identity.Application.Interfaces;
@@ -88,6 +89,7 @@ namespace Identity.Api
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapRegisterEndpoint();
+            app.MapAdminLoginEndpoint();
             app.Run();
         }
     }
