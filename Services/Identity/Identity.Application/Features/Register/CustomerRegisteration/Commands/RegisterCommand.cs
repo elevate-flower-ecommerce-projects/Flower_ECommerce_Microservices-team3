@@ -1,12 +1,12 @@
 ﻿using Blocks.Contracts.Common;
-using Identity.Application.Features.Register.ViewModels;
+using Identity.Application.Features.Register.CustomerRegisteration.ViewModels;
 using Identity.Domain.Enums;
 using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Identity.Application.Features.Register.Commands
+namespace Identity.Application.Features.Register.CustomerRegisteration.Commands
 {
     public sealed record RegisterCommand(
         string FirstName,

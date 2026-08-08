@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
-using Identity.Application.Features.Register.Commands;
-using Identity.Application.Features.Register.DTOs;
+using Identity.Application.Features.Register.CustomerRegisteration.Commands;
+using Identity.Application.Features.Register.CustomerRegisteration.DTOs;
 using Identity.Domain.Enums;
 using MediatR;
 

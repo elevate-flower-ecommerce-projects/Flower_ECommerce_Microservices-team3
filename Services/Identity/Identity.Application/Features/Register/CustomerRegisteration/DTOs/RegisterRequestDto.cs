@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Identity.Application.Features.Register.DTOs
+namespace Identity.Application.Features.Register.CustomerRegisteration.DTOs
 {
     public record RegisterRequestDto(
         string FirstName,
