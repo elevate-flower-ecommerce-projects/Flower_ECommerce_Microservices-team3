@@ -1,13 +1,20 @@
-﻿using Blocks.Contracts.Interfaces;
-using FluentValidation;
+using Blocks.Contracts.Interfaces;
+using Identity.Api.Authorization;
+using Identity.Api.Features.AdminLogin;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Policy;
+using Identity.Api.Features.RefreshToken;
 using Identity.Api.Features.Register;
 using Identity.Application;
 using Identity.Application.Interfaces;
+using Identity.Application.Settings;
 using Identity.Infrastructure.Persistence.Data;
 using Identity.Infrastructure.Persistence.Repositories;
 using Identity.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Identity.Api
 {
@@ -23,13 +30,41 @@ namespace Identity.Api
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IPasswordService, PasswordService>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddSingleton<ILoginRateLimiter, LoginRateLimiter>();
+            builder.Services.AddMemoryCache();
+
+            builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
+            var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtSettings.Issuer,
+                        ValidAudience = jwtSettings.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy(Policies.AdminOnly, policy =>
+                    policy.RequireRole("Admin"));
+            });
+            builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler,
+                AdminAuthorizationMiddlewareResultHandler>();
 
             builder.Services.AddApplication();
             builder.Services.AddControllers();
 
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
-
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -53,7 +88,6 @@ namespace Identity.Api
                 }
             }
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
@@ -66,8 +100,11 @@ namespace Identity.Api
                 });
             }
 
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapRegisterEndpoint();
+            app.MapAdminLoginEndpoint();
+            app.MapRefreshTokenEndpoint();
             app.Run();
         }
     }

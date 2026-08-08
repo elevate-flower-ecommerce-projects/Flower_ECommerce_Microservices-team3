@@ -11,6 +11,7 @@ namespace Blocks.Contracts.Interfaces
         Task<T?> GetByIdAsync(Guid id);
         Task<IReadOnlyList<T>> GetAllAsync();
         Task<IReadOnlyList<T>> FindAsync(Expression<Func<T, bool>> predicate);
+        Task<TResult?> FirstOrDefaultAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector);
         Task AddAsync(T entity);
         void Update(T entity);
         void UpdatePartial(T entity, params Expression<Func<T, object>>[] updatedProperties);
