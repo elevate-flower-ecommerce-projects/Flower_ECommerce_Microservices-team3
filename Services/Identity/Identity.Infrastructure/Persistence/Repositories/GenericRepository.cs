@@ -35,6 +35,13 @@ namespace Identity.Infrastructure.Persistence.Repositories
             return await _dbSet.Where(predicate).ToListAsync();
         }
 
+        public async Task<TResult?> FirstOrDefaultAsync<TResult>(
+            Expression<Func<T, bool>> predicate,
+            Expression<Func<T, TResult>> selector)
+        {
+            return await _dbSet.Where(predicate).Select(selector).FirstOrDefaultAsync();
+        }
+
         public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);

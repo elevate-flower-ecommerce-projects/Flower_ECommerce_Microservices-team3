@@ -1,6 +1,7 @@
 using Blocks.Contracts.Common;
 using Blocks.Contracts.Interfaces;
 using Blocks.Domain.Errors;
+using Identity.Application.DTOs;
 using Identity.Application.Features.AdminLogin.ViewModels;
 using Identity.Application.Features.RefreshTokens.Commands;
 using Identity.Application.Interfaces;
@@ -32,9 +33,9 @@ namespace Identity.Application.Features.AdminLogin.Commands.CommandHandlers
                 return Result.Failure<AdminLoginResponseVm>(
                     Error.TooManyRequests("Too many failed attempts. Try again later."));
 
-            var users = await userRepository.FindAsync(
-                u => u.Email == request.Email.ToLowerInvariant());
-            var user = users.FirstOrDefault();
+            var user = await userRepository.FirstOrDefaultAsync(
+                u => u.Email == request.Email.ToLowerInvariant(),
+                u => new { u.Id, u.HashPassword, u.Role, u.IsActive });
 
             AdminLoginOutcome? failureOutcome = null;
 
@@ -62,13 +63,15 @@ namespace Identity.Application.Features.AdminLogin.Commands.CommandHandlers
 
                 rateLimiter.Reset(request.Email, request.IpAddress);
 
-                var accessToken = tokenService.GenerateAccessToken(user!);
+                var userDto = new UserTokenDto(user!.Id, request.Email.ToLowerInvariant(), user.Role, user.IsActive);
+
+                var accessToken = tokenService.GenerateAccessToken(userDto);
                 var refreshTokenValue = tokenService.GenerateRefreshToken();
                 var expiresAt = DateTime.UtcNow.AddMinutes(jwtSettings.Value.AccessTokenExpirationMinutes);
 
                 await mediator.Send(new SaveRefreshTokenCommand(
                     refreshTokenValue,
-                    user!.Id,
+                    user.Id,
                     DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationDays)),
                     cancellationToken);
 

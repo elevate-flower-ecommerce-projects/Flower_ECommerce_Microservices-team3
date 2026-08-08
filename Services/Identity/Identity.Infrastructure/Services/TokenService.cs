@@ -1,6 +1,6 @@
+using Identity.Application.DTOs;
 using Identity.Application.Interfaces;
 using Identity.Application.Settings;
-using Identity.Domain.Entities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -19,7 +19,7 @@ namespace Identity.Infrastructure.Services
             _jwtSettings = jwtSettings.Value;
         }
 
-        public string GenerateAccessToken(User user)
+        public string GenerateAccessToken(UserTokenDto user)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

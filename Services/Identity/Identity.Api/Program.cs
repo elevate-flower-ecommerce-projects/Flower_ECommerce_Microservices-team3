@@ -3,8 +3,8 @@ using Identity.Api.Authorization;
 using Identity.Api.Features.AdminLogin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
+using Identity.Api.Features.RefreshToken;
 using Identity.Api.Features.Register;
-using Identity.Infrastructure.Services;
 using Identity.Application;
 using Identity.Application.Interfaces;
 using Identity.Application.Settings;
@@ -104,6 +104,7 @@ namespace Identity.Api
             app.UseAuthorization();
             app.MapRegisterEndpoint();
             app.MapAdminLoginEndpoint();
+            app.MapRefreshTokenEndpoint();
             app.Run();
         }
     }
