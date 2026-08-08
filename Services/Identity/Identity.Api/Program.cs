@@ -1,7 +1,8 @@
 using Blocks.Contracts.Interfaces;
-using Identity.Infrastructure.Services;
+using Identity.Api.Authorization;
 using Identity.Api.Features.AdminLogin;
 using Identity.Api.Features.Register;
+using Identity.Infrastructure.Services;
 using Identity.Application;
 using Identity.Application.Interfaces;
 using Identity.Application.Settings;
@@ -49,6 +50,12 @@ namespace Identity.Api
                         ClockSkew = TimeSpan.Zero
                     };
                 });
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy(Policies.AdminOnly, policy =>
+                    policy.RequireRole("Admin"));
+            });
 
             builder.Services.AddApplication();
             builder.Services.AddControllers();

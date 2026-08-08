@@ -34,9 +34,11 @@ namespace Identity.Api.Features.AdminLogin
                 return Results.Ok(result.Value);
             })
             .WithName("AdminLogin")
+            .AllowAnonymous()
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized);
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status429TooManyRequests);
 
             return app;
         }
