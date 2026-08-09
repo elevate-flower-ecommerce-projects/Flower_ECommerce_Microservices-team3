@@ -67,5 +67,10 @@ namespace Identity.Infrastructure.Persistence.Repositories
         {
             _dbSet.Remove(entity);
         }
+
+        public void Add(T entity)
+        {
+            _dbSet.Add(entity);
+        }
     }
 }

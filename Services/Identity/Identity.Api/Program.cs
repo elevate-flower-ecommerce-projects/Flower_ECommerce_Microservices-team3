@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Identity.Api.Features.RegisterDriver;
 
 namespace Identity.Api
 {
@@ -27,9 +28,17 @@ namespace Identity.Api
             builder.Services.AddDbContext<FlowersAuthDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IDriverRepository, DriverRepository>();
+            builder.Services.AddScoped<IDriverApplicationRepository, DriverApplicationRepository>();
+            builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+
+
+
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IPasswordService, PasswordService>();
+            
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddSingleton<ILoginRateLimiter, LoginRateLimiter>();
             builder.Services.AddMemoryCache();
@@ -60,6 +69,9 @@ namespace Identity.Api
             });
             builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler,
                 AdminAuthorizationMiddlewareResultHandler>();
+
+            builder.Services.AddScoped<AdminLoginRequestVmValidator>();
+            builder.Services.AddScoped<RefreshTokenRequestVmValidator>();
 
             builder.Services.AddApplication();
             builder.Services.AddControllers();
@@ -96,15 +108,17 @@ namespace Identity.Api
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Identity API v1");
-                    c.RoutePrefix = string.Empty;
+                    c.RoutePrefix = "swagger";
                 });
             }
 
             app.UseAuthentication();
             app.UseAuthorization();
+
             app.MapRegisterEndpoint();
             app.MapAdminLoginEndpoint();
             app.MapRefreshTokenEndpoint();
+            app.MapSubmitDriverApplicationEndpoint();
             app.Run();
         }
     }

@@ -4,9 +4,10 @@ using System.Text;
 
 namespace Identity.Domain.Enums
 {
-    public enum Gender
+    public enum DriverApplicationStatus
     {
-        Male = 1,
-        Female = 2
+        Pending = 1,
+        Approved = 2,
+        Rejected = 3
     }
 }

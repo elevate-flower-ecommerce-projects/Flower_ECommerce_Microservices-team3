@@ -20,6 +20,7 @@ namespace Identity.Infrastructure.Persistence.Data
         public DbSet<Driver> Drivers => Set<Driver>();
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
         public DbSet<AdminLoginAudit> AdminLoginAudits => Set<AdminLoginAudit>();
+        public DbSet<DriverApplication> DriverApplications => Set<DriverApplication>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

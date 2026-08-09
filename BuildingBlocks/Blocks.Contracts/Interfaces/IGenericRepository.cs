@@ -16,5 +16,7 @@ namespace Blocks.Contracts.Interfaces
         void Update(T entity);
         void UpdatePartial(T entity, params Expression<Func<T, object>>[] updatedProperties);
         void Delete(T entity);
+
+        public void Add(T entity);
     }
 }

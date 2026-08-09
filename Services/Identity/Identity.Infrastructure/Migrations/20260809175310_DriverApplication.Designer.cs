@@ -4,6 +4,7 @@ using Identity.Infrastructure.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Identity.Infrastructure.Migrations
 {
     [DbContext(typeof(FlowersAuthDbContext))]
-    partial class FlowersAuthDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260809175310_DriverApplication")]
+    partial class DriverApplication
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,7 +60,7 @@ namespace Identity.Infrastructure.Migrations
 
                     b.HasIndex("Timestamp");
 
-                    b.ToTable("AdminLoginAudits", (string)null);
+                    b.ToTable("AdminLoginAudits");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.Customer", b =>
@@ -95,7 +98,7 @@ namespace Identity.Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Customers", (string)null);
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.Driver", b =>
@@ -150,7 +153,7 @@ namespace Identity.Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Drivers", (string)null);
+                    b.ToTable("Drivers");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.DriverApplication", b =>
@@ -199,7 +202,7 @@ namespace Identity.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("DriverApplications", (string)null);
+                    b.ToTable("DriverApplications");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.RefreshToken", b =>
@@ -235,7 +238,7 @@ namespace Identity.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.User", b =>
@@ -299,7 +302,7 @@ namespace Identity.Infrastructure.Migrations
                     b.HasIndex("Phone")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.Customer", b =>
