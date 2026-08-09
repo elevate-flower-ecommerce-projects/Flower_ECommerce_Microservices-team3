@@ -12,10 +12,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Order & Fulfillment Service/Order & Fulfillment Service.csproj", "Order & Fulfillment Service/"]
-RUN dotnet restore "./Order & Fulfillment Service/Order & Fulfillment Service.csproj"
+COPY ["Services/Order & Fulfillment/Order & Fulfillment Service/Order & Fulfillment Service.csproj", "Services/Order & Fulfillment/Order & Fulfillment Service/"]
+RUN dotnet restore "./Services/Order & Fulfillment/Order & Fulfillment Service/Order & Fulfillment Service.csproj"
 COPY . .
-WORKDIR "/src/Order & Fulfillment Service"
+WORKDIR "/src/Services/Order & Fulfillment/Order & Fulfillment Service"
 RUN dotnet build "./Order & Fulfillment Service.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage

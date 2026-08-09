@@ -12,6 +12,11 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Services/Identity/Identity.Api/Identity.Api.csproj", "Services/Identity/Identity.Api/"]
+COPY ["Services/Identity/Identity.Application/Identity.Application.csproj", "Services/Identity/Identity.Application/"]
+COPY ["Services/Identity/Identity.Domain/Identity.Domain.csproj", "Services/Identity/Identity.Domain/"]
+COPY ["Services/Identity/Identity.Infrastructure/Identity.Infrastructure.csproj", "Services/Identity/Identity.Infrastructure/"]
+COPY ["BuildingBlocks/Blocks.Contracts/Blocks.Contracts.csproj", "BuildingBlocks/Blocks.Contracts/"]
+COPY ["BuildingBlocks/Blocks.Domain/Blocks.Domain.csproj", "BuildingBlocks/Blocks.Domain/"]
 RUN dotnet restore "./Services/Identity/Identity.Api/Identity.Api.csproj"
 COPY . .
 WORKDIR "/src/Services/Identity/Identity.Api"

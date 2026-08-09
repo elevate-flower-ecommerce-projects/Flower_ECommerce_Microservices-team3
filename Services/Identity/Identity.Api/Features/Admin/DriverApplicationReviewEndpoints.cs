@@ -1,4 +1,4 @@
-﻿using Identity.Application.Features.DriverApplicationReview.DTOs;
+using Identity.Application.Features.DriverApplicationReview.DTOs;
 using Identity.Application.Features.DriverApplicationReview.Orchestrators;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -19,6 +19,26 @@ namespace Identity.Api.Features.Admin
                            .WithTags("Admin Driver Applications")
                            .RequireAuthorization();
 
+            group.MapGet("/", async (
+                [AsParameters] GetDriverApplicationsRequest request,
+                [FromServices] IMediator mediator,
+                CancellationToken cancellationToken) =>
+            {
+                var query = new Identity.Application.Features.DriverApplicationReview.Queries.GetDriverApplicationsQuery(request);
+                var result = await mediator.Send(query, cancellationToken);
+                return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
+            });
+
+            group.MapGet("/{id:guid}", async (
+                Guid id,
+                [FromServices] IMediator mediator,
+                CancellationToken cancellationToken) =>
+            {
+                var query = new Identity.Application.Features.DriverApplicationReview.Queries.GetDriverApplicationByIdQuery(id);
+                var result = await mediator.Send(query, cancellationToken);
+                return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
+            });
+
             group.MapPost("/{id:guid}/approve", async (
                 Guid id,
                 ClaimsPrincipal user,
@@ -34,8 +54,6 @@ namespace Identity.Api.Features.Admin
 
                 return result.IsSuccess ? Results.Ok(result) : Results.BadRequest(result.Error);
             });
-
-
 
             group.MapPost("/{id:guid}/reject", async (
                 Guid id,

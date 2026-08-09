@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Blocks.Contracts.Interfaces;
 using Blocks.Contracts.Pagination;
 using Identity.Application.Features.DriverApplicationReview.ViewModels;
@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Identity.Application.Features.DriverApplicationReview.Queries.QueryHandlers
 {
-    public class GetDriverApplicationsQueryHandler(IGenericRepository<DriverApplication> driverAppRepository)
+    public class GetDriverApplicationsQueryHandler(IGenericRepository<Identity.Domain.Entities.DriverApplication> driverAppRepository)
     : IRequestHandler<GetDriverApplicationsQuery, Result<PagedResult<DriverApplicationSummaryVm>>>
     {
         public async Task<Result<PagedResult<DriverApplicationSummaryVm>>> Handle(GetDriverApplicationsQuery request,CancellationToken cancellationToken)

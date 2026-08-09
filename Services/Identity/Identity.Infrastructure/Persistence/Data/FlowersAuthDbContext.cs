@@ -1,4 +1,4 @@
-﻿using Identity.Domain.Entities;
+using Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -20,6 +20,7 @@ namespace Identity.Infrastructure.Persistence.Data
         public DbSet<Driver> Drivers => Set<Driver>();
         public DbSet<DriverApplication> DriverApplications => Set<DriverApplication>();
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+        public DbSet<AdminLoginAudit> AdminLoginAudits => Set<AdminLoginAudit>();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

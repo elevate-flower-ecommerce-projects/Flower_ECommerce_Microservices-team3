@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Blocks.Contracts.Interfaces;
 using Blocks.Domain.Errors;
 using Identity.Application.Features.DriverApplicationReview.Queries;
@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Identity.Application.Features.DriverApplicationReview.Queries.QueryHandlers;
 
 public class GetDriverApplicationByIdQueryHandler(
-    IGenericRepository<DriverApplication> driverAppRepository)
+    IGenericRepository<Identity.Domain.Entities.DriverApplication> driverAppRepository)
     : IRequestHandler<GetDriverApplicationByIdQuery, Result<DriverApplicationDetailsVm>>
 {
     public async Task<Result<DriverApplicationDetailsVm>> Handle(GetDriverApplicationByIdQuery request, CancellationToken cancellationToken)

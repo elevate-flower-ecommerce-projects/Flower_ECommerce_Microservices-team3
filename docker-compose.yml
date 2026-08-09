@@ -4,3 +4,48 @@ services:
     build:
       context: .
       dockerfile: API Gateway/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - identity-api
+      - catalog-service
+      - cart-service
+      - order-service
+      - payment-service
+      - address-service
+
+  identity-api:
+    image: ${DOCKER_REGISTRY-}identity-api
+    build:
+      context: .
+      dockerfile: Services/Identity/Identity.Api/Dockerfile
+
+  catalog-service:
+    image: ${DOCKER_REGISTRY-}catalog-service
+    build:
+      context: .
+      dockerfile: Services/Catalog/Catalog Service/Dockerfile
+
+  cart-service:
+    image: ${DOCKER_REGISTRY-}cart-service
+    build:
+      context: .
+      dockerfile: Services/Cart/Cart Service/Dockerfile
+
+  order-service:
+    image: ${DOCKER_REGISTRY-}order-service
+    build:
+      context: .
+      dockerfile: Services/Order & Fulfillment/Order & Fulfillment Service/Dockerfile
+
+  payment-service:
+    image: ${DOCKER_REGISTRY-}payment-service
+    build:
+      context: .
+      dockerfile: Services/Payment/Payment Service/Dockerfile
+
+  address-service:
+    image: ${DOCKER_REGISTRY-}address-service
+    build:
+      context: .
+      dockerfile: Services/Address & Store Coverage/Address & Store Coverage Service/Dockerfile

@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Blocks.Contracts.Interfaces;
 using Blocks.Domain.Errors;
 using Identity.Domain.Entities;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Identity.Application.Features.DriverApplicationReview.Commands.CommandHandlers
 {
-    public class RejectDriverApplicationCommandHandler(IGenericRepository<DriverApplication> driverAppRepository)
+    public class RejectDriverApplicationCommandHandler(IGenericRepository<Identity.Domain.Entities.DriverApplication> driverAppRepository)
         : IRequestHandler<RejectDriverApplicationCommand, Result<bool>>
     {
         public async Task<Result<bool>> Handle(RejectDriverApplicationCommand request, CancellationToken cancellationToken)

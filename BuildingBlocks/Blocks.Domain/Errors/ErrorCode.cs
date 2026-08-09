@@ -7,5 +7,6 @@ public enum ErrorCode
     Unauthorized,
     Forbidden,
     Validation,
-    Internal
+    Internal,
+    TooManyRequests
 }
