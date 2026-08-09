@@ -1,7 +1,8 @@
 ﻿using Blocks.Contracts.Common;
 using Blocks.Contracts.Interfaces;
 using Blocks.Domain.Errors;
-using Identity.Application.Features.Register.ViewModels;
+using Identity.Application.Features.Register.CustomerRegisteration.Commands;
+using Identity.Application.Features.Register.CustomerRegisteration.ViewModels;
 using Identity.Application.Interfaces;
 using Identity.Domain.Entities;
 using Identity.Domain.Enums;
@@ -10,7 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Identity.Application.Features.Register.Commands.CommandHandlers
+namespace Identity.Application.Features.Register.CustomerRegisteration.Commands.CommandHandlers
 {
     public class RegisterCommandHandler(
         IGenericRepository<User> userRepository,

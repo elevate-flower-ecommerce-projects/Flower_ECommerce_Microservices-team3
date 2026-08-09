@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
-using Identity.Application.Features.Register.DTOs;
+using Identity.Application.Features.Register.CustomerRegisteration.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Identity.Application.Features.Register.Validators
+namespace Identity.Application.Features.Register.CustomerRegisteration.Validators
 {
     public class RegisterCommandValidator : AbstractValidator<RegisterRequestDto>
     {

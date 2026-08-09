@@ -8,6 +8,7 @@ namespace Blocks.Contracts.Interfaces
 {
     public interface IGenericRepository<T> where T : BaseEntity
     {
+        IQueryable<T> GetQueryable();
         Task<T?> GetByIdAsync(Guid id);
         Task<IReadOnlyList<T>> GetAllAsync();
         Task<IReadOnlyList<T>> FindAsync(Expression<Func<T, bool>> predicate);

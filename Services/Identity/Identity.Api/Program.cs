@@ -9,6 +9,9 @@ using Identity.Infrastructure.Persistence.Repositories;
 using Identity.Infrastructure.Services;
 using Identity.Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
+using Identity.Infrastructure.InfrastructureDependencyInjection;
+using System.Reflection.Metadata;
+using Identity.Api.Features.Admin;
 
 namespace Identity.Api
 {
@@ -29,6 +32,7 @@ namespace Identity.Api
             builder.Services.AddScoped<IEmailService, EmailService>();
 
             builder.Services.AddApplication();
+            builder.Services.AddAppMassTransit(builder.Configuration);
             builder.Services.AddControllers();
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -66,12 +70,12 @@ namespace Identity.Api
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Identity API v1");
-                    c.RoutePrefix = string.Empty;
                 });
             }
 
             app.UseAuthorization();
             app.MapRegisterEndpoint();
+            app.MapDriverApplicationReviewEndpoints();
             app.MapChangePasswordEndpoint();
             app.Run();
         }

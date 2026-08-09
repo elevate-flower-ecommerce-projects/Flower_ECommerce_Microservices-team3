@@ -20,6 +20,11 @@ namespace Identity.Infrastructure.Persistence.Repositories
             _dbSet = context.Set<T>();
         }
 
+        public IQueryable<T> GetQueryable()
+        {
+            return _dbSet.AsQueryable();
+        }
+
         public async Task<T?> GetByIdAsync(Guid id)
         {
             return await _dbSet.FindAsync(id);
