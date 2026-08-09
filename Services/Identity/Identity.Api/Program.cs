@@ -1,11 +1,13 @@
-﻿using Blocks.Contracts.Interfaces;
+using Blocks.Contracts.Interfaces;
 using FluentValidation;
+using Identity.Api.Features.ChangePassword;
 using Identity.Api.Features.Register;
 using Identity.Application;
 using Identity.Application.Interfaces;
 using Identity.Infrastructure.Persistence.Data;
 using Identity.Infrastructure.Persistence.Repositories;
 using Identity.Infrastructure.Services;
+using Identity.Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
 using Identity.Infrastructure.InfrastructureDependencyInjection;
 using System.Reflection.Metadata;
@@ -25,6 +27,9 @@ namespace Identity.Api
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IPasswordService, PasswordService>();
+            builder.Services.AddScoped<ISessionService, SessionService>();
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+            builder.Services.AddScoped<IEmailService, EmailService>();
 
             builder.Services.AddApplication();
             builder.Services.AddAppMassTransit(builder.Configuration);
@@ -71,6 +76,7 @@ namespace Identity.Api
             app.UseAuthorization();
             app.MapRegisterEndpoint();
             app.MapDriverApplicationReviewEndpoints();
+            app.MapChangePasswordEndpoint();
             app.Run();
         }
     }

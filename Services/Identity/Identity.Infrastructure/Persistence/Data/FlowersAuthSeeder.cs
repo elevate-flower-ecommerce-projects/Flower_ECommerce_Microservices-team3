@@ -1,4 +1,4 @@
-﻿using Identity.Application.Interfaces;
+using Identity.Application.Interfaces;
 using Identity.Domain.Entities;
 using Identity.Domain.Enums;
 using System;

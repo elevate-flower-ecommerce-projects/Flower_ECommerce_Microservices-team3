@@ -19,6 +19,8 @@ namespace Identity.Infrastructure.Persistence.Data
         public DbSet<Customer> Customers => Set<Customer>();
         public DbSet<Driver> Drivers => Set<Driver>();
         public DbSet<DriverApplication> DriverApplications => Set<DriverApplication>();
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
