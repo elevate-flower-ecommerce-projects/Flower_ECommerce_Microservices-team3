@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/BuildingBlocks/">
+    <Project Path="BuildingBlocks/Blocks.Contracts/Blocks.Contracts.csproj" />
     <Project Path="BuildingBlocks/Blocks.Domain/Blocks.Domain.csproj" Id="fd6851c2-e511-4929-a7fc-d2ee0676b2b3" />
   </Folder>
   <Folder Name="/Services/" />
