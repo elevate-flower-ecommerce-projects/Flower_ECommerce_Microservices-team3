@@ -17,6 +17,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "API Gateway", timestamp = DateTime.UtcNow }));
+
 // Map YARP Reverse Proxy
 app.MapReverseProxy();
 
