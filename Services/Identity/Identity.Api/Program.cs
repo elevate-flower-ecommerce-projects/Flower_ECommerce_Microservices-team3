@@ -85,6 +85,7 @@ namespace Identity.Api
             builder.Services.AddLocalization();
 
             builder.Services.AddApplication();
+            builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
             builder.Services.AddAppMassTransit(builder.Configuration);
             builder.Services.AddControllers();
 

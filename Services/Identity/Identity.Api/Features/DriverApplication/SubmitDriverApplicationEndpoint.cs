@@ -4,6 +4,7 @@ using Identity.Application.Features.DriverApplication.SubmitApplication.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
 namespace Identity.Api.Features.DriverApplication;
@@ -13,9 +14,9 @@ public static class SubmitDriverApplicationEndpoint
     public static IEndpointRouteBuilder MapSubmitDriverApplicationEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/drivers/applications", async (
-            SubmitDriverApplicationDto request,
-            IValidator<SubmitDriverApplicationDto> validator,
-            IMediator mediator,
+            [FromBody] SubmitDriverApplicationDto request,
+            [FromServices] IValidator<SubmitDriverApplicationDto> validator,
+            [FromServices] IMediator mediator,
             CancellationToken cancellationToken) =>
         {
             var validationResult = await validator.ValidateAsync(request, cancellationToken);

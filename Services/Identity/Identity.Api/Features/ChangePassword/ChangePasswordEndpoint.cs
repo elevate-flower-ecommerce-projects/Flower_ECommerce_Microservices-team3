@@ -1,6 +1,7 @@
 using Identity.Application.Features.ChangePassword;
 using Identity.Application.Features.ChangePassword.DTOs;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace Identity.Api.Features.ChangePassword
@@ -10,8 +11,8 @@ namespace Identity.Api.Features.ChangePassword
         public static IEndpointRouteBuilder MapChangePasswordEndpoint(this IEndpointRouteBuilder app)
         {
             app.MapPost("/auth/change-password", async (
-                ChangePasswordRequestDto request,
-                IMediator mediator,
+                [FromBody] ChangePasswordRequestDto request,
+                [FromServices] IMediator mediator,
                 HttpContext httpContext,
                 CancellationToken cancellationToken) =>
             {

@@ -3,6 +3,7 @@ using Identity.Application.Features.RefreshTokens.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
 namespace Identity.Api.Features.RefreshToken;
@@ -12,9 +13,9 @@ public static class RefreshTokenEndpoint
     public static IEndpointRouteBuilder MapRefreshTokenEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/auth/refresh", async (
-            RefreshTokenRequestVm request,
-            IValidator<RefreshTokenRequestVm> validator,
-            IMediator mediator,
+            [FromBody] RefreshTokenRequestVm request,
+            [FromServices] IValidator<RefreshTokenRequestVm> validator,
+            [FromServices] IMediator mediator,
             CancellationToken cancellationToken) =>
         {
             var validationResult = await validator.ValidateAsync(request, cancellationToken);

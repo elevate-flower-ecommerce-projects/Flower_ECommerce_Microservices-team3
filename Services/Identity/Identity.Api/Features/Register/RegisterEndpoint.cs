@@ -1,8 +1,9 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Identity.Application.Features.Register.CustomerRegisteration.Commands;
 using Identity.Application.Features.Register.CustomerRegisteration.DTOs;
 using Identity.Domain.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Identity.Api.Features.Register
 {
@@ -11,9 +12,9 @@ namespace Identity.Api.Features.Register
         public static IEndpointRouteBuilder MapRegisterEndpoint(this IEndpointRouteBuilder app)
         {
             app.MapPost("/auth/register", async (
-                RegisterRequestDto request,
-                IValidator<RegisterRequestDto> validator,
-                IMediator mediator,
+                [FromBody] RegisterRequestDto request,
+                [FromServices] IValidator<RegisterRequestDto> validator,
+                [FromServices] IMediator mediator,
                 CancellationToken cancellationToken) =>
             {
                 var validationResult = await validator.ValidateAsync(request, cancellationToken);

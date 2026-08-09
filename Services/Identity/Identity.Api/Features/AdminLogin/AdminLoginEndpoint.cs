@@ -3,6 +3,7 @@ using Identity.Application.Features.AdminLogin.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
 namespace Identity.Api.Features.AdminLogin;
@@ -12,9 +13,9 @@ public static class AdminLoginEndpoint
     public static IEndpointRouteBuilder MapAdminLoginEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/auth/admin-login", async (
-            AdminLoginRequestVm request,
-            IValidator<AdminLoginRequestVm> validator,
-            IMediator mediator,
+            [FromBody] AdminLoginRequestVm request,
+            [FromServices] IValidator<AdminLoginRequestVm> validator,
+            [FromServices] IMediator mediator,
             HttpContext httpContext,
             CancellationToken cancellationToken) =>
         {
