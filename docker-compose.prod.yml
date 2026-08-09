@@ -1,5 +1,5 @@
 ###############################################################################
-# docker-compose.yml — Flower E-Commerce Microservices Platform
+# docker-compose.prod.yml — Flower E-Commerce Microservices (Production / Mobile)
 ###############################################################################
 
 services:
@@ -72,9 +72,6 @@ services:
   # ────────────────────────────────────────────────────────────────────────────
   apigateway:
     image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-apigateway:latest
-    build:
-      context: .
-      dockerfile: API Gateway/Dockerfile
     container_name: flower_apigateway
     restart: unless-stopped
     depends_on:
@@ -109,9 +106,6 @@ services:
   # ────────────────────────────────────────────────────────────────────────────
   identity-api:
     image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-identity-api:latest
-    build:
-      context: .
-      dockerfile: Services/Identity/Identity.Api/Dockerfile
     container_name: flower_identity_api
     restart: unless-stopped
     depends_on:
@@ -143,9 +137,6 @@ services:
   # ────────────────────────────────────────────────────────────────────────────
   catalog-service:
     image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-catalog-service:latest
-    build:
-      context: .
-      dockerfile: Services/Catalog/Catalog Service/Dockerfile
     container_name: flower_catalog_service
     restart: unless-stopped
     environment:
@@ -159,9 +150,6 @@ services:
   # ────────────────────────────────────────────────────────────────────────────
   cart-service:
     image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-cart-service:latest
-    build:
-      context: .
-      dockerfile: Services/Cart/Cart Service/Dockerfile
     container_name: flower_cart_service
     restart: unless-stopped
     environment:
@@ -175,9 +163,6 @@ services:
   # ────────────────────────────────────────────────────────────────────────────
   order-service:
     image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-order-service:latest
-    build:
-      context: .
-      dockerfile: Services/Order & Fulfillment/Order & Fulfillment Service/Dockerfile
     container_name: flower_order_service
     restart: unless-stopped
     environment:
@@ -191,9 +176,6 @@ services:
   # ────────────────────────────────────────────────────────────────────────────
   payment-service:
     image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-payment-service:latest
-    build:
-      context: .
-      dockerfile: Services/Payment/Payment Service/Dockerfile
     container_name: flower_payment_service
     restart: unless-stopped
     environment:
@@ -207,9 +189,6 @@ services:
   # ────────────────────────────────────────────────────────────────────────────
   address-service:
     image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-address-service:latest
-    build:
-      context: .
-      dockerfile: Services/Address & Store Coverage/Address & Store Coverage Service/Dockerfile
     container_name: flower_address_service
     restart: unless-stopped
     environment:
