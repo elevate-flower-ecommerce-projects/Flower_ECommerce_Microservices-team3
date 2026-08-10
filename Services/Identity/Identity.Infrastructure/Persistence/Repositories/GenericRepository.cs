@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Interfaces;
+using Blocks.Contracts.Interfaces;
 using Blocks.Domain.Entities;
 using Identity.Infrastructure.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +20,11 @@ namespace Identity.Infrastructure.Persistence.Repositories
             _dbSet = context.Set<T>();
         }
 
+        public IQueryable<T> GetQueryable()
+        {
+            return _dbSet.AsQueryable();
+        }
+
         public async Task<T?> GetByIdAsync(Guid id)
         {
             return await _dbSet.FindAsync(id);
@@ -33,6 +38,13 @@ namespace Identity.Infrastructure.Persistence.Repositories
         public async Task<IReadOnlyList<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.Where(predicate).ToListAsync();
+        }
+
+        public async Task<TResult?> FirstOrDefaultAsync<TResult>(
+            Expression<Func<T, bool>> predicate,
+            Expression<Func<T, TResult>> selector)
+        {
+            return await _dbSet.Where(predicate).Select(selector).FirstOrDefaultAsync();
         }
 
         public async Task AddAsync(T entity)

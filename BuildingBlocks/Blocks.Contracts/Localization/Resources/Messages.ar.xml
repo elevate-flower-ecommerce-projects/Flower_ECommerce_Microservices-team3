@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>2.0</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+	</resheader>
+
+	<data name="Success" xml:space="preserve">
+    <value>تمت العملية بنجاح</value>
+  </data>
+
+	<data name="Failure" xml:space="preserve">
+    <value>فشلت العملية</value>
+  </data>
+
+	<data name="Validation.Failed" xml:space="preserve">
+    <value>فشل التحقق من البيانات</value>
+  </data>
+
+	<data name="Unauthorized" xml:space="preserve">
+    <value>غير مصرح لك</value>
+  </data>
+
+	<data name="Forbidden" xml:space="preserve">
+    <value>ليس لديك صلاحية</value>
+  </data>
+
+	<data name="Auth.InvalidCredentials" xml:space="preserve">
+    <value>البريد الإلكتروني أو كلمة المرور غير صحيحة</value>
+  </data>
+
+	<data name="Auth.AccountSuspended" xml:space="preserve">
+    <value>تم تعليق حسابك</value>
+  </data>
+
+	<data name="Auth.AccountInactive" xml:space="preserve">
+    <value>حسابك غير نشط</value>
+  </data>
+
+	<data name="Auth.LoginSuccess" xml:space="preserve">
+    <value>تم تسجيل الدخول بنجاح</value>
+  </data>
+
+	<data name="Product.NotFound" xml:space="preserve">
+    <value>المنتج غير موجود</value>
+  </data>
+
+	<data name="Product.AlreadyExists" xml:space="preserve">
+    <value>المنتج موجود بالفعل</value>
+  </data>
+
+	<data name="Product.InvalidPrice" xml:space="preserve">
+    <value>سعر المنتج غير صحيح</value>
+  </data>
+
+	<data name="Product.Created" xml:space="preserve">
+    <value>تم إنشاء المنتج بنجاح</value>
+  </data>
+
+	<data name="Product.Updated" xml:space="preserve">
+    <value>تم تحديث المنتج بنجاح</value>
+  </data>
+
+	<data name="Product.Deleted" xml:space="preserve">
+    <value>تم حذف المنتج بنجاح</value>
+  </data>
+
+	<data name="Customer.EmailAlreadyRegistered" xml:space="preserve">
+    <value>البريد الإلكتروني مسجل بالفعل</value>
+  </data>
+
+	<data name="Customer.PhoneAlreadyRegistered" xml:space="preserve">
+    <value>رقم الهاتف مسجل بالفعل</value>
+  </data>
+
+	<data name="Customer.RegistrationFailed" xml:space="preserve">
+    <value>فشل التسجيل. يرجى المحاولة مرة أخرى</value>
+  </data>
+
+	<data name="Driver.Application.Submitted" xml:space="preserve">
+    <value>تم تقديم طلب السائق بنجاح</value>
+  </data>
+
+	<data name="Driver.Application.Pending" xml:space="preserve">
+    <value>طلب السائق قيد المراجعة</value>
+  </data>
+
+	<data name="Driver.Application.Approved" xml:space="preserve">
+    <value>تمت الموافقة على طلب السائق</value>
+  </data>
+
+	<data name="Driver.Application.Rejected" xml:space="preserve">
+    <value>تم رفض طلب السائق</value>
+  </data>
+
+	<data name="Driver.Email.Exists" xml:space="preserve">
+    <value>البريد الإلكتروني مسجل بالفعل</value>
+  </data>
+
+	<data name="Driver.Phone.Exists" xml:space="preserve">
+    <value>رقم الهاتف مسجل بالفعل</value>
+  </data>
+
+	<data name="Driver.NationalId.Exists" xml:space="preserve">
+    <value>الرقم القومي مسجل بالفعل</value>
+  </data>
+
+</root>
