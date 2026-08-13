@@ -13,6 +13,8 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Services/Catalog/Catalog Service/Catalog Service.csproj", "Services/Catalog/Catalog Service/"]
+COPY ["BuildingBlocks/Blocks.Domain/Blocks.Domain.csproj", "BuildingBlocks/Blocks.Domain/"]
+COPY ["BuildingBlocks/Blocks.Contracts/Blocks.Contracts.csproj", "BuildingBlocks/Blocks.Contracts/"]
 RUN dotnet restore "./Services/Catalog/Catalog Service/Catalog Service.csproj"
 COPY . .
 WORKDIR "/src/Services/Catalog/Catalog Service"
