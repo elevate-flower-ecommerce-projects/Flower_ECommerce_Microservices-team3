@@ -136,9 +136,13 @@ services:
       dockerfile: Services/Catalog/Catalog Service/Dockerfile
     container_name: flower_catalog_service
     restart: unless-stopped
+    depends_on:
+      sqlserver:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=${MSSQL_CATALOG_DB:-FlowersCatalogDb};User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
     networks:
       - flower_net
 
