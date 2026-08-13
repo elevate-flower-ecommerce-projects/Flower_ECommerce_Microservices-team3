@@ -76,7 +76,8 @@ public class SubmitDriverApplicationCommandHandler(
                 VehicleNumber = dto.VehicleNumber,
                 VehicleLicenceImage = dto.VehicleLicenceImage,
                 NationalIdNumber = dto.NationalIdNumber,
-                NationalIdImage = dto.NationalIdImage
+                NationalIdImage = dto.NationalIdImage,
+                CreatedAt = DateTime.UtcNow
             };
 
             await driverAppRepository.AddAsync(driverApp);

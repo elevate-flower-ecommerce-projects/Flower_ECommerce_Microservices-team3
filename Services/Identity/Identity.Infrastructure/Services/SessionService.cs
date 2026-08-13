@@ -8,12 +8,18 @@ namespace Identity.Infrastructure.Services
     {
         public async Task RevokeAllUserSessionsAsync(Guid userId, CancellationToken cancellationToken = default)
         {
-            var activeTokens = await refreshTokenRepository
-                .FindAsync(t => t.UserId == userId && t.RevokedAt == null);
+            var activeTokens = await refreshTokenRepository.FindAsync(
+              t => t.UserId == userId && (!t.IsRevoked || t.RevokedAt == null),
+              cancellationToken);
+
             foreach (var token in activeTokens)
             {
-                token.RevokedAt = DateTime.UtcNow;
+               .
+                token.IsRevoked = true;
+                token.RevokedAt ??= DateTime.UtcNow;
             }
+
+            
         }
     }
 }

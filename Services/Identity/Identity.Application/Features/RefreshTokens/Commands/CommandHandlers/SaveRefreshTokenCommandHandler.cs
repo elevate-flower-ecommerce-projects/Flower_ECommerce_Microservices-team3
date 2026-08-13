@@ -17,6 +17,7 @@ public class SaveRefreshTokenCommandHandler(
             UserId = request.UserId,
             ExpiresAt = request.ExpiresAt,
             CreatedAt = DateTime.UtcNow,
+            DeviceId = request.DeviceId,
             IsRevoked = false
         });
     }
