@@ -14,7 +14,6 @@ namespace Identity.Infrastructure.Services
 
             foreach (var token in activeTokens)
             {
-               .
                 token.IsRevoked = true;
                 token.RevokedAt ??= DateTime.UtcNow;
             }
