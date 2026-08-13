@@ -14,11 +14,9 @@ namespace Identity.Application.Features.DriverApplicationReview.Queries.QueryHan
     public class GetDriverApplicationsQueryHandler(IGenericRepository<Identity.Domain.Entities.DriverApplication> driverAppRepository)
     : IRequestHandler<GetDriverApplicationsQuery, Result<PagedResult<DriverApplicationSummaryVm>>>
     {
-        public async Task<Result<PagedResult<DriverApplicationSummaryVm>>> Handle(GetDriverApplicationsQuery request,CancellationToken cancellationToken)
+        public async Task<Result<PagedResult<DriverApplicationSummaryVm>>> Handle(GetDriverApplicationsQuery request, CancellationToken cancellationToken)
         {
-           
             var query = driverAppRepository.GetQueryable()
-                .Include(x => x.User)
                 .AsNoTracking();
 
             if (request.Request.Status.HasValue)
@@ -34,8 +32,8 @@ namespace Identity.Application.Features.DriverApplicationReview.Queries.QueryHan
                 .Take(request.Request.Pagination.PageSize)
                 .Select(x => new DriverApplicationSummaryVm(
                     x.Id,
-                    x.UserId.Value,
-                    $"{x.User.FirstName} {x.User.LastName}",
+                    x.UserId ?? Guid.Empty,
+                    x.User != null ? $"{x.User.FirstName} {x.User.LastName}" : "N/A",
                     x.Status.ToString(),
                     x.CreatedAt
                 ))
