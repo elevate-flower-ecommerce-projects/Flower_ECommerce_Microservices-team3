@@ -12,13 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Identity.Infrastructure.Migrations
 {
     [DbContext(typeof(FlowersAuthDbContext))]
-<<<<<<<< HEAD:Services/Identity/Identity.Infrastructure/Migrations/20260813001242_InitialCleanDb.Designer.cs
-    [Migration("20260813001242_InitialCleanDb")]
-    partial class InitialCleanDb
-========
-    [Migration("20260813110714_InitialSetup")]
-    partial class InitialSetup
->>>>>>>> Feature_DriverApplicationReview:Services/Identity/Identity.Infrastructure/Migrations/20260813110714_InitialSetup.Designer.cs
+    [Migration("20260813122742_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
