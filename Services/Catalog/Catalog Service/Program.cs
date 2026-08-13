@@ -1,8 +1,11 @@
+using Blocks.Contracts.Behaviors;
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
+using Catalog_Service.Features.Home.GetSections;
 using Catalog_Service.Persistence;
 using Catalog_Service.Persistence.Repositories;
 using Catalog_Service.Persistence.Seeding;
+using FluentValidation;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -47,6 +50,15 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
+        // 5. MediatR & Validation Pipeline
+        var assembly = typeof(Program).Assembly;
+        builder.Services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(assembly);
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+        });
+        builder.Services.AddValidatorsFromAssembly(assembly);
+
         var app = builder.Build();
 
         // Middleware Pipeline
@@ -84,6 +96,8 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+
+        app.MapGetHomeSectionsEndpoint();
 
         await app.RunAsync();
     }
