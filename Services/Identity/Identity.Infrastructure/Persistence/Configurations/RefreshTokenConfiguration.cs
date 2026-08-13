@@ -11,9 +11,19 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
         builder.HasIndex(r => r.Token).IsUnique();
         builder.Property(r => r.Token).IsRequired().HasMaxLength(256);
 
+        
+        builder.Property(r => r.DeviceId)
+            .HasMaxLength(128)
+            .IsUnicode(false);
+
+        
+        builder.HasIndex(r => new { r.UserId, r.DeviceId })
+            .HasDatabaseName("IX_RefreshTokens_UserId_DeviceId");
+
         builder.HasOne(r => r.User)
             .WithMany()
             .HasForeignKey(r => r.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
+

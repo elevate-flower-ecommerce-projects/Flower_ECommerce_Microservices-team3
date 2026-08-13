@@ -12,7 +12,7 @@ public class RevokeRefreshTokenCommandHandler(
         RevokeRefreshTokenCommand request,
         CancellationToken cancellationToken)
     {
-        var token = await refreshTokenRepository.GetByIdAsync(request.TokenId);
+        var token = await refreshTokenRepository.GetByIdAsync(request.TokenId, cancellationToken);
         if (token is null) return;
 
         token.IsRevoked = true;

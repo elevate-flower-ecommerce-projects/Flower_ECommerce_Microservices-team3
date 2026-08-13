@@ -9,6 +9,7 @@ public class RefreshToken : BaseEntity
     public User User { get; set; } = null!;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime ExpiresAt { get; set; }
+    public string? DeviceId { get; set; }
     public bool IsRevoked { get; set; } = false;
     public DateTime? RevokedAt { get; set; }
 }

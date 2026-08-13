@@ -234,6 +234,39 @@ namespace Identity.Infrastructure.Migrations
                     b.ToTable("DriverApplications");
                 });
 
+            modelBuilder.Entity("Identity.Domain.Entities.LoginAttempt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("AttemptedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("IpAddress")
+                        .IsRequired()
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<bool>("IsSuccessful")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttemptedAt");
+
+                    b.HasIndex("Email");
+
+                    b.HasIndex("IpAddress");
+
+                    b.ToTable("LoginAttempts");
+                });
+
             modelBuilder.Entity("Identity.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -242,6 +275,11 @@ namespace Identity.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("DeviceId")
+                        .HasMaxLength(128)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(128)");
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2");
@@ -265,7 +303,8 @@ namespace Identity.Infrastructure.Migrations
                     b.HasIndex("Token")
                         .IsUnique();
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "DeviceId")
+                        .HasDatabaseName("IX_RefreshTokens_UserId_DeviceId");
 
                     b.ToTable("RefreshTokens");
                 });
@@ -334,6 +373,46 @@ namespace Identity.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Identity.Domain.Entities.UserDevice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(128)");
+
+                    b.Property<string>("FcmToken")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(512)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FcmToken")
+                        .IsUnique()
+                        .HasDatabaseName("UX_UserDevices_FcmToken");
+
+                    b.HasIndex("UserId", "DeviceId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_UserDevices_UserId_DeviceId");
+
+                    b.HasIndex("UserId", "UpdatedAt")
+                        .HasDatabaseName("IX_UserDevices_UserId_UpdatedAt");
+
+                    b.ToTable("UserDevices", (string)null);
+                });
+
             modelBuilder.Entity("Identity.Domain.Entities.Customer", b =>
                 {
                     b.HasOne("Identity.Domain.Entities.User", "User")
@@ -375,6 +454,17 @@ namespace Identity.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("Identity.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Identity.Domain.Entities.UserDevice", b =>
                 {
                     b.HasOne("Identity.Domain.Entities.User", "User")
                         .WithMany()

@@ -59,7 +59,8 @@ public class RefreshTokenOrchestratorHandler(
             await mediator.Send(new SaveRefreshTokenCommand(
                 newRefreshTokenValue,
                 user.Id,
-                DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationDays)),
+                DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationDays),
+                existingToken.DeviceId),
                 cancellationToken);
 
             await unitOfWork.CommitTransactionAsync(cancellationToken);

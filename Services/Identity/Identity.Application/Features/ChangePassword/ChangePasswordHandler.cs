@@ -18,30 +18,29 @@ namespace Identity.Application.Features.ChangePassword
     {
         public async Task<Result> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
         {
+            var user = await userRepository.GetByIdAsync(request.UserId, cancellationToken);
+            if (user == null)
+            {
+                return Result.Failure(Error.NotFound("User was not found."));
+            }
+
+            bool isCurrentPasswordValid = passwordService.Verify(request.CurrentPassword, user.HashPassword);
+            if (!isCurrentPasswordValid)
+            {
+                return Result.Failure(Error.Unauthorized("Current password is incorrect."));
+            }
+
             await unitOfWork.BeginTransactionAsync(cancellationToken);
 
             try
             {
-                var user = await userRepository.GetByIdAsync(request.UserId);
-                if (user == null)
-                {
-                    return Result.Failure(Error.NotFound("User was not found."));
-                }
-
-                bool isCurrentPasswordValid = passwordService.Verify(request.CurrentPassword, user.HashPassword);
-                if (!isCurrentPasswordValid)
-                {
-                    return Result.Failure(Error.Unauthorized("Current password is incorrect."));
-                }
-
                 user.HashPassword = passwordService.Hash(request.NewPassword);
                 userRepository.Update(user);
                 await sessionService.RevokeAllUserSessionsAsync(request.UserId, cancellationToken);
-               
+
                 await unitOfWork.CommitTransactionAsync(cancellationToken);
                 await publisher.Publish(new PasswordChangedEvent(user.Email, user.FirstName), cancellationToken);
                 return Result.Success();
-
             }
             catch
             {
