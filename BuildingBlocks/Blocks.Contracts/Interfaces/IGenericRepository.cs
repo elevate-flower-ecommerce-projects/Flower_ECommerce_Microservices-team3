@@ -16,6 +16,7 @@ namespace Blocks.Contracts.Interfaces
         Task AddAsync(T entity);
         void Update(T entity);
         void UpdatePartial(T entity, params Expression<Func<T, object>>[] updatedProperties);
+        void SaveInclude(T entity, params string[] includedProperties);
         void Delete(T entity);
     }
 }
