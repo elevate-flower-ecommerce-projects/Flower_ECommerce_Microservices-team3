@@ -186,5 +186,47 @@ public static class CatalogDataSeeder
         );
 
         await db.SaveChangesAsync();
+
+        // 5. Seed Home Sections
+        if (!await db.HomeSections.AnyAsync())
+        {
+            await db.HomeSections.AddRangeAsync(
+                new HomeSection
+                {
+                    Type = HomeSectionType.Categories,
+                    Title = "Categories",
+                    TitleAr = "الفئات",
+                    Index = 0,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new HomeSection
+                {
+                    Type = HomeSectionType.BestSeller,
+                    Title = "Best seller",
+                    TitleAr = "الأكثر مبيعاً",
+                    Index = 1,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new HomeSection
+                {
+                    Type = HomeSectionType.Occasions,
+                    Title = "Occasion",
+                    TitleAr = "المناسبات",
+                    Index = 2,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new HomeSection
+                {
+                    Type = HomeSectionType.ProductsCarousel,
+                    Title = "Valentine's picks",
+                    TitleAr = "اختيارات عيد الحب",
+                    Index = 3,
+                    OccasionId = valentinesOccasion.Id,
+                    CreatedAt = DateTime.UtcNow
+                }
+            );
+
+            await db.SaveChangesAsync();
+        }
     }
 }
