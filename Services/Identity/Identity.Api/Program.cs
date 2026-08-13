@@ -147,7 +147,7 @@ namespace Identity.Api
                     var context = services.GetRequiredService<FlowersAuthDbContext>();
                     var passwordService = services.GetRequiredService<IPasswordService>();
 
-                    await context.Database.EnsureCreatedAsync();
+                    await context.Database.MigrateAsync();
                     await FlowersAuthSeeder.SeedAsync(context, passwordService);
                 }
                 catch (Exception ex)
