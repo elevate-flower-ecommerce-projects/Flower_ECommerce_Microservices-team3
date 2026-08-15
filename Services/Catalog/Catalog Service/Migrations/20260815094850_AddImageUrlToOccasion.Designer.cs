@@ -4,6 +4,7 @@ using Catalog_Service.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Catalog_Service.Migrations
 {
     [DbContext(typeof(FlowersCatalogDbContext))]
-    partial class FlowersCatalogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260815094850_AddImageUrlToOccasion")]
+    partial class AddImageUrlToOccasion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
