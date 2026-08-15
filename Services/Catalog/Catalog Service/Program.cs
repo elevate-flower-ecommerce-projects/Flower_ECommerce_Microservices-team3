@@ -1,5 +1,6 @@
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
+using Catalog_Service.Features.Occasions.Endpoints;
 using Catalog_Service.Persistence;
 using Catalog_Service.Persistence.Repositories;
 using Catalog_Service.Persistence.Seeding;
@@ -23,6 +24,7 @@ public class Program
         // Unit of Work & Generic Repository
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
         // 2. Global Exception Handling
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -84,6 +86,8 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+
+        app.MapGetActiveOccasionsEndpoint();
 
         await app.RunAsync();
     }

@@ -19,6 +19,10 @@ public class OccasionConfiguration : IEntityTypeConfiguration<Occasion>
         builder.Property(o => o.NameAr)
             .HasMaxLength(200);
 
+        builder.Property(o => o.ImageUrl)
+            .IsRequired()
+            .HasMaxLength(500);
+       
         builder.HasQueryFilter(o => o.IsActive);
     }
 }

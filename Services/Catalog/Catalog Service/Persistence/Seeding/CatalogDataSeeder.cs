@@ -39,6 +39,7 @@ public static class CatalogDataSeeder
         {
             Name = "Birthday",
             NameAr = "عيد ميلاد",
+            ImageUrl = "https://images.unsplash.com/photo-1558636508-e0db3814bd1d?auto=format&fit=crop&w=800&q=80",
             CreatedAt = DateTime.UtcNow
         };
 
@@ -46,6 +47,7 @@ public static class CatalogDataSeeder
         {
             Name = "Anniversary",
             NameAr = "ذكرى سنوية",
+            ImageUrl = "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=800&q=80",
             CreatedAt = DateTime.UtcNow
         };
 
@@ -53,6 +55,7 @@ public static class CatalogDataSeeder
         {
             Name = "Valentine's Day",
             NameAr = "عيد الحب",
+            ImageUrl = "https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80",
             CreatedAt = DateTime.UtcNow
         };
 
