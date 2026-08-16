@@ -74,6 +74,40 @@ namespace Identity.Infrastructure.Persistence.Repositories
             }
         }
 
+        public void SaveInclude(T entity, params string[] includedProperties)
+        {
+            var localEntity = _dbSet.Local.FirstOrDefault(e => ((dynamic)e).Id == ((dynamic)entity).Id);
+            Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry;
+
+            if (localEntity == null)
+            {
+                entry = _context.Entry(entity);
+            }
+            else
+            {
+                entry = _context.ChangeTracker.Entries<T>().First(e => ((dynamic)e.Entity).Id == ((dynamic)entity).Id);
+            }
+
+            foreach (var property in entry.Properties)
+            {
+                if (property.Metadata.IsPrimaryKey())
+                {
+                    continue;
+                }
+                else
+                {
+                    if (includedProperties.Contains(property.Metadata.Name))
+                    {
+                        property.IsModified = true;
+                    }
+                    else
+                    {
+                        property.IsModified = false;
+                    }
+                }
+            }
+        }
+
         public void Delete(T entity)
         {
             _dbSet.Remove(entity);

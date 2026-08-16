@@ -17,6 +17,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=FlowersCatalogDb;User Id=sa;Password=Password123!;TrustServerCertificate=True;MultipleActiveResultSets=true;
     ports:
       - "5002:8080"
 
