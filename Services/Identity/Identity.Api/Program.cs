@@ -5,6 +5,8 @@ using Identity.Api.Features.Admin;
 using Identity.Api.Features.AdminLogin;
 using Identity.Api.Features.ChangePassword;
 using Identity.Api.Features.DriverApplication;
+using Identity.Api.Features.Login;
+using Identity.Api.Features.Logout;
 using Identity.Api.Features.RefreshToken;
 using Identity.Api.Features.Register;
 using Identity.Application;
@@ -21,6 +23,7 @@ using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Identity.Api.Exceptions;
 using System.Globalization;
 using System.Text;
 
@@ -40,7 +43,8 @@ namespace Identity.Api
             builder.Services.AddScoped<IPasswordService, PasswordService>();
             builder.Services.AddScoped<ISessionService, SessionService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
-            builder.Services.AddSingleton<ILoginRateLimiter, LoginRateLimiter>();
+            builder.Services.AddScoped<ILoginRateLimiter, LoginRateLimiter>();
+            builder.Services.AddScoped<IDeviceRegistrationService, DeviceRegistrationService>();
             builder.Services.AddMemoryCache();
 
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
@@ -88,14 +92,40 @@ namespace Identity.Api
             builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
             builder.Services.AddAppMassTransit(builder.Configuration);
             builder.Services.AddControllers();
+            builder.Services.AddProblemDetails();
+            builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Description = "Enter 'Bearer' [space] and then your token.",
+                    In = Microsoft.OpenApi.ParameterLocation.Header,
+                    Type = Microsoft.OpenApi.SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT"
+                });
 
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+                options.AddSecurityRequirement(document =>
+                {
+                    document.Components ??= new Microsoft.OpenApi.OpenApiComponents();
+                    document.Components.SecuritySchemes["Bearer"] = new Microsoft.OpenApi.OpenApiSecurityScheme
+                    {
+                        Type = Microsoft.OpenApi.SecuritySchemeType.Http,
+                        Scheme = "bearer",
+                        BearerFormat = "JWT"
+                    };
+
+                    return new Microsoft.OpenApi.OpenApiSecurityRequirement
+                    {
+                        [new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer", document)] = new List<string>()
+                    };
+                });
+            });
 
             var app = builder.Build();
+            app.UseExceptionHandler();
 
             var supportedCultures = new[]
             {
@@ -117,7 +147,7 @@ namespace Identity.Api
                     var context = services.GetRequiredService<FlowersAuthDbContext>();
                     var passwordService = services.GetRequiredService<IPasswordService>();
 
-                    await context.Database.EnsureCreatedAsync();
+                    await context.Database.MigrateAsync();
                     await FlowersAuthSeeder.SeedAsync(context, passwordService);
                 }
                 catch (Exception ex)
@@ -127,7 +157,6 @@ namespace Identity.Api
                 }
             }
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
@@ -147,7 +176,10 @@ namespace Identity.Api
             app.MapChangePasswordEndpoint();
             app.MapSubmitDriverApplicationEndpoint();
             app.MapAdminLoginEndpoint();
+            app.MapLoginEndpoint();
             app.MapRefreshTokenEndpoint();
+            app.MapLogoutEndpoint();
+            app.MapGet("/", () => Results.Redirect("/swagger"));
             app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Identity Service", timestamp = DateTime.UtcNow }));
 
             app.Run();
