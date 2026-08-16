@@ -1,3 +1,4 @@
+using Microsoft.OpenApi.Models;
 using Blocks.Contracts.Behaviors;
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
@@ -13,8 +14,6 @@ using MediatR;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
-using FluentValidation;
-using Blocks.Contracts.Behaviors;
 
 namespace Catalog_Service;
 
@@ -67,7 +66,14 @@ public class Program
 
         // 4. API & Swagger
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Catalog API",
+                Version = "v1"
+            });
+        });
 
         // 5. MediatR & Validation Pipeline
         var assembly = typeof(Program).Assembly;
@@ -84,38 +90,34 @@ public class Program
         app.UseExceptionHandler();
         app.UseRequestLocalization();
 
-        // Development-only Auto Migration & Seeding with error handling
-        if (app.Environment.IsDevelopment())
+        using (var scope = app.Services.CreateScope())
         {
-            using (var scope = app.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-                var logger = services.GetRequiredService<ILogger<Program>>();
+            var services = scope.ServiceProvider;
+            var logger = services.GetRequiredService<ILogger<Program>>();
 
-                try
-                {
-                    var db = services.GetRequiredService<FlowersCatalogDbContext>();
-                    await db.Database.MigrateAsync();
-                    await CatalogDataSeeder.SeedAsync(db);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "An error occurred while applying database migrations or seeding data.");
-                    throw;
-                }
+            try
+            {
+                var db = services.GetRequiredService<FlowersCatalogDbContext>();
+                await db.Database.MigrateAsync();
+                await CatalogDataSeeder.SeedAsync(db);
             }
-
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
+            catch (Exception ex)
             {
-                c.SwaggerEndpoint(
-                    "/swagger/v1/swagger.json",
-                    "Catalog API v1");
-            });
+                logger.LogError(ex, "An error occurred while applying database migrations or seeding data.");
+            }
         }
+
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint(
+                "/swagger/v1/swagger.json",
+                "Catalog API v1");
+        });
 
         app.UseHttpsRedirection();
 
+        app.MapGet("/", () => Results.Redirect("/swagger"));
         app.MapGetHomeSectionsEndpoint();
         app.MapProductEndpoints();
         app.MapGetActiveOccasionsEndpoint();

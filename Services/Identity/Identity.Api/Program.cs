@@ -1,3 +1,4 @@
+using Microsoft.OpenApi.Models;
 using Blocks.Contracts.Interfaces;
 using FluentValidation;
 using Identity.Api.Authorization;
@@ -103,32 +104,38 @@ namespace Identity.Api
             builder.Services.AddProblemDetails();
             builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 
+            builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
-                options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.OpenApiSecurityScheme
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Identity API",
+                    Version = "v1"
+                });
+
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
-                    Description = "Enter 'Bearer' [space] and then your token.",
-                    In = Microsoft.OpenApi.ParameterLocation.Header,
-                    Type = Microsoft.OpenApi.SecuritySchemeType.Http,
+                    Description = "Paste the raw JWT only. Do not include the 'Bearer' prefix.",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
                     Scheme = "bearer",
                     BearerFormat = "JWT"
                 });
 
-                options.AddSecurityRequirement(document =>
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
-                    document.Components ??= new Microsoft.OpenApi.OpenApiComponents();
-                    document.Components.SecuritySchemes["Bearer"] = new Microsoft.OpenApi.OpenApiSecurityScheme
                     {
-                        Type = Microsoft.OpenApi.SecuritySchemeType.Http,
-                        Scheme = "bearer",
-                        BearerFormat = "JWT"
-                    };
-
-                    return new Microsoft.OpenApi.OpenApiSecurityRequirement
-                    {
-                        [new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer", document)] = new List<string>()
-                    };
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
                 });
             });
 
@@ -165,16 +172,11 @@ namespace Identity.Api
                 }
             }
 
-            if (app.Environment.IsDevelopment())
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
             {
-                app.MapOpenApi();
-
-                app.UseSwagger();
-                app.UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Identity API v1");
-                });
-            }
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Identity API v1");
+            });
 
             app.UseAuthentication();
             app.UseAuthorization();
