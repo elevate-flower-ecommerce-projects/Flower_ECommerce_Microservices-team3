@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Identity.Infrastructure.Migrations
 {
     [DbContext(typeof(FlowersAuthDbContext))]
-    [Migration("20260809175310_DriverApplication")]
-    partial class DriverApplication
+    [Migration("20260816133238_PendingChanges")]
+    partial class PendingChanges
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -119,6 +119,9 @@ namespace Identity.Infrastructure.Migrations
                     b.Property<string>("DeletedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("DriverApplicationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -126,7 +129,8 @@ namespace Identity.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NationalIdNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -143,12 +147,16 @@ namespace Identity.Infrastructure.Migrations
 
                     b.Property<string>("VehicleNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("VehicleType")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DriverApplicationId")
+                        .IsUnique();
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -177,8 +185,18 @@ namespace Identity.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("RejectionReason")
+                    b.Property<string>("NationalIdImage")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NationalIdNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime?>("ReviewedAt")
                         .HasColumnType("datetime2");
@@ -195,14 +213,59 @@ namespace Identity.Infrastructure.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("VehicleLicenceImage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VehicleNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("VehicleType")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("DriverApplications");
+                });
+
+            modelBuilder.Entity("Identity.Domain.Entities.LoginAttempt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("AttemptedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("IpAddress")
+                        .IsRequired()
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<bool>("IsSuccessful")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttemptedAt");
+
+                    b.HasIndex("Email");
+
+                    b.HasIndex("IpAddress");
+
+                    b.ToTable("LoginAttempts");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.RefreshToken", b =>
@@ -213,6 +276,11 @@ namespace Identity.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("DeviceId")
+                        .HasMaxLength(128)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(128)");
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2");
@@ -236,7 +304,8 @@ namespace Identity.Infrastructure.Migrations
                     b.HasIndex("Token")
                         .IsUnique();
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "DeviceId")
+                        .HasDatabaseName("IX_RefreshTokens_UserId_DeviceId");
 
                     b.ToTable("RefreshTokens");
                 });
@@ -305,6 +374,46 @@ namespace Identity.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Identity.Domain.Entities.UserDevice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(128)");
+
+                    b.Property<string>("FcmToken")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(512)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FcmToken")
+                        .IsUnique()
+                        .HasDatabaseName("UX_UserDevices_FcmToken");
+
+                    b.HasIndex("UserId", "DeviceId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_UserDevices_UserId_DeviceId");
+
+                    b.HasIndex("UserId", "UpdatedAt")
+                        .HasDatabaseName("IX_UserDevices_UserId_UpdatedAt");
+
+                    b.ToTable("UserDevices", (string)null);
+                });
+
             modelBuilder.Entity("Identity.Domain.Entities.Customer", b =>
                 {
                     b.HasOne("Identity.Domain.Entities.User", "User")
@@ -318,16 +427,34 @@ namespace Identity.Infrastructure.Migrations
 
             modelBuilder.Entity("Identity.Domain.Entities.Driver", b =>
                 {
+                    b.HasOne("Identity.Domain.Entities.DriverApplication", "DriverApplication")
+                        .WithOne()
+                        .HasForeignKey("Identity.Domain.Entities.Driver", "DriverApplicationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Identity.Domain.Entities.User", "User")
                         .WithOne()
                         .HasForeignKey("Identity.Domain.Entities.Driver", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("DriverApplication");
+
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("Identity.Domain.Entities.DriverApplication", b =>
+                {
+                    b.HasOne("Identity.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Identity.Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("Identity.Domain.Entities.User", "User")
                         .WithMany()
@@ -338,7 +465,7 @@ namespace Identity.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Identity.Domain.Entities.RefreshToken", b =>
+            modelBuilder.Entity("Identity.Domain.Entities.UserDevice", b =>
                 {
                     b.HasOne("Identity.Domain.Entities.User", "User")
                         .WithMany()

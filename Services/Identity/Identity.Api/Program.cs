@@ -157,18 +157,33 @@ namespace Identity.Api
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
-                try
-                {
-                    var context = services.GetRequiredService<FlowersAuthDbContext>();
-                    var passwordService = services.GetRequiredService<IPasswordService>();
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                const int maxRetries = 10;
+                var delay = TimeSpan.FromSeconds(3);
 
-                    await context.Database.MigrateAsync();
-                    await FlowersAuthSeeder.SeedAsync(context, passwordService);
-                }
-                catch (Exception ex)
+                for (int retry = 1; retry <= maxRetries; retry++)
                 {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred while seeding the database.");
+                    try
+                    {
+                        var context = services.GetRequiredService<FlowersAuthDbContext>();
+                        var passwordService = services.GetRequiredService<IPasswordService>();
+
+                        logger.LogInformation("Applying database migrations for FlowersAuthDbContext (Attempt {Retry}/{MaxRetries})...", retry, maxRetries);
+                        await context.Database.MigrateAsync();
+                        await FlowersAuthSeeder.SeedAsync(context, passwordService);
+                        logger.LogInformation("Database migration and seeding completed successfully.");
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        if (retry == maxRetries)
+                        {
+                            logger.LogError(ex, "An error occurred while applying database migrations or seeding data after {MaxRetries} attempts.", maxRetries);
+                            throw;
+                        }
+                        logger.LogWarning("Database migration attempt {Retry}/{MaxRetries} failed: {Message}. Retrying in {Delay}s...", retry, maxRetries, ex.Message, delay.TotalSeconds);
+                        await Task.Delay(delay);
+                    }
                 }
             }
 
