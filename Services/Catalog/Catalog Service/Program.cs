@@ -1,6 +1,7 @@
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
 using Catalog_Service.Features.Occasions.Endpoints;
+using Catalog_Service.Features.Products.Endpoints;
 using Catalog_Service.Persistence;
 using Catalog_Service.Persistence.Repositories;
 using Catalog_Service.Persistence.Seeding;
@@ -88,6 +89,7 @@ public class Program
         app.UseHttpsRedirection();
 
         app.MapGetActiveOccasionsEndpoint();
+        app.MapGetProductsEndpoint();
 
         await app.RunAsync();
     }
