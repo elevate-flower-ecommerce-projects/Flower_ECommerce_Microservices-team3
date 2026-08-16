@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text;
 using Blocks.Contracts.Interfaces;
 using FluentValidation;
 using Identity.Api.Authorization;
@@ -6,10 +8,12 @@ using Identity.Api.Features.Admin;
 using Identity.Api.Features.AdminLogin;
 using Identity.Api.Features.ChangePassword;
 using Identity.Api.Features.DriverApplication;
+using Identity.Api.Features.Forgot_Password;
 using Identity.Api.Features.Login;
 using Identity.Api.Features.Logout;
 using Identity.Api.Features.RefreshToken;
 using Identity.Api.Features.Register;
+using Identity.Api.Features.Verify_OTP;
 using Identity.Application;
 using Identity.Application.Interfaces;
 using Identity.Application.Settings;
@@ -24,8 +28,6 @@ using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Globalization;
-using System.Text;
 
 namespace Identity.Api
 {
@@ -96,12 +98,20 @@ namespace Identity.Api
             builder.Services.AddScoped<AdminLoginRequestVmValidator>();
             builder.Services.AddScoped<RefreshTokenRequestVmValidator>();
 
+            builder.Services.AddScoped<IOtpService, OtpService>();
+            builder.Services.AddScoped<IResetTokenService, ResetTokenService>();
+            builder.Services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+            builder.Services.AddSingleton<IHmacService, HmacService>();
+
             builder.Services.AddApplication();
             builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
             builder.Services.AddAppMassTransit(builder.Configuration);
             builder.Services.AddControllers();
             builder.Services.AddProblemDetails();
             builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+            
+            
+            builder.Services.AddEndpointsApiExplorer();
 
             builder.Services.AddSwaggerGen(options =>
             {
@@ -167,12 +177,13 @@ namespace Identity.Api
 
             if (app.Environment.IsDevelopment())
             {
-                app.MapOpenApi();
-
                 app.UseSwagger();
+
                 app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Identity API v1");
+                    c.SwaggerEndpoint(
+                        "/swagger/v1/swagger.json",
+                        "Identity API v1");
                 });
             }
 
@@ -183,6 +194,9 @@ namespace Identity.Api
             app.MapDriverApplicationReviewEndpoints();
             app.MapChangePasswordEndpoint();
             app.MapSubmitDriverApplicationEndpoint();
+            app.MapForgotPasswordEndpoint();
+            app.MapVerifyOTPEndpoint();
+            app.MapResetPasswordEndpoint();
             app.MapAdminLoginEndpoint();
             app.MapLoginEndpoint();
             app.MapRefreshTokenEndpoint();
