@@ -1,6 +1,224 @@
+###############################################################################
+# docker-compose.yml — Flower E-Commerce Microservices Platform
+###############################################################################
+
 services:
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Microsoft SQL Server 2022 (Database)
+  # ────────────────────────────────────────────────────────────────────────────
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: flower_sqlserver
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-Password123!}
+      MSSQL_PID: "Developer"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    ports:
+      - "127.0.0.1:1433:1433"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"${MSSQL_SA_PASSWORD:-Password123!}\" -C -Q \"SELECT 1\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - flower_net
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # RabbitMQ Message Broker (Management UI on 15672)
+  # ────────────────────────────────────────────────────────────────────────────
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: flower_rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - flower_net
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Seq Centralized Logging Dashboard
+  # ────────────────────────────────────────────────────────────────────────────
+  seq:
+    image: datalust/seq:latest
+    container_name: flower_seq
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      SEQ_FIRSTRUN_ADMINPASSWORD: ${SEQ_ADMIN_PASSWORD:-Admin123!}
+    volumes:
+      - seq_data:/data
+    ports:
+      - "127.0.0.1:5341:80"
+    networks:
+      - flower_net
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # API Gateway (Main Entry Point for Flutter App)
+  # ────────────────────────────────────────────────────────────────────────────
   apigateway:
-    image: ${DOCKER_REGISTRY-}apigateway
+    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-apigateway:latest
     build:
       context: .
       dockerfile: API Gateway/Dockerfile
+    container_name: flower_apigateway
+    restart: unless-stopped
+    depends_on:
+      identity-api:
+        condition: service_started
+      catalog-service:
+        condition: service_started
+      cart-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+      address-service:
+        condition: service_started
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: 8080
+    ports:
+      - "8080:8080"
+    networks:
+      - flower_net
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Identity Microservice
+  # ────────────────────────────────────────────────────────────────────────────
+  identity-api:
+    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-identity-api:latest
+    build:
+      context: .
+      dockerfile: Services/Identity/Identity.Api/Dockerfile
+    container_name: flower_identity_api
+    restart: unless-stopped
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=${MSSQL_DB:-FlowersAuthDb};User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: ${RABBITMQ_USER:-guest}
+      RabbitMQ__Password: ${RABBITMQ_PASS:-guest}
+      JwtSettings__Secret: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      JwtSettings__Issuer: ${JWT_ISSUER:-FlowersAuth}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-FlowersApp}
+    networks:
+      - flower_net
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Catalog Microservice
+  # ────────────────────────────────────────────────────────────────────────────
+  catalog-service:
+    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-catalog-service:latest
+    build:
+      context: .
+      dockerfile: Services/Catalog/Catalog Service/Dockerfile
+    container_name: flower_catalog_service
+    restart: unless-stopped
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=${MSSQL_CATALOG_DB:-FlowersCatalogDb};User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
+    networks:
+      - flower_net
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Cart Microservice
+  # ────────────────────────────────────────────────────────────────────────────
+  cart-service:
+    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-cart-service:latest
+    build:
+      context: .
+      dockerfile: Services/Cart/Cart Service/Dockerfile
+    container_name: flower_cart_service
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: 8080
+    networks:
+      - flower_net
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Order & Fulfillment Microservice
+  # ────────────────────────────────────────────────────────────────────────────
+  order-service:
+    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-order-service:latest
+    build:
+      context: .
+      dockerfile: Services/Order & Fulfillment/Order & Fulfillment Service/Dockerfile
+    container_name: flower_order_service
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: 8080
+    networks:
+      - flower_net
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Payment Microservice
+  # ────────────────────────────────────────────────────────────────────────────
+  payment-service:
+    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-payment-service:latest
+    build:
+      context: .
+      dockerfile: Services/Payment/Payment Service/Dockerfile
+    container_name: flower_payment_service
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: 8080
+    networks:
+      - flower_net
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Address & Store Coverage Microservice
+  # ────────────────────────────────────────────────────────────────────────────
+  address-service:
+    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-address-service:latest
+    build:
+      context: .
+      dockerfile: Services/Address & Store Coverage/Address & Store Coverage Service/Dockerfile
+    container_name: flower_address_service
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: 8080
+    networks:
+      - flower_net
+
+# ────────────────────────────────────────────────────────────────────────────
+# Volumes & Networks
+# ────────────────────────────────────────────────────────────────────────────
+volumes:
+  mssql_data:
+    driver: local
+  seq_data:
+    driver: local
+
+networks:
+  flower_net:
+    driver: bridge

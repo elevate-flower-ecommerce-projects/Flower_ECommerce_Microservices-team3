@@ -1,7 +1,6 @@
-namespace Identity.Api.Authorization
+namespace Identity.Api.Authorization;
+
+public static class Policies
 {
-    public static class Policies
-    {
-        public const string AdminOnly = "AdminOnly";
-    }
+    public const string AdminOnly = "AdminOnly";
 }

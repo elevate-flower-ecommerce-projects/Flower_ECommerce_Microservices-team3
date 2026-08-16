@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>2.0</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+	</resheader>
+
+	<data name="Success" xml:space="preserve">
+    <value>Success</value>
+  </data>
+
+	<data name="Failure" xml:space="preserve">
+    <value>Operation failed</value>
+  </data>
+
+	<data name="Validation.Failed" xml:space="preserve">
+    <value>Validation failed</value>
+  </data>
+
+	<data name="Unauthorized" xml:space="preserve">
+    <value>Unauthorized</value>
+  </data>
+
+	<data name="Forbidden" xml:space="preserve">
+    <value>Forbidden</value>
+  </data>
+
+	<data name="Auth.InvalidCredentials" xml:space="preserve">
+    <value>Invalid email or password</value>
+  </data>
+
+	<data name="Auth.AccountSuspended" xml:space="preserve">
+    <value>Your account has been suspended</value>
+  </data>
+
+	<data name="Auth.AccountInactive" xml:space="preserve">
+    <value>Your account is inactive</value>
+  </data>
+
+	<data name="Auth.LoginSuccess" xml:space="preserve">
+    <value>Login successful</value>
+  </data>
+
+	<data name="Product.NotFound" xml:space="preserve">
+    <value>Product not found</value>
+  </data>
+
+	<data name="Product.AlreadyExists" xml:space="preserve">
+    <value>Product already exists</value>
+  </data>
+
+	<data name="Product.InvalidPrice" xml:space="preserve">
+    <value>Invalid product price</value>
+  </data>
+
+	<data name="Product.Created" xml:space="preserve">
+    <value>Product created successfully</value>
+  </data>
+
+	<data name="Product.Updated" xml:space="preserve">
+    <value>Product updated successfully</value>
+  </data>
+
+	<data name="Product.Deleted" xml:space="preserve">
+    <value>Product deleted successfully</value>
+  </data>
+
+	<data name="Customer.EmailAlreadyRegistered" xml:space="preserve">
+    <value>Email already registered</value>
+  </data>
+
+	<data name="Customer.PhoneAlreadyRegistered" xml:space="preserve">
+    <value>Phone number already registered</value>
+  </data>
+
+	<data name="Customer.RegistrationFailed" xml:space="preserve">
+    <value>Registration failed. Please try again</value>
+  </data>
+
+	<data name="Driver.Application.Submitted" xml:space="preserve">
+    <value>Driver application submitted successfully</value>
+  </data>
+
+	<data name="Driver.Application.Pending" xml:space="preserve">
+    <value>Driver application is pending review</value>
+  </data>
+
+	<data name="Driver.Application.Approved" xml:space="preserve">
+    <value>Driver application approved</value>
+  </data>
+
+	<data name="Driver.Application.Rejected" xml:space="preserve">
+    <value>Driver application rejected</value>
+  </data>
+
+	<data name="Driver.Email.Exists" xml:space="preserve">
+    <value>Email is already registered</value>
+  </data>
+
+	<data name="Driver.Phone.Exists" xml:space="preserve">
+    <value>Phone number is already registered</value>
+  </data>
+
+	<data name="Driver.NationalId.Exists" xml:space="preserve">
+    <value>National ID is already registered</value>
+  </data>
+
+</root>

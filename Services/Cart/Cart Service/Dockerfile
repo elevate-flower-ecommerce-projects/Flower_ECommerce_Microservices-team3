@@ -12,10 +12,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Cart Service/Cart Service.csproj", "Cart Service/"]
-RUN dotnet restore "./Cart Service/Cart Service.csproj"
+COPY ["Services/Cart/Cart Service/Cart Service.csproj", "Services/Cart/Cart Service/"]
+RUN dotnet restore "./Services/Cart/Cart Service/Cart Service.csproj"
 COPY . .
-WORKDIR "/src/Cart Service"
+WORKDIR "/src/Services/Cart/Cart Service"
 RUN dotnet build "./Cart Service.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage

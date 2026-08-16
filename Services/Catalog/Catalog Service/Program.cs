@@ -1,41 +1,126 @@
-var builder = WebApplication.CreateBuilder(args);
+using Blocks.Contracts.Behaviors;
+using Blocks.Contracts.Http;
+using Blocks.Contracts.Interfaces;
+using Catalog_Service.Features.Home.GetSections;
+using Catalog_Service.Features.Products.GetProductById;
+using Catalog_Service.Features.Occasions.GetPaginatedOccasions.Endpoints;
+using Catalog_Service.Features.Products.GetProductsByOccasionId.Endpoints;
+using Catalog_Service.Persistence;
+using Catalog_Service.Persistence.Repositories;
+using Catalog_Service.Persistence.Seeding;
+using FluentValidation;
+using MediatR;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using FluentValidation;
+using Blocks.Contracts.Behaviors;
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+namespace Catalog_Service;
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+public class Program
 {
-    app.MapOpenApi();
-}
+    public static async Task Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
 
-app.UseHttpsRedirection();
+        // 1. Database Context
+        builder.Services.AddDbContext<FlowersCatalogDbContext>(options =>
+            options.UseSqlServer(
+                builder.Configuration.GetConnectionString("DefaultConnection")));
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+        // Unit of Work & Generic Repository
+        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+        // MediatR & FluentValidation Pipeline
+        builder.Services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+        builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
-app.Run();
+        builder.Services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+        });
 
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        // 2. Global Exception Handling
+        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+        builder.Services.AddProblemDetails();
+
+        // 3. Localization
+        builder.Services.AddLocalization();
+        builder.Services.Configure<RequestLocalizationOptions>(options =>
+        {
+            var supportedCultures = new[]
+            {
+                new CultureInfo("en"),
+                new CultureInfo("ar")
+            };
+
+            options.DefaultRequestCulture = new RequestCulture("en");
+            options.SupportedCultures = supportedCultures;
+            options.SupportedUICultures = supportedCultures;
+        });
+
+        // 4. API & Swagger
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+
+        // 5. MediatR & Validation Pipeline
+        var assembly = typeof(Program).Assembly;
+        builder.Services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(assembly);
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+        });
+        builder.Services.AddValidatorsFromAssembly(assembly);
+
+        var app = builder.Build();
+
+        // Middleware Pipeline
+        app.UseExceptionHandler();
+        app.UseRequestLocalization();
+
+        // Development-only Auto Migration & Seeding with error handling
+        if (app.Environment.IsDevelopment())
+        {
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var logger = services.GetRequiredService<ILogger<Program>>();
+
+                try
+                {
+                    var db = services.GetRequiredService<FlowersCatalogDbContext>();
+                    await db.Database.MigrateAsync();
+                    await CatalogDataSeeder.SeedAsync(db);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "An error occurred while applying database migrations or seeding data.");
+                    throw;
+                }
+            }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint(
+                    "/swagger/v1/swagger.json",
+                    "Catalog API v1");
+            });
+        }
+
+        app.UseHttpsRedirection();
+
+        app.MapGetHomeSectionsEndpoint();
+        app.MapProductEndpoints();
+        app.MapGetActiveOccasionsEndpoint();
+        app.MapGetProductsEndpoint();
+
+        await app.RunAsync();
+    }
 }

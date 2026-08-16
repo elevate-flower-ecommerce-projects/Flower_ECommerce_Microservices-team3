@@ -4,14 +4,14 @@ public sealed record Error(ErrorCode Code, string Message, string? Field = null)
 {
     public int StatusCode => Code switch
     {
-        ErrorCode.NotFound     => 404,
-        ErrorCode.Conflict     => 409,
-        ErrorCode.Unauthorized => 401,
-        ErrorCode.Forbidden    => 403,
-        ErrorCode.Validation       => 422,
-        ErrorCode.Internal         => 500,
-        ErrorCode.TooManyRequests  => 429,
-        _                          => 500
+        ErrorCode.NotFound        => 404,
+        ErrorCode.Conflict        => 409,
+        ErrorCode.Unauthorized    => 401,
+        ErrorCode.Forbidden       => 403,
+        ErrorCode.Validation      => 422,
+        ErrorCode.Internal        => 500,
+        ErrorCode.TooManyRequests => 429,
+        _                         => 500
     };
 
     public static Error NotFound(string message) => new(ErrorCode.NotFound, message);

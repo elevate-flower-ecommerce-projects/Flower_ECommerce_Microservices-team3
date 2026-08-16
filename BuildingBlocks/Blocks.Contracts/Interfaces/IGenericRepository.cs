@@ -1,22 +1,20 @@
-﻿using Blocks.Domain.Entities;
+using Blocks.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Blocks.Contracts.Interfaces
 {
     public interface IGenericRepository<T> where T : BaseEntity
     {
-        Task<T?> GetByIdAsync(Guid id);
-        Task<IReadOnlyList<T>> GetAllAsync();
-        Task<IReadOnlyList<T>> FindAsync(Expression<Func<T, bool>> predicate);
-        Task<TResult?> FirstOrDefaultAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector);
-        Task AddAsync(T entity);
-        void Update(T entity);
-        void UpdatePartial(T entity, params Expression<Func<T, object>>[] updatedProperties);
-        void Delete(T entity);
-
-        public void Add(T entity);
+        IQueryable<T> GetQueryable();
+        Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
+        Task<TResult?> FirstOrDefaultAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector, CancellationToken cancellationToken = default);
+        void Add(T entity);
+        Task AddAsync(T entity, CancellationToken cancellationToken = default);
     }
 }

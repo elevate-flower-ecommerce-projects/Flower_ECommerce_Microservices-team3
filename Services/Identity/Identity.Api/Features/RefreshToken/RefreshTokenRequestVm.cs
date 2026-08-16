@@ -1,14 +1,13 @@
 using FluentValidation;
 
-namespace Identity.Api.Features.RefreshToken
-{
-    public sealed record RefreshTokenRequestVm(string Token);
+namespace Identity.Api.Features.RefreshToken;
 
-    public class RefreshTokenRequestVmValidator : AbstractValidator<RefreshTokenRequestVm>
+public sealed record RefreshTokenRequestVm(string Token);
+
+public class RefreshTokenRequestVmValidator : AbstractValidator<RefreshTokenRequestVm>
+{
+    public RefreshTokenRequestVmValidator()
     {
-        public RefreshTokenRequestVmValidator()
-        {
-            RuleFor(x => x.Token).NotEmpty();
-        }
+        RuleFor(x => x.Token).NotEmpty().WithMessage("Refresh token is required.");
     }
 }
