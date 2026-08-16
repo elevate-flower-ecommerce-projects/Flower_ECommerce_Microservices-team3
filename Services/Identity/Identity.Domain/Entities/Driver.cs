@@ -15,6 +15,6 @@ public class Driver : AuditEntity
     public string VehicleNumber { get; set; } = string.Empty;
     public string VehicleLicenceImage { get; set; } = string.Empty;
 
-    public string NationalIdNumber { get; set; } = string.Empty;
-    public string NationalIdImage { get; set; } = string.Empty;
+    public string? NationalIdNumber { get; set; } = string.Empty;
+    public string? NationalIdImage { get; set; } = string.Empty;
 }

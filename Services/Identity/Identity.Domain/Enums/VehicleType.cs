@@ -2,6 +2,6 @@ namespace Identity.Domain.Enums;
 
 public enum VehicleType
 {
-    Car,
-    Motorcycle
+    Car = 1,
+    Motorcycle = 2
 }

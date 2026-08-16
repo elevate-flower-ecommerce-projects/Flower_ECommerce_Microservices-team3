@@ -1,15 +1,11 @@
 using Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace Identity.Infrastructure.Persistence.Data
 {
     public class FlowersAuthDbContext : DbContext
     {
-
         public FlowersAuthDbContext(DbContextOptions<FlowersAuthDbContext> options) : base(options)
         {
         }
@@ -30,4 +26,4 @@ namespace Identity.Infrastructure.Persistence.Data
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(FlowersAuthDbContext).Assembly);
         }
     }
-}
+}

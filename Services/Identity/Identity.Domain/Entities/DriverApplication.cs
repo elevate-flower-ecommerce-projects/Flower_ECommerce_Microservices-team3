@@ -1,8 +1,6 @@
-﻿using Blocks.Domain.Entities;
+using Blocks.Domain.Entities;
 using Identity.Domain.Enums;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Identity.Domain.Entities
 {
@@ -22,7 +20,6 @@ namespace Identity.Domain.Entities
 
         public Guid? ReviewedBy { get; private set; }
         public DateTime? ReviewedAt { get; private set; }
-
 
         public void Approve(Guid adminId)
         {

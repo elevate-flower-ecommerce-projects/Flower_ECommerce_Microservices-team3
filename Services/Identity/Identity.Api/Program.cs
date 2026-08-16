@@ -1,6 +1,7 @@
 using Blocks.Contracts.Interfaces;
 using FluentValidation;
 using Identity.Api.Authorization;
+using Identity.Api.Exceptions;
 using Identity.Api.Features.Admin;
 using Identity.Api.Features.AdminLogin;
 using Identity.Api.Features.ChangePassword;
@@ -23,7 +24,6 @@ using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Identity.Api.Exceptions;
 using System.Globalization;
 using System.Text;
 
@@ -37,6 +37,11 @@ namespace Identity.Api
 
             builder.Services.AddDbContext<FlowersAuthDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IDriverRepository, DriverRepository>();
+            builder.Services.AddScoped<IDriverApplicationRepository, DriverApplicationRepository>();
+            builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -87,6 +92,9 @@ namespace Identity.Api
             builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, AdminAuthorizationMiddlewareResultHandler>();
 
             builder.Services.AddLocalization();
+
+            builder.Services.AddScoped<AdminLoginRequestVmValidator>();
+            builder.Services.AddScoped<RefreshTokenRequestVmValidator>();
 
             builder.Services.AddApplication();
             builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);

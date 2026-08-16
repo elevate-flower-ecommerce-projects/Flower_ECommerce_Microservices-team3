@@ -2,7 +2,7 @@ namespace Identity.Domain.Enums;
 
 public enum UserRole
 {
-    Customer,
-    Driver,
-    Admin
+    Admin = 1,
+    Customer = 2,
+    Driver = 3,
 }

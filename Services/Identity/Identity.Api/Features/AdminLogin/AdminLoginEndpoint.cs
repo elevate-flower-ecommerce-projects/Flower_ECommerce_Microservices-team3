@@ -46,7 +46,6 @@ public static class AdminLoginEndpoint
         .Produces(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status429TooManyRequests);
-
         return app;
     }
 }
