@@ -1,4 +1,4 @@
-﻿namespace Catalog_Service.Features.Occasions.ViewModels
+﻿namespace Catalog_Service.Features.Occasions.GetPaginatedOccasions.ViewModels
 {
     public record OccasionViewModel(
     Guid Id,

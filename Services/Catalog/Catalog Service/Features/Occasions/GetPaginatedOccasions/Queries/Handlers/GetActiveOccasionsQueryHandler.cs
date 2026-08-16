@@ -2,12 +2,13 @@
 using Blocks.Contracts.Interfaces;
 using Blocks.Contracts.Pagination;
 using Catalog_Service.Entities;
-using Catalog_Service.Features.Occasions.ViewModels;
+using Catalog_Service.Features.Occasions.GetPaginatedOccasions.Queries;
+using Catalog_Service.Features.Occasions.GetPaginatedOccasions.ViewModels;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
-namespace Catalog_Service.Features.Occasions.Queries.Handlers
+namespace Catalog_Service.Features.Occasions.GetPaginatedOccasions.Queries.Handlers
 {
     public class GetActiveOccasionsQueryHandler : IRequestHandler<GetActiveOccasionsQuery, Result<PagedResult<OccasionViewModel>>>
     {

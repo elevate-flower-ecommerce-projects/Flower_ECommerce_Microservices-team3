@@ -1,7 +1,7 @@
-﻿using Catalog_Service.Features.Occasions.Queries;
+﻿using Catalog_Service.Features.Occasions.GetPaginatedOccasions.Queries;
 using MediatR;
 
-namespace Catalog_Service.Features.Occasions.Endpoints
+namespace Catalog_Service.Features.Occasions.GetPaginatedOccasions.Endpoints
 {
     public static class GetActiveOccasionsEndpoint
     {

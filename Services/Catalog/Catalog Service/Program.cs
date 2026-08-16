@@ -1,13 +1,15 @@
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
-using Catalog_Service.Features.Occasions.Endpoints;
-using Catalog_Service.Features.Products.Endpoints;
+using Catalog_Service.Features.Occasions.GetPaginatedOccasions.Endpoints;
+using Catalog_Service.Features.Products.GetProductsByOccasionId.Endpoints;
 using Catalog_Service.Persistence;
 using Catalog_Service.Persistence.Repositories;
 using Catalog_Service.Persistence.Seeding;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using FluentValidation;
+using Blocks.Contracts.Behaviors;
 
 namespace Catalog_Service;
 
@@ -25,7 +27,14 @@ public class Program
         // Unit of Work & Generic Repository
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+        builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+
+        builder.Services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+        });
 
         // 2. Global Exception Handling
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

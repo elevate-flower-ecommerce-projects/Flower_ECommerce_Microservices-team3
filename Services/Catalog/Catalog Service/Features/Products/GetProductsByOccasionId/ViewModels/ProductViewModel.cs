@@ -1,4 +1,4 @@
-﻿namespace Catalog_Service.Features.Products.ViewModels
+﻿namespace Catalog_Service.Features.Products.GetProductsByOccasionId.ViewModels
 {
     public record ProductViewModel(
     Guid Id,

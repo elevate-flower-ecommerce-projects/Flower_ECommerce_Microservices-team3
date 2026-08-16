@@ -3,11 +3,12 @@ using Blocks.Contracts.Interfaces;
 using Blocks.Contracts.Pagination;
 using Catalog_Service.Entities;
 using Microsoft.EntityFrameworkCore;
-using Catalog_Service.Features.Products.ViewModels;
 using MediatR;
 using System.Globalization;
+using Catalog_Service.Features.Products.GetProductsByOccasionId.Queries;
+using Catalog_Service.Features.Products.GetProductsByOccasionId.ViewModels;
 
-namespace Catalog_Service.Features.Products.Queries.Handlers
+namespace Catalog_Service.Features.Products.GetProductsByOccasionId.Queries.Handlers
 {
     public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, Result<PagedResult<ProductViewModel>>>
     {
@@ -22,12 +23,8 @@ namespace Catalog_Service.Features.Products.Queries.Handlers
         {
             var isArabic = CultureInfo.CurrentCulture.TwoLetterISOLanguageName.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
 
-            var baseQuery = _repository.GetQueryable();
-
-            if (request.OccasionId.HasValue)
-            {
-                baseQuery = baseQuery.Where(p => p.ProductOccasions.Any(po => po.OccasionId == request.OccasionId.Value));
-            }
+            var baseQuery = _repository.GetQueryable()
+                .Where(p => p.ProductOccasions.Any(po => po.OccasionId == request.OccasionId));
 
             var totalCount = await baseQuery.CountAsync(cancellationToken);
 

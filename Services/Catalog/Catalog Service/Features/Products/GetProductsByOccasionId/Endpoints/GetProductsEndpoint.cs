@@ -1,21 +1,21 @@
-﻿using Catalog_Service.Features.Products.Queries;
+﻿using Catalog_Service.Features.Products.GetProductsByOccasionId.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Catalog_Service.Features.Products.Endpoints
+namespace Catalog_Service.Features.Products.GetProductsByOccasionId.Endpoints
 {
     public static class GetProductsEndpoint
     {
         public static void MapGetProductsEndpoint(this IEndpointRouteBuilder app)
         {
             app.MapGet("/products", async (
+                Guid occasionId,
                 int? pageNumber,
                 int? pageSize,
-                Guid? occasionId,
                 [FromServices] ISender sender,
                 CancellationToken cancellationToken) =>
             {
-                var query = new GetProductsQuery(pageNumber ?? 1, pageSize ?? 10, occasionId);
+                var query = new GetProductsQuery(occasionId, pageNumber ?? 1, pageSize ?? 10);
 
                 var result = await sender.Send(query, cancellationToken);
 
@@ -26,11 +26,12 @@ namespace Catalog_Service.Features.Products.Endpoints
 
                 return Results.BadRequest(result);
             })
-            .WithName("GetProducts")
+            .WithName("GetProductsByOccasion")
             .WithTags("Products")
             .Produces(StatusCodes.Status200OK)
-            .WithSummary("Get a paginated list of products")
-            .WithDescription("Retrieves products. Can be optionally filtered by occasionId.");
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithSummary("Get a paginated list of products for a specific occasion")
+            .WithDescription("Retrieves products filtered by the required occasionId. Returns an empty list if no products are found.");
         }
     }
 }
