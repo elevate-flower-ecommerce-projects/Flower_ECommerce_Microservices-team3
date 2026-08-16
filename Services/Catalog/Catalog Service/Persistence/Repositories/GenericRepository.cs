@@ -21,31 +21,37 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         return _dbSet.AsQueryable();
     }
 
-    public async Task<T?> GetByIdAsync(Guid id)
+    public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.FindAsync(id);
+        return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync()
+    public async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _dbSet.ToListAsync();
+        return await _dbSet.ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<T>> FindAsync(Expression<Func<T, bool>> predicate)
+    public async Task<IReadOnlyList<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.Where(predicate).ToListAsync();
+        return await _dbSet.Where(predicate).ToListAsync(cancellationToken);
     }
 
     public async Task<TResult?> FirstOrDefaultAsync<TResult>(
         Expression<Func<T, bool>> predicate,
-        Expression<Func<T, TResult>> selector)
+        Expression<Func<T, TResult>> selector,
+        CancellationToken cancellationToken = default)
     {
-        return await _dbSet.Where(predicate).Select(selector).FirstOrDefaultAsync();
+        return await _dbSet.Where(predicate).Select(selector).FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task AddAsync(T entity)
+    public void Add(T entity)
     {
-        await _dbSet.AddAsync(entity);
+        _dbSet.Add(entity);
+    }
+
+    public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
+    {
+        await _dbSet.AddAsync(entity, cancellationToken);
     }
 
     public void Update(T entity)

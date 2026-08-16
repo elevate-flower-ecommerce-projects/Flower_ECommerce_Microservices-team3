@@ -1,10 +1,15 @@
+using Blocks.Contracts.Behaviors;
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
+using Catalog_Service.Features.Home.GetSections;
+using Catalog_Service.Features.Products.GetProductById;
 using Catalog_Service.Features.Occasions.GetPaginatedOccasions.Endpoints;
 using Catalog_Service.Features.Products.GetProductsByOccasionId.Endpoints;
 using Catalog_Service.Persistence;
 using Catalog_Service.Persistence.Repositories;
 using Catalog_Service.Persistence.Seeding;
+using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -28,6 +33,11 @@ public class Program
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
+        // MediatR & FluentValidation Pipeline
+        builder.Services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+        builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
         builder.Services.AddMediatR(cfg =>
@@ -58,6 +68,15 @@ public class Program
         // 4. API & Swagger
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        // 5. MediatR & Validation Pipeline
+        var assembly = typeof(Program).Assembly;
+        builder.Services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(assembly);
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+        });
+        builder.Services.AddValidatorsFromAssembly(assembly);
 
         var app = builder.Build();
 
@@ -97,6 +116,8 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        app.MapGetHomeSectionsEndpoint();
+        app.MapProductEndpoints();
         app.MapGetActiveOccasionsEndpoint();
         app.MapGetProductsEndpoint();
 
