@@ -2,10 +2,12 @@ using Blocks.Contracts.Behaviors;
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
 using Catalog_Service.Features.Home.GetSections;
+using Catalog_Service.Features.Products.GetProductById;
 using Catalog_Service.Persistence;
 using Catalog_Service.Persistence.Repositories;
 using Catalog_Service.Persistence.Seeding;
 using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -26,6 +28,12 @@ public class Program
         // Unit of Work & Generic Repository
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+        // MediatR & FluentValidation Pipeline
+        builder.Services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+        builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         // 2. Global Exception Handling
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -98,6 +106,7 @@ public class Program
         app.UseHttpsRedirection();
 
         app.MapGetHomeSectionsEndpoint();
+        app.MapProductEndpoints();
 
         await app.RunAsync();
     }
