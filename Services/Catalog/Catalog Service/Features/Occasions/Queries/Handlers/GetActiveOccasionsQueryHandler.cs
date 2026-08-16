@@ -1,14 +1,15 @@
 ﻿using Blocks.Contracts.Common;
 using Blocks.Contracts.Interfaces;
+using Blocks.Contracts.Pagination;
 using Catalog_Service.Entities;
 using Catalog_Service.Features.Occasions.ViewModels;
-using Microsoft.EntityFrameworkCore;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
 namespace Catalog_Service.Features.Occasions.Queries.Handlers
 {
-    public class GetActiveOccasionsQueryHandler : IRequestHandler<GetActiveOccasionsQuery, Result<IReadOnlyList<OccasionViewModel>>>
+    public class GetActiveOccasionsQueryHandler : IRequestHandler<GetActiveOccasionsQuery, Result<PagedResult<OccasionViewModel>>>
     {
         private readonly IGenericRepository<Occasion> _repository;
 
@@ -17,12 +18,17 @@ namespace Catalog_Service.Features.Occasions.Queries.Handlers
             _repository = repository;
         }
 
-        public async Task<Result<IReadOnlyList<OccasionViewModel>>> Handle(GetActiveOccasionsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PagedResult<OccasionViewModel>>> Handle(GetActiveOccasionsQuery request, CancellationToken cancellationToken)
         {
             var isArabic = CultureInfo.CurrentCulture.TwoLetterISOLanguageName.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
 
-            var occasions = await _repository.GetQueryable()
-                .OrderBy(o => o.Name)
+            var baseQuery = _repository.GetQueryable().OrderBy(o => o.Name);
+
+            var totalCount = await baseQuery.CountAsync(cancellationToken);
+
+            var occasions = await baseQuery
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
                 .Select(o => new OccasionViewModel(
                     o.Id,
                     isArabic && !string.IsNullOrWhiteSpace(o.NameAr) ? o.NameAr : o.Name,
@@ -30,7 +36,15 @@ namespace Catalog_Service.Features.Occasions.Queries.Handlers
                 ))
                 .ToListAsync(cancellationToken);
 
-            return Result.Success<IReadOnlyList<OccasionViewModel>>(occasions);
+            var pagedResult = new PagedResult<OccasionViewModel>
+            {
+                Items = occasions,
+                TotalCount = totalCount,
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize
+            };
+
+            return Result.Success(pagedResult);
         }
     }
 }
