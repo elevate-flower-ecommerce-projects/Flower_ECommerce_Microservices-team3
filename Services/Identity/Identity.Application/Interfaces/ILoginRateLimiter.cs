@@ -6,4 +6,3 @@ public interface ILoginRateLimiter
     void RecordFailure(string email, string ipAddress);
     void Reset(string email, string ipAddress);
 }
-}

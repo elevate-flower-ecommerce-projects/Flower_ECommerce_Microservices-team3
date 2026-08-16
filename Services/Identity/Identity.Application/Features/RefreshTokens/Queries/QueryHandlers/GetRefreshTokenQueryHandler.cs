@@ -16,7 +16,7 @@ namespace Identity.Application.Features.RefreshTokens.Queries.QueryHandlers
                 t => t.Token == request.Token
                   && !t.IsRevoked
                   && t.ExpiresAt > DateTime.UtcNow,
-                t => new RefreshTokenLookupDto(t.Id, t.UserId));
+                t => new RefreshTokenLookupDto(t.Id, t.UserId, t.DeviceId));
         }
     }
 }

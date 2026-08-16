@@ -16,5 +16,9 @@ namespace Blocks.Contracts.Interfaces
         Task<TResult?> FirstOrDefaultAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector, CancellationToken cancellationToken = default);
         void Add(T entity);
         Task AddAsync(T entity, CancellationToken cancellationToken = default);
+        void Update(T entity);
+        void UpdatePartial(T entity, params Expression<Func<T, object>>[] updatedProperties);
+        void SaveInclude(T entity, params string[] includedProperties);
+        void Delete(T entity);
     }
 }

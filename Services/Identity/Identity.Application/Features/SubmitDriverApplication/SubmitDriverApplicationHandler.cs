@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using DomainError = Blocks.Domain.Errors.Error;
 using Identity.Application.Interfaces;
 using Identity.Domain.Entities;
@@ -95,7 +95,7 @@ public sealed class SubmitDriverApplicationCommandHandler(
         driverRepo.Add(driver);
 
         // Create Driver Application
-        var application = new DriverApplication(user.Id);
+        var application = new Identity.Domain.Entities.DriverApplication { UserId = user.Id };
 
         driverApplicationRepo.Add(application);
 

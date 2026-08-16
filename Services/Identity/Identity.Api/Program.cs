@@ -10,7 +10,6 @@ using Identity.Api.Features.Login;
 using Identity.Api.Features.Logout;
 using Identity.Api.Features.RefreshToken;
 using Identity.Api.Features.Register;
-using Identity.Api.Features.RegisterDriver;
 using Identity.Application;
 using Identity.Application.Interfaces;
 using Identity.Application.Settings;

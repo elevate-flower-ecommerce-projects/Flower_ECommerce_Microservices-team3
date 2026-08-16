@@ -165,9 +165,6 @@ namespace Identity.Infrastructure.Migrations
             modelBuilder.Entity("Identity.Domain.Entities.DriverApplication", b =>
                 {
                     b.Property<Guid>("Id")
-            modelBuilder.Entity("Identity.Domain.Entities.DriverApplication", b =>
-                {
-                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 

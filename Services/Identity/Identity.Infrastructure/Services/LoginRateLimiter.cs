@@ -42,4 +42,3 @@ public class LoginRateLimiter(IMemoryCache cache) : ILoginRateLimiter
     private static string EmailKey(string email) => $"rl:email:{email.ToLowerInvariant()}";
     private static string IpKey(string ip) => $"rl:ip:{ip}";
 }
-}

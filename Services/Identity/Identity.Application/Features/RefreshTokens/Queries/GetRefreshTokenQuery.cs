@@ -24,4 +24,3 @@ public class GetRefreshTokenQueryHandler(
             t => new RefreshTokenLookupDto(t.Id, t.UserId, t.DeviceId), cancellationToken);
     }
 }
-}
