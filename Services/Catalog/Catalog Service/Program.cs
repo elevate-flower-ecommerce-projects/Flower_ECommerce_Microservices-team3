@@ -118,6 +118,7 @@ public class Program
         app.UseHttpsRedirection();
 
         app.MapGet("/", () => Results.Redirect("/swagger"));
+        app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Catalog Service", timestamp = DateTime.UtcNow }));
         app.MapGetHomeSectionsEndpoint();
         app.MapProductEndpoints();
         app.MapGetActiveOccasionsEndpoint();
