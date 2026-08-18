@@ -169,7 +169,34 @@ namespace Identity.Api
                         var passwordService = services.GetRequiredService<IPasswordService>();
 
                         logger.LogInformation("Applying database migrations for FlowersAuthDbContext (Attempt {Retry}/{MaxRetries})...", retry, maxRetries);
+                        try
+                        {
+                            await context.Database.ExecuteSqlRawAsync(@"
+                                IF OBJECT_ID(N'[AdminLoginAudits]') IS NOT NULL
+                                BEGIN
+                                    IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+                                    BEGIN
+                                        CREATE TABLE [__EFMigrationsHistory] (
+                                            [MigrationId] nvarchar(150) NOT NULL,
+                                            [ProductVersion] nvarchar(32) NOT NULL,
+                                            CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+                                        );
+                                    END;
+                                    IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = '20260813122742_InitialCreate')
+                                    BEGIN
+                                        INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+                                        VALUES ('20260813122742_InitialCreate', '9.0.0');
+                                    END;
+                                END
+                            ");
+                        }
+                        catch (Exception histEx)
+                        {
+                            logger.LogWarning("Migration history check warning: {Message}", histEx.Message);
+                        }
+
                         await context.Database.MigrateAsync();
+
                         await FlowersAuthSeeder.SeedAsync(context, passwordService);
                         logger.LogInformation("Database migration and seeding completed successfully.");
                         break;
