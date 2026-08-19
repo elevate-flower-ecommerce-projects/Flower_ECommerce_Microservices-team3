@@ -1,54 +1,112 @@
+using Address___Store_Coverage_Service.Persistence;
+using Address___Store_Coverage_Service.Persistence.Repositories;
+using Blocks.Contracts.Behaviors;
+using Blocks.Contracts.Http;
+using Blocks.Contracts.Interfaces;
+using FluentValidation;
+using MediatR;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Globalization;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace Address___Store_Coverage_Service;
 
-// Add services to the container.
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+public class Program
 {
-    options.SwaggerDoc("v1", new OpenApiInfo
+    public static async Task Main(string[] args)
     {
-        Title = "Address & Store Coverage API",
-        Version = "v1"
-    });
-});
+        var builder = WebApplication.CreateBuilder(args);
 
-var app = builder.Build();
+        // 1. Database Context
+        builder.Services.AddDbContext<FlowersAddressStoreCoverageDbContext>(options =>
+            options.UseSqlServer(
+                builder.Configuration.GetConnectionString("DefaultConnection")));
 
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Address & Store Coverage API v1");
-});
+        // Unit of Work & Generic Repository
+        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
-app.UseHttpsRedirection();
+        // 2. MediatR & FluentValidation Pipeline
+        var assembly = typeof(Program).Assembly;
+        builder.Services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(assembly);
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+        });
+        builder.Services.AddValidatorsFromAssembly(assembly);
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+        // 3. Global Exception Handling
+        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+        builder.Services.AddProblemDetails();
 
-app.MapGet("/", () => Results.Redirect("/swagger"));
+        // 4. Localization
+        builder.Services.AddLocalization();
+        builder.Services.Configure<RequestLocalizationOptions>(options =>
+        {
+            var supportedCultures = new[]
+            {
+                new CultureInfo("en"),
+                new CultureInfo("ar")
+            };
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+            options.DefaultRequestCulture = new RequestCulture("en");
+            options.SupportedCultures = supportedCultures;
+            options.SupportedUICultures = supportedCultures;
+        });
 
-app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Address & Store Coverage Service", timestamp = DateTime.UtcNow }));
+        // 5. API & Swagger
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Address & Store Coverage API",
+                Version = "v1"
+            });
+        });
 
-app.Run();
+        var app = builder.Build();
 
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        // Middleware Pipeline
+        app.UseExceptionHandler();
+        app.UseRequestLocalization();
+
+        // Database Migration on Startup
+        using (var scope = app.Services.CreateScope())
+        {
+            var services = scope.ServiceProvider;
+            var logger = services.GetRequiredService<ILogger<Program>>();
+
+            try
+            {
+                var db = services.GetRequiredService<FlowersAddressStoreCoverageDbContext>();
+                await db.Database.MigrateAsync();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while applying database migrations.");
+            }
+        }
+
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint(
+                "/swagger/v1/swagger.json",
+                "Address & Store Coverage API v1");
+        });
+
+        app.UseHttpsRedirection();
+
+        app.MapGet("/", () => Results.Redirect("/swagger"));
+        app.MapGet("/health", () => Results.Ok(new
+        {
+            status = "Healthy",
+            service = "Address & Store Coverage Service",
+            timestamp = DateTime.UtcNow
+        }));
+
+        await app.RunAsync();
+    }
 }
