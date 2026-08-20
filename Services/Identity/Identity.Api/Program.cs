@@ -187,7 +187,44 @@ namespace Identity.Api
                                         INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
                                         VALUES ('20260813122742_InitialCreate', '9.0.0');
                                     END;
-                                END
+                                END;
+
+                                IF OBJECT_ID(N'[LoginAttempts]') IS NULL
+                                BEGIN
+                                    CREATE TABLE [LoginAttempts] (
+                                        [Id] uniqueidentifier NOT NULL,
+                                        [Email] nvarchar(256) NOT NULL,
+                                        [IpAddress] nvarchar(45) NOT NULL,
+                                        [IsSuccessful] bit NOT NULL,
+                                        [AttemptedAt] datetime2 NOT NULL,
+                                        CONSTRAINT [PK_LoginAttempts] PRIMARY KEY ([Id])
+                                    );
+                                    CREATE INDEX [IX_LoginAttempts_Email] ON [LoginAttempts] ([Email]);
+                                    CREATE INDEX [IX_LoginAttempts_IpAddress] ON [LoginAttempts] ([IpAddress]);
+                                    CREATE INDEX [IX_LoginAttempts_AttemptedAt] ON [LoginAttempts] ([AttemptedAt]);
+                                END;
+
+                                IF OBJECT_ID(N'[UserDevices]') IS NULL
+                                BEGIN
+                                    CREATE TABLE [UserDevices] (
+                                        [Id] uniqueidentifier NOT NULL,
+                                        [UserId] uniqueidentifier NOT NULL,
+                                        [DeviceId] varchar(128) NOT NULL,
+                                        [FcmToken] varchar(512) NOT NULL,
+                                        [UpdatedAt] datetime2 NOT NULL,
+                                        CONSTRAINT [PK_UserDevices] PRIMARY KEY ([Id]),
+                                        CONSTRAINT [FK_UserDevices_Users_UserId] FOREIGN KEY ([UserId]) REFERENCES [Users] ([Id]) ON DELETE CASCADE
+                                    );
+                                    CREATE UNIQUE INDEX [UX_UserDevices_UserId_DeviceId] ON [UserDevices] ([UserId], [DeviceId]);
+                                    CREATE UNIQUE INDEX [UX_UserDevices_FcmToken] ON [UserDevices] ([FcmToken]);
+                                    CREATE INDEX [IX_UserDevices_UserId_UpdatedAt] ON [UserDevices] ([UserId], [UpdatedAt]);
+                                END;
+
+                                IF COL_LENGTH('RefreshTokens', 'DeviceId') IS NULL
+                                BEGIN
+                                    ALTER TABLE [RefreshTokens] ADD [DeviceId] varchar(128) NULL;
+                                    CREATE INDEX [IX_RefreshTokens_UserId_DeviceId] ON [RefreshTokens] ([UserId], [DeviceId]);
+                                END;
                             ");
                         }
                         catch (Exception histEx)
