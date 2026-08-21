@@ -1,10 +1,12 @@
-using Microsoft.OpenApi.Models;
+using System.Globalization;
 using Blocks.Contracts.Behaviors;
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
+using Catalog_Service.Features.Categories.GetActiveCategories.Endpoints;
 using Catalog_Service.Features.Home.GetSections;
-using Catalog_Service.Features.Products.GetProductById;
 using Catalog_Service.Features.Occasions.GetPaginatedOccasions.Endpoints;
+using Catalog_Service.Features.Products.GetProductByCategory.Endpoints;
+using Catalog_Service.Features.Products.GetProductById;
 using Catalog_Service.Features.Products.GetProductsByOccasionId.Endpoints;
 using Catalog_Service.Persistence;
 using Catalog_Service.Persistence.Repositories;
@@ -13,7 +15,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
-using System.Globalization;
+using Microsoft.OpenApi.Models;
 
 namespace Catalog_Service;
 
@@ -104,12 +106,27 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        // Endpoints
         app.MapGet("/", () => Results.Redirect("/swagger"));
         app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Catalog Service", timestamp = DateTime.UtcNow }));
+
+        // Home Sections
         app.MapGetHomeSectionsEndpoint();
+
+        // Products
         app.MapProductEndpoints();
+
+        // Occasions
         app.MapGetActiveOccasionsEndpoint();
+
+        // Products by Occasion
         app.MapGetProductsEndpoint();
+
+        // Categories
+        app.MapGetActiveCategoriesEndpoint();
+
+        // Products by Category
+        app.MapGetProductsByCategoryEndpoint();
 
         await app.RunAsync();
     }

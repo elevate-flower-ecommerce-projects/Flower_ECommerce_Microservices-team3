@@ -11,28 +11,45 @@ public static class CatalogDataSeeder
             return;
 
         // 1. Seed Categories
+        var rosesCategory = new Category
+        {
+            Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            Name = "Roses",
+            NameAr = "ورود",
+            Icon = "roses.png",
+            DisplayOrder = 1,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        var tulipsCategory = new Category
+        {
+            Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            Name = "Tulips",
+            NameAr = "توليب",
+            Icon = "tulips.png",
+            DisplayOrder = 2,
+            CreatedAt = DateTime.UtcNow
+        };
+
         var bouquetsCategory = new Category
         {
+            Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
             Name = "Bouquets",
             NameAr = "باقات زهور",
+            Icon = "bouquets.png",
+            DisplayOrder = 3,
             CreatedAt = DateTime.UtcNow
         };
 
-        var arrangementsCategory = new Category
+        if (!await db.Categories.AnyAsync())
         {
-            Name = "Arrangements",
-            NameAr = "تنسیقات زهور",
-            CreatedAt = DateTime.UtcNow
-        };
-
-        var singleStemsCategory = new Category
+            await db.Categories.AddRangeAsync(rosesCategory, tulipsCategory, bouquetsCategory);
+            await db.SaveChangesAsync();
+        }
+        else
         {
-            Name = "Single Stems",
-            NameAr = "زهور فردية",
-            CreatedAt = DateTime.UtcNow
-        };
-
-        await db.Categories.AddRangeAsync(bouquetsCategory, arrangementsCategory, singleStemsCategory);
+            bouquetsCategory = await db.Categories.FirstAsync();
+        }
 
         // 2. Seed Occasions
         var birthdayOccasion = new Occasion
@@ -59,8 +76,11 @@ public static class CatalogDataSeeder
             CreatedAt = DateTime.UtcNow
         };
 
-        await db.Occasions.AddRangeAsync(birthdayOccasion, anniversaryOccasion, valentinesOccasion);
-        await db.SaveChangesAsync();
+        if (!await db.Occasions.AnyAsync())
+        {
+            await db.Occasions.AddRangeAsync(birthdayOccasion, anniversaryOccasion, valentinesOccasion);
+            await db.SaveChangesAsync();
+        }
 
         // 3. Seed Products
         var product1 = new Product
@@ -77,7 +97,7 @@ public static class CatalogDataSeeder
             DescriptionAr = "باقة جميلة من الورود الحمراء الطازجة لمناسباتك الخاصة.",
             IsBestSeller = true,
             BestSellerOrder = 1,
-            Category = bouquetsCategory,
+            CategoryId = bouquetsCategory.Id,
             CreatedAt = DateTime.UtcNow,
             Images =
             [
@@ -105,7 +125,7 @@ public static class CatalogDataSeeder
             DescriptionAr = "دوّار شمس أصفر مشرق يبعث الدفء والبهجة.",
             IsBestSeller = true,
             BestSellerOrder = 2,
-            Category = bouquetsCategory,
+            CategoryId = bouquetsCategory.Id,
             CreatedAt = DateTime.UtcNow,
             Images =
             [
@@ -128,18 +148,16 @@ public static class CatalogDataSeeder
             OriginalPrice = null,
             DiscountPercentage = null,
             Status = ProductStatus.InStock,
-            Description = "Lorem ipsum dolor sit amet consectetur. Id sit morbi ornare morbi duis rhoncus orci massa.",
+            Description = "Fresh fragrant roses arranged into a lovely bouquet.",
             DescriptionAr = "وصف منتج تجريبي للباقة الوردية الأنيقة.",
             IsBestSeller = true,
             BestSellerOrder = 3,
-            Category = bouquetsCategory,
+            CategoryId = bouquetsCategory.Id,
             CreatedAt = DateTime.UtcNow,
             Images =
             [
                 new ProductImage { ImageUrl = "https://cdn.flowery-app.com/products/103_1.jpg", SortOrder = 0 },
-                new ProductImage { ImageUrl = "https://cdn.flowery-app.com/products/103_2.jpg", SortOrder = 1 },
-                new ProductImage { ImageUrl = "https://cdn.flowery-app.com/products/103_3.jpg", SortOrder = 2 },
-                new ProductImage { ImageUrl = "https://cdn.flowery-app.com/products/103_4.jpg", SortOrder = 3 }
+                new ProductImage { ImageUrl = "https://cdn.flowery-app.com/products/103_2.jpg", SortOrder = 1 }
             ],
             Includes =
             [
@@ -148,34 +166,7 @@ public static class CatalogDataSeeder
             ]
         };
 
-        var product4 = new Product
-        {
-            Name = "White Orchid Arrangement",
-            NameAr = "تنسيقة أوركيد بيضاء",
-            ImageUrl = "https://cdn.flowery-app.com/products/104.jpg",
-            Currency = "EGP",
-            Price = 1200,
-            OriginalPrice = 1500,
-            DiscountPercentage = 20,
-            Status = ProductStatus.InStock,
-            Description = "Elegant white orchid in a ceramic pot.",
-            DescriptionAr = "أوركيد بيضاء أنيقة في أصيص خزفي.",
-            IsBestSeller = false,
-            BestSellerOrder = 0,
-            Category = arrangementsCategory,
-            CreatedAt = DateTime.UtcNow,
-            Images =
-            [
-                new ProductImage { ImageUrl = "https://cdn.flowery-app.com/products/104_1.jpg", SortOrder = 0 }
-            ],
-            Includes =
-            [
-                new ProductInclude { Name = "White Orchid", NameAr = "أوركيد بيضاء" },
-                new ProductInclude { Name = "Ceramic Pot", NameAr = "أصيص خزفي" }
-            ]
-        };
-
-        await db.Products.AddRangeAsync(product1, product2, product3, product4);
+        await db.Products.AddRangeAsync(product1, product2, product3);
         await db.SaveChangesAsync();
 
         // 4. Link Products & Occasions
@@ -184,10 +175,8 @@ public static class CatalogDataSeeder
             new ProductOccasion { ProductId = product1.Id, OccasionId = anniversaryOccasion.Id },
             new ProductOccasion { ProductId = product2.Id, OccasionId = birthdayOccasion.Id },
             new ProductOccasion { ProductId = product3.Id, OccasionId = valentinesOccasion.Id },
-            new ProductOccasion { ProductId = product3.Id, OccasionId = birthdayOccasion.Id },
-            new ProductOccasion { ProductId = product4.Id, OccasionId = anniversaryOccasion.Id }
+            new ProductOccasion { ProductId = product3.Id, OccasionId = birthdayOccasion.Id }
         );
-
         await db.SaveChangesAsync();
 
         // 5. Seed Home Sections
