@@ -23,6 +23,24 @@
       "value": "en",
       "type": "string",
       "description": "Language header (en or ar)"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string",
+      "description": "Refresh Token for Token Refresh Endpoint"
+    },
+    {
+      "key": "occasionId",
+      "value": "",
+      "type": "string",
+      "description": "Occasion ID for filtering products by occasion"
+    },
+    {
+      "key": "productId",
+      "value": "",
+      "type": "string",
+      "description": "Product ID for fetching product details"
     }
   ],
   "item": [
@@ -562,6 +580,24 @@
       "item": [
         {
           "name": "Get Home Sections",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.data && jsonData.data.length > 0) {",
+                  "    var sectionWithOccasion = jsonData.data.find(function(s) { return s.occasionId; });",
+                  "    if (sectionWithOccasion && sectionWithOccasion.occasionId) {",
+                  "        pm.collectionVariables.set('occasionId', sectionWithOccasion.occasionId);",
+                  "        console.log('Saved occasionId from home sections: ' + sectionWithOccasion.occasionId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [
@@ -579,25 +615,23 @@
           }
         },
         {
-          "name": "Get Categories",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept-Language",
-                "value": "{{acceptLanguage}}",
-                "type": "text"
+          "name": "Get Active Occasions (Paginated)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.data && jsonData.data.items && jsonData.data.items.length > 0) {",
+                  "    var firstOccasion = jsonData.data.items[0];",
+                  "    pm.collectionVariables.set('occasionId', firstOccasion.id);",
+                  "    console.log('Saved occasionId from occasions list: ' + firstOccasion.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
               }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/catalog/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "categories"]
             }
-          }
-        },
-        {
-          "name": "Get Occasions",
+          ],
           "request": {
             "method": "GET",
             "header": [
@@ -608,12 +642,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/catalog/occasions?page=1&pageSize=10",
+              "raw": "{{baseUrl}}/catalog/occasions?pageNumber=1&pageSize=10",
               "host": ["{{baseUrl}}"],
               "path": ["catalog", "occasions"],
               "query": [
                 {
-                  "key": "page",
+                  "key": "pageNumber",
                   "value": "1"
                 },
                 {
@@ -625,35 +659,23 @@
           }
         },
         {
-          "name": "Get Best Seller Products",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept-Language",
-                "value": "{{acceptLanguage}}",
-                "type": "text"
+          "name": "Get Products by Occasion (Paginated)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.data && jsonData.data.items && jsonData.data.items.length > 0) {",
+                  "    var firstProduct = jsonData.data.items[0];",
+                  "    pm.collectionVariables.set('productId', firstProduct.id);",
+                  "    console.log('Saved productId from products list: ' + firstProduct.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
               }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/catalog/products/best-sellers?page=1&pageSize=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "products", "best-sellers"],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "pageSize",
-                  "value": "10"
-                }
-              ]
             }
-          }
-        },
-        {
-          "name": "Get Products (Filter & Search)",
+          ],
           "request": {
             "method": "GET",
             "header": [
@@ -664,32 +686,16 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/catalog/products?page=1&pageSize=10",
+              "raw": "{{baseUrl}}/catalog/products?occasionId={{occasionId}}&pageNumber=1&pageSize=10",
               "host": ["{{baseUrl}}"],
               "path": ["catalog", "products"],
               "query": [
                 {
-                  "key": "categoryId",
-                  "value": "1",
-                  "disabled": true
-                },
-                {
                   "key": "occasionId",
-                  "value": "1",
-                  "disabled": true
+                  "value": "{{occasionId}}"
                 },
                 {
-                  "key": "keyword",
-                  "value": "rose",
-                  "disabled": true
-                },
-                {
-                  "key": "sortBy",
-                  "value": "PriceLowToHigh",
-                  "disabled": true
-                },
-                {
-                  "key": "page",
+                  "key": "pageNumber",
                   "value": "1"
                 },
                 {
@@ -701,7 +707,7 @@
           }
         },
         {
-          "name": "Get Product Details",
+          "name": "Get Product Details by ID",
           "request": {
             "method": "GET",
             "header": [
@@ -718,111 +724,9 @@
               "variable": [
                 {
                   "key": "productId",
-                  "value": "00000000-0000-0000-0000-000000000000"
+                  "value": "{{productId}}"
                 }
               ]
-            }
-          }
-        },
-        {
-          "name": "Get All Home Sections (Admin)",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{bearerToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept-Language",
-                "value": "{{acceptLanguage}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/catalog/admin/home/sections",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "admin", "home", "sections"]
-            }
-          }
-        },
-        {
-          "name": "Add Home Section (Admin)",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{bearerToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept-Language",
-                "value": "{{acceptLanguage}}",
-                "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"type\": \"Categories\",\n  \"index\": 1,\n  \"isActive\": true,\n  \"title\": \"Top Categories\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/catalog/admin/home/sections",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "admin", "home", "sections"]
-            }
-          }
-        },
-        {
-          "name": "Reorder Home Sections (Admin)",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{bearerToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Accept-Language",
-                "value": "{{acceptLanguage}}",
-                "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"sections\": [\n    {\n      \"id\": 1,\n      \"index\": 1,\n      \"isActive\": true\n    },\n    {\n      \"id\": 2,\n      \"index\": 2,\n      \"isActive\": true\n    }\n  ]\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/catalog/admin/home/sections/reorder",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "admin", "home", "sections", "reorder"]
             }
           }
         }

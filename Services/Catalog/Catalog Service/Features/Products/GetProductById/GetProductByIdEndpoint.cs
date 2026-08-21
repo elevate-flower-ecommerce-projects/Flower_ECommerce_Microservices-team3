@@ -17,9 +17,9 @@ public static class GetProductByIdEndpoint
             IMediator mediator,
             CancellationToken ct) =>
         {
-            var language = (acceptLanguage?.StartsWith("ar", StringComparison.OrdinalIgnoreCase) == true)
-                ? "ar"
-                : "en";
+            var language = !string.IsNullOrWhiteSpace(acceptLanguage)
+                ? (acceptLanguage.StartsWith("ar", StringComparison.OrdinalIgnoreCase) ? "ar" : "en")
+                : (System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName.StartsWith("ar", StringComparison.OrdinalIgnoreCase) ? "ar" : "en");
 
             var result = await mediator.Send(new GetProductByIdQuery(productId, language), ct);
 

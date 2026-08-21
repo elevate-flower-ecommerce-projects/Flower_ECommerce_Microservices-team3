@@ -28,28 +28,24 @@ public class Program
             options.UseSqlServer(
                 builder.Configuration.GetConnectionString("DefaultConnection")));
 
-        // Unit of Work & Generic Repository
+        // 2. Unit of Work & Generic Repository
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
-        // MediatR & FluentValidation Pipeline
-        builder.Services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
-        builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
-        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-        builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
-
+        // 3. MediatR & FluentValidation Pipeline
+        var assembly = typeof(Program).Assembly;
         builder.Services.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+            cfg.RegisterServicesFromAssembly(assembly);
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
+        builder.Services.AddValidatorsFromAssembly(assembly);
 
-        // 2. Global Exception Handling
+        // 4. Global Exception Handling
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         builder.Services.AddProblemDetails();
 
-        // 3. Localization
+        // 5. Localization
         builder.Services.AddLocalization();
         builder.Services.Configure<RequestLocalizationOptions>(options =>
         {
@@ -64,7 +60,7 @@ public class Program
             options.SupportedUICultures = supportedCultures;
         });
 
-        // 4. API & Swagger
+        // 6. API & Swagger
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
         {
@@ -74,15 +70,6 @@ public class Program
                 Version = "v1"
             });
         });
-
-        // 5. MediatR & Validation Pipeline
-        var assembly = typeof(Program).Assembly;
-        builder.Services.AddMediatR(cfg =>
-        {
-            cfg.RegisterServicesFromAssembly(assembly);
-            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
-        });
-        builder.Services.AddValidatorsFromAssembly(assembly);
 
         var app = builder.Build();
 
