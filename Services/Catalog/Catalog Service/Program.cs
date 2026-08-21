@@ -175,11 +175,8 @@ public class Program
         // 10. Endpoints
         // =========================================================
 
-        app.MapGet(
-            "/",
-            () => Results.Redirect("/swagger"));
-
-        // Home
+        app.MapGet("/", () => Results.Redirect("/swagger"));
+        app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Catalog Service", timestamp = DateTime.UtcNow }));
         app.MapGetHomeSectionsEndpoint();
 
         // Products

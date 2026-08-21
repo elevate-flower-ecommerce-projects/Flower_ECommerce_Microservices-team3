@@ -157,18 +157,97 @@ namespace Identity.Api
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
-                try
-                {
-                    var context = services.GetRequiredService<FlowersAuthDbContext>();
-                    var passwordService = services.GetRequiredService<IPasswordService>();
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                const int maxRetries = 10;
+                var delay = TimeSpan.FromSeconds(3);
 
-                    await context.Database.MigrateAsync();
-                    await FlowersAuthSeeder.SeedAsync(context, passwordService);
-                }
-                catch (Exception ex)
+                for (int retry = 1; retry <= maxRetries; retry++)
                 {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred while seeding the database.");
+                    try
+                    {
+                        var context = services.GetRequiredService<FlowersAuthDbContext>();
+                        var passwordService = services.GetRequiredService<IPasswordService>();
+
+                        logger.LogInformation("Applying database migrations for FlowersAuthDbContext (Attempt {Retry}/{MaxRetries})...", retry, maxRetries);
+                        try
+                        {
+                            await context.Database.ExecuteSqlRawAsync(@"
+                                IF OBJECT_ID(N'[AdminLoginAudits]') IS NOT NULL
+                                BEGIN
+                                    IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+                                    BEGIN
+                                        CREATE TABLE [__EFMigrationsHistory] (
+                                            [MigrationId] nvarchar(150) NOT NULL,
+                                            [ProductVersion] nvarchar(32) NOT NULL,
+                                            CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+                                        );
+                                    END;
+                                    IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = '20260813122742_InitialCreate')
+                                    BEGIN
+                                        INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+                                        VALUES ('20260813122742_InitialCreate', '9.0.0');
+                                    END;
+                                END;
+
+                                IF OBJECT_ID(N'[LoginAttempts]') IS NULL
+                                BEGIN
+                                    CREATE TABLE [LoginAttempts] (
+                                        [Id] uniqueidentifier NOT NULL,
+                                        [Email] nvarchar(256) NOT NULL,
+                                        [IpAddress] nvarchar(45) NOT NULL,
+                                        [IsSuccessful] bit NOT NULL,
+                                        [AttemptedAt] datetime2 NOT NULL,
+                                        CONSTRAINT [PK_LoginAttempts] PRIMARY KEY ([Id])
+                                    );
+                                    CREATE INDEX [IX_LoginAttempts_Email] ON [LoginAttempts] ([Email]);
+                                    CREATE INDEX [IX_LoginAttempts_IpAddress] ON [LoginAttempts] ([IpAddress]);
+                                    CREATE INDEX [IX_LoginAttempts_AttemptedAt] ON [LoginAttempts] ([AttemptedAt]);
+                                END;
+
+                                IF OBJECT_ID(N'[UserDevices]') IS NULL
+                                BEGIN
+                                    CREATE TABLE [UserDevices] (
+                                        [Id] uniqueidentifier NOT NULL,
+                                        [UserId] uniqueidentifier NOT NULL,
+                                        [DeviceId] varchar(128) NOT NULL,
+                                        [FcmToken] varchar(512) NOT NULL,
+                                        [UpdatedAt] datetime2 NOT NULL,
+                                        CONSTRAINT [PK_UserDevices] PRIMARY KEY ([Id]),
+                                        CONSTRAINT [FK_UserDevices_Users_UserId] FOREIGN KEY ([UserId]) REFERENCES [Users] ([Id]) ON DELETE CASCADE
+                                    );
+                                    CREATE UNIQUE INDEX [UX_UserDevices_UserId_DeviceId] ON [UserDevices] ([UserId], [DeviceId]);
+                                    CREATE UNIQUE INDEX [UX_UserDevices_FcmToken] ON [UserDevices] ([FcmToken]);
+                                    CREATE INDEX [IX_UserDevices_UserId_UpdatedAt] ON [UserDevices] ([UserId], [UpdatedAt]);
+                                END;
+
+                                IF COL_LENGTH('RefreshTokens', 'DeviceId') IS NULL
+                                BEGIN
+                                    ALTER TABLE [RefreshTokens] ADD [DeviceId] varchar(128) NULL;
+                                    CREATE INDEX [IX_RefreshTokens_UserId_DeviceId] ON [RefreshTokens] ([UserId], [DeviceId]);
+                                END;
+                            ");
+                        }
+                        catch (Exception histEx)
+                        {
+                            logger.LogWarning("Migration history check warning: {Message}", histEx.Message);
+                        }
+
+                        await context.Database.MigrateAsync();
+
+                        await FlowersAuthSeeder.SeedAsync(context, passwordService);
+                        logger.LogInformation("Database migration and seeding completed successfully.");
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        if (retry == maxRetries)
+                        {
+                            logger.LogError(ex, "An error occurred while applying database migrations or seeding data after {MaxRetries} attempts.", maxRetries);
+                            throw;
+                        }
+                        logger.LogWarning("Database migration attempt {Retry}/{MaxRetries} failed: {Message}. Retrying in {Delay}s...", retry, maxRetries, ex.Message, delay.TotalSeconds);
+                        await Task.Delay(delay);
+                    }
                 }
             }
 

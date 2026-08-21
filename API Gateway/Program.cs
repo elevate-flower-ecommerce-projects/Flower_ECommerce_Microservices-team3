@@ -32,6 +32,17 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// Add CORS policy to allow Swagger Editor and frontend requests
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 // Configure YARP Reverse Proxy
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
@@ -40,6 +51,9 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+// Enable CORS middleware before HttpsRedirection & ReverseProxy
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 
@@ -50,3 +64,4 @@ app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "API 
 app.MapReverseProxy();
 
 app.Run();
+
