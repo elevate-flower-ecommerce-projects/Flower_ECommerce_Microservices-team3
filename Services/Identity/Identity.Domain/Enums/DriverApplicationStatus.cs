@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+namespace Identity.Domain.Enums;
 
-namespace Identity.Domain.Enums
+public enum DriverApplicationStatus
 {
-    public enum DriverApplicationStatus
-    {
-        Pending = 1,
-        Approved = 2,
-        Rejected = 3
-    }
+    Pending = 1,
+    Approved = 2,
+    Rejected = 3
 }

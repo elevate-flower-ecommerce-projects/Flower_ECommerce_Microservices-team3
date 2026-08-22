@@ -2,20 +2,28 @@ using Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Identity.Infrastructure.Persistence.Configurations
+namespace Identity.Infrastructure.Persistence.Configurations;
+
+public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
 {
-    public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
+    public void Configure(EntityTypeBuilder<RefreshToken> builder)
     {
-        public void Configure(EntityTypeBuilder<RefreshToken> builder)
-        {
-            builder.HasIndex(r => r.Token).IsUnique();
+        builder.HasIndex(r => r.Token).IsUnique();
+        builder.Property(r => r.Token).IsRequired().HasMaxLength(256);
 
-            builder.Property(r => r.Token).IsRequired().HasMaxLength(256);
+        
+        builder.Property(r => r.DeviceId)
+            .HasMaxLength(128)
+            .IsUnicode(false);
 
-            builder.HasOne(r => r.User)
-                .WithMany()
-                .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-        }
+        
+        builder.HasIndex(r => new { r.UserId, r.DeviceId })
+            .HasDatabaseName("IX_RefreshTokens_UserId_DeviceId");
+
+        builder.HasOne(r => r.User)
+            .WithMany()
+            .HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
+
