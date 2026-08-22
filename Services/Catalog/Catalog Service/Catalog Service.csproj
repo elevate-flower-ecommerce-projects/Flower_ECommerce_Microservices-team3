@@ -25,4 +25,8 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\Blocks.Contracts\Blocks.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Products\SearchProducts\ViewModels\" />
+  </ItemGroup>
+
 </Project>
