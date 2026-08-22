@@ -71,20 +71,20 @@ public sealed class ForgotPasswordHandler(
             cancellationToken);
 
         // Send OTP email
-        //var emailResult = await emailService.SendOtpAsync(
-        //    user.Email,
-        //    otp,
-        //    cancellationToken);
+        var emailResult = await emailService.SendOtpAsync(
+            user.Email,
+            otp,
+            cancellationToken);
 
-        //if (emailResult.IsFailure)
-        //{
-        //    return Result.Failure<ForgotPasswordResponse>(
-        //        emailResult.Error);
-        //}
+        if (emailResult.IsFailure)
+        {
+            return Result.Failure<ForgotPasswordResponse>(
+                emailResult.Error);
+        }
 
-        Console.BackgroundColor = ConsoleColor.Green;
-        Console.WriteLine(otp);
-        Console.ResetColor();
+        //Console.BackgroundColor = ConsoleColor.Green;
+        //Console.WriteLine(otp);
+        //Console.ResetColor();
 
         return Result.Success(
             new ForgotPasswordResponse(message));
