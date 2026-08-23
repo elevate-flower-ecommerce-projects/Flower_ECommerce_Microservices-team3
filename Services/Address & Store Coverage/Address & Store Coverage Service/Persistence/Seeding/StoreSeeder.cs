@@ -1,4 +1,4 @@
-﻿using Address___Store_Coverage_Service.Entities;
+using Address___Store_Coverage_Service.Entities;
 using Microsoft.EntityFrameworkCore;
 namespace Address___Store_Coverage_Service.Persistence.Seeding
 {
@@ -6,7 +6,7 @@ namespace Address___Store_Coverage_Service.Persistence.Seeding
     {
         public static async Task SeedAsync(FlowersAddressStoreCoverageDbContext db)
         {
-            if (await db.Stores.AnyAsync()) return;
+            if (await db.Stores.IgnoreQueryFilters().AnyAsync()) return;
             db.Stores.AddRange(
                 new Store
                 {

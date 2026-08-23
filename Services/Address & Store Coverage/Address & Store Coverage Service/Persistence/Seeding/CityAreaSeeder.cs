@@ -1,4 +1,4 @@
-﻿using Address___Store_Coverage_Service.Entities;
+using Address___Store_Coverage_Service.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Address___Store_Coverage_Service.Persistence.Seeding
@@ -11,7 +11,7 @@ namespace Address___Store_Coverage_Service.Persistence.Seeding
             FlowersAddressStoreCoverageDbContext context,
             CancellationToken cancellationToken = default)
         {
-            if (await context.Cities.AnyAsync(cancellationToken))
+            if (await context.Cities.IgnoreQueryFilters().AnyAsync(cancellationToken))
             {
                 return;
             }
