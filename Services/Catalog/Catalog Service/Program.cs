@@ -28,7 +28,8 @@ public class Program
         // 1. Database Context
         builder.Services.AddDbContext<FlowersCatalogDbContext>(options =>
             options.UseSqlServer(
-                builder.Configuration.GetConnectionString("DefaultConnection")));
+                builder.Configuration.GetConnectionString("DefaultConnection"))
+                   .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
         // 2. Unit of Work & Generic Repository
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

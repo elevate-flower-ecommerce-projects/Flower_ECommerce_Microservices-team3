@@ -22,5 +22,7 @@ public class ProductImageConfiguration : IEntityTypeConfiguration<ProductImage>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(pi => new { pi.ProductId, pi.SortOrder });
+
+        builder.HasQueryFilter(pi => pi.Product.IsActive);
     }
 }
