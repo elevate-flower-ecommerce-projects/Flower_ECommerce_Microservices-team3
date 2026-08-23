@@ -7,6 +7,7 @@ using Identity.Application.Features.RefreshTokens.Commands;
 using Identity.Application.Interfaces;
 using Identity.Application.Settings;
 using Identity.Domain.Entities;
+using Identity.Application.Features.Customers.Queries;
 using Identity.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -80,7 +81,7 @@ public class LoginCommandHandler(
       
         var user = await userRepository.GetQueryable()
             .AsNoTracking()
-            .Where(u => u.Email == normalizedEmail)
+            .Where(u => u.Email == normalizedEmail && u.DeletedAt == null)
             .Select(u => new
             {
                 u.Id,
@@ -124,6 +125,7 @@ public class LoginCommandHandler(
 
         // ── 6. Driver Status Lookup ──
         string? driverStatus = null;
+        Guid? customerId = null;
         if (user.Role == UserRole.Driver)
         {
            
@@ -137,12 +139,17 @@ public class LoginCommandHandler(
 
             driverStatus = latestStatus?.ToString();
         }
+        else if (user.Role == UserRole.Customer)
+        {
+            customerId = await mediator.Send(
+                new GetCustomerIdByUserIdQuery(user.Id), cancellationToken);
+        }
 
         // ── 7. Generate Tokens & Save Refresh Token ──
         await unitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
-            var userTokenDto = new UserTokenDto(user.Id, user.Email, user.Role, user.IsActive);
+            var userTokenDto = new UserTokenDto(user.Id, user.Email, user.Role, user.IsActive, customerId);
             var accessToken = tokenService.GenerateAccessToken(userTokenDto);
             var refreshTokenValue = tokenService.GenerateRefreshToken();
 
