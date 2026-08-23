@@ -139,16 +139,32 @@ public class Program
             var services = scope.ServiceProvider;
             var logger = services.GetRequiredService<ILogger<Program>>();
 
-            try
+            var retryCount = 0;
+            const int maxRetries = 5;
+            while (retryCount < maxRetries)
             {
-                var db = services.GetRequiredService<FlowersAddressStoreCoverageDbContext>();
-                await db.Database.MigrateAsync();
-                await CityAreaSeeder.SeedAsync(db);
-                await StoreSeeder.SeedAsync(db);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "An error occurred while applying database migrations.");
+                try
+                {
+                    var db = services.GetRequiredService<FlowersAddressStoreCoverageDbContext>();
+                    await db.Database.MigrateAsync();
+                    await CityAreaSeeder.SeedAsync(db);
+                    await StoreSeeder.SeedAsync(db);
+                    logger.LogInformation("Database migrations and data seeding completed successfully.");
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    retryCount++;
+                    logger.LogWarning(ex, "Attempt {Retry} of {MaxRetries} failed while applying database migrations or seeding data.", retryCount, maxRetries);
+                    if (retryCount >= maxRetries)
+                    {
+                        logger.LogError(ex, "Failed to apply database migrations or seed data after {MaxRetries} attempts.", maxRetries);
+                    }
+                    else
+                    {
+                        await Task.Delay(2000);
+                    }
+                }
             }
         }
 
