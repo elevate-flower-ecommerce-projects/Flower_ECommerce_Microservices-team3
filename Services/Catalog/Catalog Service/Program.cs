@@ -1,4 +1,3 @@
-using System.Globalization;
 using Blocks.Contracts.Behaviors;
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
@@ -8,6 +7,7 @@ using Catalog_Service.Features.Occasions.GetPaginatedOccasions.Endpoints;
 using Catalog_Service.Features.Products.GetProductByCategory.Endpoints;
 using Catalog_Service.Features.Products.GetProductById;
 using Catalog_Service.Features.Products.GetProductsByOccasionId.Endpoints;
+using Catalog_Service.Features.Products.SearchProducts.Endpoints;
 using Catalog_Service.Persistence;
 using Catalog_Service.Persistence.Repositories;
 using Catalog_Service.Persistence.Seeding;
@@ -16,6 +16,7 @@ using MediatR;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Globalization;
 
 namespace Catalog_Service;
 
@@ -128,6 +129,9 @@ public class Program
 
         // Products by Category
         app.MapGetProductsByCategoryEndpoint();
+
+        // Search Products
+        app.MapSearchProductsEndpoint();
 
         await app.RunAsync();
     }
