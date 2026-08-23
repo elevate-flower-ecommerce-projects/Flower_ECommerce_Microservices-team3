@@ -1,11 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Blocks.Contracts.Common;
 
-namespace Identity.Application.Interfaces
+namespace Identity.Application.Interfaces;
+
+public interface IEmailService
 {
-    public interface IEmailService
-    {
-        Task SendPasswordChangedEmailAsync(string toEmail, string userName, CancellationToken cancellationToken = default);
-    }
+    Task<Result> SendOtpAsync(
+        string email,
+        string otp,
+        CancellationToken cancellationToken = default);
+
+    Task<Result> SendPasswordChangedEmailAsync(
+        string toEmail,
+        string userName,
+        CancellationToken cancellationToken = default);
 }

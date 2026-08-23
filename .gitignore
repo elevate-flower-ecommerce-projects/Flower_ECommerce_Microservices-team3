@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd.claude/
+/flowery_team2_postman_collection.json
+/flowery_team1_postman_collection.json

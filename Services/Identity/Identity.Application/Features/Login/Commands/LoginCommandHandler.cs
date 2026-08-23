@@ -37,7 +37,10 @@ public class LoginCommandHandler(
         LoginCommand request,
         CancellationToken cancellationToken)
     {
-        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+        var normalizedEmail = (request.Email ?? string.Empty).Trim().ToLowerInvariant();
+        var safeIpAddress = string.IsNullOrWhiteSpace(request.IpAddress) 
+            ? "unknown" 
+            : (request.IpAddress.Length > 45 ? request.IpAddress[..45] : request.IpAddress);
 
         var now = DateTime.UtcNow;
         var windowStart = now.AddMinutes(-LockoutWindowMinutes);
@@ -67,7 +70,7 @@ public class LoginCommandHandler(
         
         var failedByIpCount = await loginAttemptRepository.GetQueryable()
             .CountAsync(
-                a => a.IpAddress == request.IpAddress
+                a => a.IpAddress == safeIpAddress
                   && !a.IsSuccessful
                   && a.AttemptedAt >= windowStart,
                 cancellationToken);
@@ -95,12 +98,12 @@ public class LoginCommandHandler(
             .FirstOrDefaultAsync(cancellationToken);
 
         // ── 3. Verify Password ──
-        if (user is null || !passwordService.Verify(request.Password, user.HashPassword))
+        if (user is null || string.IsNullOrEmpty(request.Password) || !passwordService.Verify(request.Password, user.HashPassword))
         {
             loginAttemptRepository.Add(new LoginAttempt
             {
                 Email = normalizedEmail,
-                IpAddress = request.IpAddress,
+                IpAddress = safeIpAddress,
                 IsSuccessful = false,
                 AttemptedAt = DateTime.UtcNow
             });
@@ -163,7 +166,7 @@ public class LoginCommandHandler(
             loginAttemptRepository.Add(new LoginAttempt
             {
                 Email = normalizedEmail,
-                IpAddress = request.IpAddress,
+                IpAddress = safeIpAddress,
                 IsSuccessful = true,
                 AttemptedAt = DateTime.UtcNow
             });

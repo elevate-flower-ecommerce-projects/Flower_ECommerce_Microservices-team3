@@ -1,4 +1,4 @@
-﻿using Catalog_Service.Features.Products.GetProductsByOccasionId.Queries;
+using Catalog_Service.Features.Products.GetProductsByOccasionId.Queries;
 using FluentValidation;
 
 namespace Catalog_Service.Features.Products.GetProductsByOccasionId.Validators
@@ -17,7 +17,9 @@ namespace Catalog_Service.Features.Products.GetProductsByOccasionId.Validators
 
             RuleFor(x => x.PageSize)
                 .GreaterThanOrEqualTo(1)
-                .WithMessage("Page size must be at least 1.");
+                .WithMessage("Page size must be at least 1.")
+                .LessThanOrEqualTo(100)
+                .WithMessage("Page size cannot exceed 100.");
         }
     }
 }

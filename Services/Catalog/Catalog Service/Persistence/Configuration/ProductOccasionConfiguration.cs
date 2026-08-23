@@ -21,5 +21,7 @@ public class ProductOccasionConfiguration : IEntityTypeConfiguration<ProductOcca
             .WithMany(o => o.ProductOccasions)
             .HasForeignKey(po => po.OccasionId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasQueryFilter(po => po.Product.IsActive && po.Occasion.IsActive);
     }
 }

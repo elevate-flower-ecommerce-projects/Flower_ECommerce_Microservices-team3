@@ -1,10 +1,12 @@
-using Microsoft.OpenApi.Models;
+using System.Globalization;
 using Blocks.Contracts.Behaviors;
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
+using Catalog_Service.Features.Categories.GetActiveCategories.Endpoints;
 using Catalog_Service.Features.Home.GetSections;
-using Catalog_Service.Features.Products.GetProductById;
 using Catalog_Service.Features.Occasions.GetPaginatedOccasions.Endpoints;
+using Catalog_Service.Features.Products.GetProductByCategory.Endpoints;
+using Catalog_Service.Features.Products.GetProductById;
 using Catalog_Service.Features.Products.GetProductsByOccasionId.Endpoints;
 using Catalog_Service.Persistence;
 using Catalog_Service.Persistence.Repositories;
@@ -13,7 +15,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
-using System.Globalization;
+using Microsoft.OpenApi.Models;
 
 namespace Catalog_Service;
 
@@ -26,30 +28,27 @@ public class Program
         // 1. Database Context
         builder.Services.AddDbContext<FlowersCatalogDbContext>(options =>
             options.UseSqlServer(
-                builder.Configuration.GetConnectionString("DefaultConnection")));
+                builder.Configuration.GetConnectionString("DefaultConnection"))
+                   .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
-        // Unit of Work & Generic Repository
+        // 2. Unit of Work & Generic Repository
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
-        // MediatR & FluentValidation Pipeline
-        builder.Services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
-        builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
-        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-        builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
-
+        // 3. MediatR & FluentValidation Pipeline
+        var assembly = typeof(Program).Assembly;
         builder.Services.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+            cfg.RegisterServicesFromAssembly(assembly);
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
+        builder.Services.AddValidatorsFromAssembly(assembly);
 
-        // 2. Global Exception Handling
+        // 4. Global Exception Handling
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         builder.Services.AddProblemDetails();
 
-        // 3. Localization
+        // 5. Localization
         builder.Services.AddLocalization();
         builder.Services.Configure<RequestLocalizationOptions>(options =>
         {
@@ -64,7 +63,7 @@ public class Program
             options.SupportedUICultures = supportedCultures;
         });
 
-        // 4. API & Swagger
+        // 6. API & Swagger
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
         {
@@ -74,15 +73,6 @@ public class Program
                 Version = "v1"
             });
         });
-
-        // 5. MediatR & Validation Pipeline
-        var assembly = typeof(Program).Assembly;
-        builder.Services.AddMediatR(cfg =>
-        {
-            cfg.RegisterServicesFromAssembly(assembly);
-            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
-        });
-        builder.Services.AddValidatorsFromAssembly(assembly);
 
         var app = builder.Build();
 
@@ -117,12 +107,27 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        // Endpoints
         app.MapGet("/", () => Results.Redirect("/swagger"));
         app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Catalog Service", timestamp = DateTime.UtcNow }));
+
+        // Home Sections
         app.MapGetHomeSectionsEndpoint();
+
+        // Products
         app.MapProductEndpoints();
+
+        // Occasions
         app.MapGetActiveOccasionsEndpoint();
+
+        // Products by Occasion
         app.MapGetProductsEndpoint();
+
+        // Categories
+        app.MapGetActiveCategoriesEndpoint();
+
+        // Products by Category
+        app.MapGetProductsByCategoryEndpoint();
 
         await app.RunAsync();
     }
