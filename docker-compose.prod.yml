@@ -69,8 +69,46 @@ services:
 
   # ────────────────────────────────────────────────────────────────────────────
   # API Gateway (Main Entry Point for Flutter App)
-  # ───────────────────────────────────────────────────────────────�    environment:
-      ASPNETCORE_ENVIRONMENT: Production
+  # ────────────────────────────────────────────────────────────────────────────
+  apigateway:
+    image: ${DOCKER_USERNAME:-hossammokhtar}/flower-apigateway:latest
+    container_name: flower_apigateway
+    restart: unless-stopped
+    depends_on:
+      identity-api:
+        condition: service_started
+      catalog-service:
+        condition: service_started
+      cart-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+      address-service:
+        condition: service_started
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 8080
+    ports:
+      - "8080:8080"
+    networks:
+      - flower_net
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Identity Microservice
+  # ────────────────────────────────────────────────────────────────────────────
+  identity-api:
+    image: ${DOCKER_USERNAME:-hossammokhtar}/flower-identity-api:latest
+    container_name: flower_identity_api
+    restart: unless-stopped
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=${MSSQL_DB:-FlowersAuthDb};User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
       RabbitMQ__Host: rabbitmq
@@ -88,14 +126,14 @@ services:
   # Catalog Microservice
   # ────────────────────────────────────────────────────────────────────────────
   catalog-service:
-    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-catalog-service:latest
+    image: ${DOCKER_USERNAME:-hossammokhtar}/flower-catalog-service:latest
     container_name: flower_catalog_service
     restart: unless-stopped
     depends_on:
       sqlserver:
         condition: service_healthy
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=${MSSQL_CATALOG_DB:-FlowersCatalogDb};User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
     ports:
@@ -107,11 +145,11 @@ services:
   # Cart Microservice
   # ────────────────────────────────────────────────────────────────────────────
   cart-service:
-    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-cart-service:latest
+    image: ${DOCKER_USERNAME:-hossammokhtar}/flower-cart-service:latest
     container_name: flower_cart_service
     restart: unless-stopped
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
     ports:
       - "5292:8080"
@@ -122,11 +160,11 @@ services:
   # Order & Fulfillment Microservice
   # ────────────────────────────────────────────────────────────────────────────
   order-service:
-    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-order-service:latest
+    image: ${DOCKER_USERNAME:-hossammokhtar}/flower-order-service:latest
     container_name: flower_order_service
     restart: unless-stopped
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
     ports:
       - "5109:8080"
@@ -137,11 +175,11 @@ services:
   # Payment Microservice
   # ────────────────────────────────────────────────────────────────────────────
   payment-service:
-    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-payment-service:latest
+    image: ${DOCKER_USERNAME:-hossammokhtar}/flower-payment-service:latest
     container_name: flower_payment_service
     restart: unless-stopped
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
     ports:
       - "5260:8080"
@@ -152,68 +190,18 @@ services:
   # Address & Store Coverage Microservice
   # ────────────────────────────────────────────────────────────────────────────
   address-service:
-    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-address-service:latest
+    image: ${DOCKER_USERNAME:-hossammokhtar}/flower-address-service:latest
     container_name: flower_address_service
     restart: unless-stopped
     depends_on:
       sqlserver:
         condition: service_healthy
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=${MSSQL_ADDRESS_DB:-FlowersAddressStoreCoverageDb};User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
     ports:
       - "5272:8080"
-    networks:
-      - flower_net�──────────────────
-  # Cart Microservice
-  # ────────────────────────────────────────────────────────────────────────────
-  cart-service:
-    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-cart-service:latest
-    container_name: flower_cart_service
-    restart: unless-stopped
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_HTTP_PORTS: 8080
-    networks:
-      - flower_net
-
-  # ────────────────────────────────────────────────────────────────────────────
-  # Order & Fulfillment Microservice
-  # ────────────────────────────────────────────────────────────────────────────
-  order-service:
-    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-order-service:latest
-    container_name: flower_order_service
-    restart: unless-stopped
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_HTTP_PORTS: 8080
-    networks:
-      - flower_net
-
-  # ────────────────────────────────────────────────────────────────────────────
-  # Payment Microservice
-  # ────────────────────────────────────────────────────────────────────────────
-  payment-service:
-    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-payment-service:latest
-    container_name: flower_payment_service
-    restart: unless-stopped
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_HTTP_PORTS: 8080
-    networks:
-      - flower_net
-
-  # ────────────────────────────────────────────────────────────────────────────
-  # Address & Store Coverage Microservice
-  # ────────────────────────────────────────────────────────────────────────────
-  address-service:
-    image: ${DOCKER_USERNAME:-yourdockerhubusername}/flower-address-service:latest
-    container_name: flower_address_service
-    restart: unless-stopped
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_HTTP_PORTS: 8080
     networks:
       - flower_net
 
