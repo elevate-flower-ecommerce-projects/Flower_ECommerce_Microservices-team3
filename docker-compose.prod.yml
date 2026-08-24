@@ -117,6 +117,12 @@ services:
       JwtSettings__Secret: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
       JwtSettings__Issuer: ${JWT_ISSUER:-FlowersAuth}
       JwtSettings__Audience: ${JWT_AUDIENCE:-FlowersApp}
+      EmailSettings__SmtpServer: ${SMTP_SERVER:-smtp.gmail.com}
+      EmailSettings__SmtpPort: ${SMTP_PORT:-587}
+      EmailSettings__SenderEmail: ${SMTP_SENDER_EMAIL:-mnourhan527@gmail.com}
+      EmailSettings__SenderName: ${SMTP_SENDER_NAME:-Flower App}
+      EmailSettings__Password: "${SMTP_PASSWORD:-igyq hsld opls dqny}"
+      Security__HmacKey: ${HMAC_KEY:-YOUR_SUPER_SECRET_HMAC_KEY_MIN_32_CHARS}
     ports:
       - "5022:8080"
     networks:

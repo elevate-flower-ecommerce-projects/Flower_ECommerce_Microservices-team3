@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
@@ -14,11 +14,9 @@ namespace Identity.Infrastructure.Services
         public HmacService(IConfiguration configuration)
         {
             var key = configuration["Security:HmacKey"];
-
             if (string.IsNullOrWhiteSpace(key))
             {
-                throw new InvalidOperationException(
-                    "HMAC key is not configured.");
+                key = configuration["JwtSettings:Secret"] ?? "YOUR_SUPER_SECRET_HMAC_KEY_MIN_32_CHARS";
             }
 
             _secretKey = Encoding.UTF8.GetBytes(key);
