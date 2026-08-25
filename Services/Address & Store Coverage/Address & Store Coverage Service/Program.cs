@@ -1,6 +1,7 @@
 using Address___Store_Coverage_Service.Features.Addresses.CreateAddress;
 using Address___Store_Coverage_Service.Features.Addresses.GetAddresses;
 using Address___Store_Coverage_Service.Features.Addresses.GetAddressById;
+using Address___Store_Coverage_Service.Features.Addresses.SetDefaultAddress;
 using Address___Store_Coverage_Service.Features.Cities;
 using Address___Store_Coverage_Service.Features.NearestCoveringStore;
 using Address___Store_Coverage_Service.Persistence;
@@ -182,6 +183,7 @@ public class Program
         app.MapCreateAddressEndpoint();
         app.MapGetAddressesEndpoint();
         app.MapGetAddressByIdEndpoint();
+        app.MapSetDefaultAddressEndpoint();
         app.MapFindNearestCoveringStoreEndpoint();
 
         app.MapGet("/", () => Results.Redirect("/swagger"));
