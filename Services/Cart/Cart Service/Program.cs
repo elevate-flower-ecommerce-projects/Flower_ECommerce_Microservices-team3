@@ -1,4 +1,6 @@
+using Blocks.Contracts.Interfaces;
 using Cart_Service.Persistence;
+using Cart_Service.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -24,6 +26,9 @@ public class Program
                 Version = "v1"
             });
         });
+
+        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
         var app = builder.Build();
 
