@@ -1,3 +1,8 @@
+using Blocks.Contracts.Interfaces;
+using Blocks.Domain.Entities;
+using Cart_Service.Persistence;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 ﻿using System.Linq.Expressions;
 using Blocks.Contracts.Interfaces;
 using Blocks.Domain.Entities;
