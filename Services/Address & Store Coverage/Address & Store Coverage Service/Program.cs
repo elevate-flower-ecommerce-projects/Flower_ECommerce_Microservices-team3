@@ -41,7 +41,11 @@ public class Program
         // 1. Database Context
         builder.Services.AddDbContext<FlowersAddressStoreCoverageDbContext>(options =>
             options.UseSqlServer(
-                builder.Configuration.GetConnectionString("DefaultConnection")));
+                builder.Configuration.GetConnectionString("DefaultConnection"),
+                sqlOptions => sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(10),
+                    errorNumbersToAdd: null)));
 
         // Unit of Work & Generic Repository
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
