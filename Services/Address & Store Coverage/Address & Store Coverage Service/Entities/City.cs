@@ -1,11 +1,12 @@
-﻿using Blocks.Domain.Entities;
+using Blocks.Domain.Entities;
 
 namespace Address___Store_Coverage_Service.Entities
 {
     public class City : AuditEntity
     {
-        public string Name { get; set; } = string.Empty;
+        public Guid AreaId { get; set; }
+        public Area Area { get; set; } = null!;
 
-        public ICollection<Area> Areas { get; set; } = new List<Area>();
+        public string Name { get; set; } = string.Empty;
     }
 }
