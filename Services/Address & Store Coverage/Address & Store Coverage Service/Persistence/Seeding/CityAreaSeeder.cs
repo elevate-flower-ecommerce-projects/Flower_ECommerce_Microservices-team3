@@ -11,10 +11,25 @@ namespace Address___Store_Coverage_Service.Persistence.Seeding
             FlowersAddressStoreCoverageDbContext context,
             CancellationToken cancellationToken = default)
         {
-            if (await context.Areas.IgnoreQueryFilters().AnyAsync(cancellationToken))
+            if (await context.Areas.IgnoreQueryFilters().CountAsync(cancellationToken) >= 27)
             {
                 return;
             }
+
+            // Remove any old incomplete area/city data if present
+            var existingCities = await context.Cities.IgnoreQueryFilters().ToListAsync(cancellationToken);
+            if (existingCities.Any())
+            {
+                context.Cities.RemoveRange(existingCities);
+            }
+
+            var existingAreas = await context.Areas.IgnoreQueryFilters().ToListAsync(cancellationToken);
+            if (existingAreas.Any())
+            {
+                context.Areas.RemoveRange(existingAreas);
+            }
+
+            await context.SaveChangesAsync(cancellationToken);
 
             var seededAt = DateTime.UtcNow;
 

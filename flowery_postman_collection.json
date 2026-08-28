@@ -1174,6 +1174,199 @@
               ]
             }
           }
+        },
+        {
+          "name": "Admin - Get Stores",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/admin/stores?page=1&pageSize=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "admin", "stores"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Create Store",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Downtown Branch\",\n  \"address\": \"10 Tahrir Square, Cairo\",\n  \"phoneNumber\": \"01012345678\",\n  \"latitude\": 30.0444,\n  \"longitude\": 31.2357,\n  \"openingTime\": \"09:00:00\",\n  \"closingTime\": \"23:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/address/admin/stores",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "admin", "stores"]
+            }
+          }
+        },
+        {
+          "name": "Admin - Get Store by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/admin/stores/:storeId",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "admin", "stores", ":storeId"],
+              "variable": [
+                {
+                  "key": "storeId",
+                  "value": "00000000-0000-0000-0000-000000000001"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Update Store",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Downtown Branch Updated\",\n  \"address\": \"10 Tahrir Square, Cairo\",\n  \"phoneNumber\": \"01012345678\",\n  \"latitude\": 30.0444,\n  \"longitude\": 31.2357,\n  \"openingTime\": \"09:00:00\",\n  \"closingTime\": \"23:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/address/admin/stores/:storeId",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "admin", "stores", ":storeId"],
+              "variable": [
+                {
+                  "key": "storeId",
+                  "value": "00000000-0000-0000-0000-000000000001"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Delete Store",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/admin/stores/:storeId",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "admin", "stores", ":storeId"],
+              "variable": [
+                {
+                  "key": "storeId",
+                  "value": "00000000-0000-0000-0000-000000000001"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Get Store Coverage Area",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/admin/stores/:storeId/coverage-area",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "admin", "stores", ":storeId", "coverage-area"],
+              "variable": [
+                {
+                  "key": "storeId",
+                  "value": "00000000-0000-0000-0000-000000000001"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Set Store Coverage Area",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"boundaryType\": 2,\n  \"radiusMeters\": 5000,\n  \"polygon\": null,\n  \"cities\": [\"00000000-0000-0000-0000-000000000001\"],\n  \"areas\": [\"00000000-0000-0000-0000-000000000002\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/address/admin/stores/:storeId/coverage-area",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "admin", "stores", ":storeId", "coverage-area"],
+              "variable": [
+                {
+                  "key": "storeId",
+                  "value": "00000000-0000-0000-0000-000000000001"
+                }
+              ]
+            }
+          }
         }
       ]
     }

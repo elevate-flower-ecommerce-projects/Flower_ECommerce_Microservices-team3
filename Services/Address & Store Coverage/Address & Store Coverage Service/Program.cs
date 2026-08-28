@@ -8,7 +8,6 @@ using Address___Store_Coverage_Service.Features.Admin.Stores.DeleteStore;
 using Address___Store_Coverage_Service.Features.Admin.Stores.GetStoreById;
 using Address___Store_Coverage_Service.Features.Admin.Stores.GetStores;
 using Address___Store_Coverage_Service.Features.Admin.Stores.UpdateStore;
-using Address___Store_Coverage_Service.Features.Cities;
 using Address___Store_Coverage_Service.Features.Addresses.SetDefaultAddress;
 using Address___Store_Coverage_Service.Features.Addresses.GetAddresses;
 using Address___Store_Coverage_Service.Features.Addresses.UpdateAddress;
