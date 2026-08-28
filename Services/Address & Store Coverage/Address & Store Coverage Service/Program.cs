@@ -1,6 +1,8 @@
 using Address___Store_Coverage_Service.Features.Addresses.CreateAddress;
 using Address___Store_Coverage_Service.Features.Addresses.DeleteAddress;
 using Address___Store_Coverage_Service.Features.Addresses.GetAddressById;
+using Address___Store_Coverage_Service.Features.Addresses.SetDefaultAddress;
+using Address___Store_Coverage_Service.Features.Cities;
 using Address___Store_Coverage_Service.Features.Addresses.GetAddresses;
 using Address___Store_Coverage_Service.Features.Addresses.UpdateAddress;
 using Address___Store_Coverage_Service.Features.Areas;
@@ -184,6 +186,7 @@ public class Program
         app.MapCreateAddressEndpoint();
         app.MapGetAddressesEndpoint();
         app.MapGetAddressByIdEndpoint();
+        app.MapSetDefaultAddressEndpoint();
         app.MapDeleteAddressEndpoint();
         app.MapUpdateAddressEndpoint();
         app.MapFindNearestCoveringStoreEndpoint();
