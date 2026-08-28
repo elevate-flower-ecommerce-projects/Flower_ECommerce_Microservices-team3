@@ -57,10 +57,6 @@ public class AddToCartItemCommandHandler : IRequestHandler<AddToCartItemCommand,
         {
             await _cartRepository.AddAsync(cart, cancellationToken);
         }
-        else
-        {
-            _cartRepository.Update(cart);
-        }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

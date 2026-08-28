@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Blocks.Contracts.Interfaces;
 using Blocks.Domain.Errors;
 using Cart_Service.Features.Cart.ViewModels;
@@ -57,7 +57,6 @@ namespace Cart_Service.Features.UpdateCartItemQuantity.Commands.Handlers
                 cart.RecalculateTotals();
             }
 
-            _cartRepository.Update(cart);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             var responseItems = cart.Items.Select(i => new CartItemResponse(

@@ -44,7 +44,6 @@ public class RemoveCartItemCommandHandler : IRequestHandler<RemoveCartItemComman
         }
 
         cart.RemoveItemById(request.CartItemId);
-        _cartRepository.Update(cart);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var isArabic = request.Language.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
