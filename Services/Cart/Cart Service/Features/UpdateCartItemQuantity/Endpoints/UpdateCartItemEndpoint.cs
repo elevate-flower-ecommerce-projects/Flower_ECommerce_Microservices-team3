@@ -1,4 +1,4 @@
-﻿using Cart_Service.Features.UpdateCartItemQuantity.Commands;
+using Cart_Service.Features.UpdateCartItemQuantity.Commands;
 using Cart_Service.Features.UpdateCartItemQuantity.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +41,11 @@ namespace Cart_Service.Features.UpdateCartItemQuantity.Endpoints
             })
             .WithName("UpdateCartItemQuantity")
             .WithTags("Cart")
+            .WithSummary("Update quantity of an item in the cart")
+            .WithDescription("Updates the item quantity for the authenticated customer. If quantity is 0, the item is removed.")
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
             .RequireAuthorization();
         }
     }

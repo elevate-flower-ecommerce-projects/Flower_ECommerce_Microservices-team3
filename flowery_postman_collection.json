@@ -848,6 +848,61 @@
       "name": "Cart",
       "item": [
         {
+          "name": "Get Cart Summary (SCRUM-29 / SCRUM-107)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cart/cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "cart"]
+            }
+          }
+        },
+        {
+          "name": "Add Item to Cart (SCRUM-11 / SCRUM-87 / SCRUM-88)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cart/cart/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "cart", "items"]
+            }
+          }
+        },
+        {
           "name": "Update Cart Item Quantity",
           "request": {
             "method": "PATCH",
@@ -875,6 +930,35 @@
                 {
                   "key": "productId",
                   "value": "{{productId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove Item from Cart (SCRUM-25 / SCRUM-97)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cart/cart/items/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "cart", "items", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
                 }
               ]
             }

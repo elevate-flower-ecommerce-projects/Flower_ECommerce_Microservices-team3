@@ -1,4 +1,4 @@
-﻿using Blocks.Domain.Entities;
+using Blocks.Domain.Entities;
 using System.Xml.Linq;
 
 namespace Cart_Service.Entities
@@ -31,6 +31,11 @@ namespace Cart_Service.Entities
             return _items.FirstOrDefault(x => x.ProductId == productId);
         }
 
+        public CartItem? FindItemById(Guid cartItemId)
+        {
+            return _items.FirstOrDefault(x => x.Id == cartItemId);
+        }
+
         public void AddItem(Guid productId, int quantity, decimal unitPrice)
         {
             var existingItem = FindItem(productId);
@@ -50,6 +55,16 @@ namespace Cart_Service.Entities
         public void RemoveItem(Guid productId)
         {
             var item = FindItem(productId);
+            if (item is not null)
+            {
+                _items.Remove(item);
+                RecalculateTotals();
+            }
+        }
+
+        public void RemoveItemById(Guid cartItemId)
+        {
+            var item = FindItemById(cartItemId);
             if (item is not null)
             {
                 _items.Remove(item);

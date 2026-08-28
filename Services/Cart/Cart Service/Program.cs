@@ -1,6 +1,9 @@
 using Blocks.Contracts.Behaviors;
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
+using Cart_Service.Features.AddToCartItem.Endpoints;
+using Cart_Service.Features.GetCartSummary.Endpoints;
+using Cart_Service.Features.RemoveCartItem.Endpoints;
 using Cart_Service.Features.UpdateCartItemQuantity.Endpoints;
 using Cart_Service.Persistence;
 using Cart_Service.Persistence.Repositories;
@@ -182,6 +185,10 @@ public class Program
         app.MapGet("/", () => Results.Redirect("/swagger"));
         app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Cart Service", timestamp = DateTime.UtcNow }));
 
+        // Cart Endpoints
+        app.MapGetCartSummaryEndpoint();
+        app.MapAddToCartItemEndpoint();
+        app.MapRemoveCartItemEndpoint();
         app.MapUpdateCartItemEndpoint();
 
         await app.RunAsync();
