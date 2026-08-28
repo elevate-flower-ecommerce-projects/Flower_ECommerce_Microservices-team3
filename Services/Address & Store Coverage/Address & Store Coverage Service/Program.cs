@@ -1,6 +1,14 @@
 using Address___Store_Coverage_Service.Features.Addresses.CreateAddress;
 using Address___Store_Coverage_Service.Features.Addresses.DeleteAddress;
 using Address___Store_Coverage_Service.Features.Addresses.GetAddressById;
+using Address___Store_Coverage_Service.Features.Admin.Stores.CoverageArea.GetCoverageArea;
+using Address___Store_Coverage_Service.Features.Admin.Stores.CoverageArea.SetCoverageArea;
+using Address___Store_Coverage_Service.Features.Admin.Stores.CreateStore;
+using Address___Store_Coverage_Service.Features.Admin.Stores.DeleteStore;
+using Address___Store_Coverage_Service.Features.Admin.Stores.GetStoreById;
+using Address___Store_Coverage_Service.Features.Admin.Stores.GetStores;
+using Address___Store_Coverage_Service.Features.Admin.Stores.UpdateStore;
+using Address___Store_Coverage_Service.Features.Cities;
 using Address___Store_Coverage_Service.Features.Addresses.SetDefaultAddress;
 using Address___Store_Coverage_Service.Features.Addresses.GetAddresses;
 using Address___Store_Coverage_Service.Features.Addresses.UpdateAddress;
@@ -12,6 +20,7 @@ using Address___Store_Coverage_Service.Persistence.Seeding;
 using Blocks.Contracts.Behaviors;
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
+using Blocks.Contracts.Security;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -51,6 +60,12 @@ public class Program
         // 3. Global Exception Handling
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         builder.Services.AddProblemDetails();
+
+        // JSON options (string enum serialization)
+        builder.Services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        });
 
         // 4. Localization
         builder.Services.AddLocalization();
@@ -126,7 +141,10 @@ public class Program
             };
         });
 
-        builder.Services.AddAuthorization();
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy(FlowerClaimTypes.AdminPolicy, policy => policy.RequireRole(FlowerClaimTypes.AdminRole));
+        });
 
         var app = builder.Build();
 
@@ -152,6 +170,7 @@ public class Program
                     await db.Database.MigrateAsync();
                     await CityAreaSeeder.SeedAsync(db);
                     await StoreSeeder.SeedAsync(db);
+                    await CoverageAreaSeeder.SeedAsync(db);
                     logger.LogInformation("Database migrations and data seeding completed successfully.");
                     break;
                 }
@@ -189,6 +208,15 @@ public class Program
         app.MapDeleteAddressEndpoint();
         app.MapUpdateAddressEndpoint();
         app.MapFindNearestCoveringStoreEndpoint();
+
+        // Admin - Store & Coverage Area Endpoints
+        app.MapGetStoresEndpoint();
+        app.MapCreateStoreEndpoint();
+        app.MapGetStoreByIdEndpoint();
+        app.MapUpdateStoreEndpoint();
+        app.MapDeleteStoreEndpoint();
+        app.MapGetCoverageAreaEndpoint();
+        app.MapSetCoverageAreaEndpoint();
 
         app.MapGet("/", () => Results.Redirect("/swagger"));
         app.MapGet("/health", () => Results.Ok(new

@@ -4,6 +4,7 @@ using Address___Store_Coverage_Service.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Address___Store_Coverage_Service.Migrations
 {
     [DbContext(typeof(FlowersAddressStoreCoverageDbContext))]
-    partial class FlowersAddressStoreCoverageDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260827154828_AddCoverageAreaTable")]
+    partial class AddCoverageAreaTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -110,6 +113,50 @@ namespace Address___Store_Coverage_Service.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("CityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CityId", "Name")
+                        .IsUnique()
+                        .HasFilter("[DeletedAt] IS NULL");
+
+                    b.ToTable("Areas", (string)null);
+                });
+
+            modelBuilder.Entity("Address___Store_Coverage_Service.Entities.City", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -139,50 +186,6 @@ namespace Address___Store_Coverage_Service.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("[DeletedAt] IS NULL");
-
-                    b.ToTable("Areas", (string)null);
-                });
-
-            modelBuilder.Entity("Address___Store_Coverage_Service.Entities.City", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AreaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AreaId", "Name")
                         .IsUnique()
                         .HasFilter("[DeletedAt] IS NULL");
 
@@ -309,20 +312,31 @@ namespace Address___Store_Coverage_Service.Migrations
                     b.Navigation("City");
                 });
 
-            modelBuilder.Entity("Address___Store_Coverage_Service.Entities.City", b =>
+            modelBuilder.Entity("Address___Store_Coverage_Service.Entities.Area", b =>
                 {
-                    b.HasOne("Address___Store_Coverage_Service.Entities.Area", "Area")
-                        .WithMany("Cities")
-                        .HasForeignKey("AreaId")
+                    b.HasOne("Address___Store_Coverage_Service.Entities.City", "City")
+                        .WithMany("Areas")
+                        .HasForeignKey("CityId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Area");
+                    b.Navigation("City");
                 });
 
-            modelBuilder.Entity("Address___Store_Coverage_Service.Entities.Area", b =>
+            modelBuilder.Entity("Address___Store_Coverage_Service.Entities.CoverageArea", b =>
                 {
-                    b.Navigation("Cities");
+                    b.HasOne("Address___Store_Coverage_Service.Entities.Store", "Store")
+                        .WithOne("CoverageArea")
+                        .HasForeignKey("Address___Store_Coverage_Service.Entities.CoverageArea", "StoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Store");
+                });
+
+            modelBuilder.Entity("Address___Store_Coverage_Service.Entities.City", b =>
+                {
+                    b.Navigation("Areas");
                 });
 
             modelBuilder.Entity("Address___Store_Coverage_Service.Entities.Store", b =>
