@@ -13,6 +13,8 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Services/Address & Store Coverage/Address & Store Coverage Service/Address & Store Coverage Service.csproj", "Services/Address & Store Coverage/Address & Store Coverage Service/"]
+COPY ["BuildingBlocks/Blocks.Domain/Blocks.Domain.csproj", "BuildingBlocks/Blocks.Domain/"]
+COPY ["BuildingBlocks/Blocks.Contracts/Blocks.Contracts.csproj", "BuildingBlocks/Blocks.Contracts/"]
 RUN dotnet restore "./Services/Address & Store Coverage/Address & Store Coverage Service/Address & Store Coverage Service.csproj"
 COPY . .
 WORKDIR "/src/Services/Address & Store Coverage/Address & Store Coverage Service"
