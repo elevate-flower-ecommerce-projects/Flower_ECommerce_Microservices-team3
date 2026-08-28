@@ -11,6 +11,9 @@ public static class CatalogDataSeeder
         var rosesCategoryId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         var tulipsCategoryId = Guid.Parse("22222222-2222-2222-2222-222222222222");
         var bouquetsCategoryId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        var giftsCategoryId = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        var cardsCategoryId = Guid.Parse("88888888-8888-8888-8888-888888888888");
+        var jewelryCategoryId = Guid.Parse("99999999-9999-9999-9999-999999999999");
 
         var categories = new List<Category>
         {
@@ -19,7 +22,7 @@ public static class CatalogDataSeeder
                 Id = rosesCategoryId,
                 Name = "Roses",
                 NameAr = "ورود",
-                Icon = "roses.png",
+                Icon = "categories/tulip_flower.png",
                 DisplayOrder = 1,
                 CreatedAt = DateTime.UtcNow
             },
@@ -28,7 +31,7 @@ public static class CatalogDataSeeder
                 Id = tulipsCategoryId,
                 Name = "Tulips",
                 NameAr = "توليب",
-                Icon = "tulips.png",
+                Icon = "categories/tulip_flower.png",
                 DisplayOrder = 2,
                 CreatedAt = DateTime.UtcNow
             },
@@ -37,18 +40,50 @@ public static class CatalogDataSeeder
                 Id = bouquetsCategoryId,
                 Name = "Bouquets",
                 NameAr = "باقات زهور",
-                Icon = "bouquets.png",
+                Icon = "categories/gift.png",
                 DisplayOrder = 3,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = giftsCategoryId,
+                Name = "Gifts",
+                NameAr = "هدايا",
+                Icon = "categories/gift.png",
+                DisplayOrder = 4,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = cardsCategoryId,
+                Name = "Cards",
+                NameAr = "بطاقات تهنئة",
+                Icon = "categories/card.png",
+                DisplayOrder = 5,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = jewelryCategoryId,
+                Name = "Accessories",
+                NameAr = "إكسسوارات",
+                Icon = "categories/damond.png",
+                DisplayOrder = 6,
                 CreatedAt = DateTime.UtcNow
             }
         };
 
         foreach (var category in categories)
         {
-            var exists = await db.Categories.IgnoreQueryFilters().AnyAsync(c => c.Id == category.Id || c.Name == category.Name);
-            if (!exists)
+            var existing = await db.Categories.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == category.Id || c.Name == category.Name);
+            if (existing == null)
             {
                 await db.Categories.AddAsync(category);
+            }
+            else
+            {
+                existing.Icon = category.Icon;
+                existing.NameAr = category.NameAr;
             }
         }
         await db.SaveChangesAsync();

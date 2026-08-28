@@ -47,6 +47,12 @@
       "value": "",
       "type": "string",
       "description": "Product ID for fetching product details"
+    },
+    {
+      "key": "addressId",
+      "value": "",
+      "type": "string",
+      "description": "Address ID for address operations"
     }
   ],
   "item": [
@@ -86,6 +92,54 @@
               "raw": "{{baseUrl}}/catalog/health",
               "host": ["{{baseUrl}}"],
               "path": ["catalog", "health"]
+            }
+          }
+        },
+        {
+          "name": "Cart Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cart/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "health"]
+            }
+          }
+        },
+        {
+          "name": "Address Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/address/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "health"]
+            }
+          }
+        },
+        {
+          "name": "Order Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/order/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["order", "health"]
+            }
+          }
+        },
+        {
+          "name": "Payment Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payment/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["payment", "health"]
             }
           }
         }
@@ -665,7 +719,7 @@
           }
         },
         {
-          "name": "Get Products by Occasion (Paginated)",
+          "name": "Get Products (Paginated, Filterable, Searchable)",
           "event": [
             {
               "listen": "test",
@@ -692,21 +746,39 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/catalog/products?occasionId={{occasionId}}&pageNumber=1&pageSize=10",
+              "raw": "{{baseUrl}}/catalog/products?categoryId={{categoryId}}&occasionId={{occasionId}}&keyword=&sortBy=PriceLowToHigh&page=1&pageSize=10",
               "host": ["{{baseUrl}}"],
               "path": ["catalog", "products"],
               "query": [
                 {
-                  "key": "occasionId",
-                  "value": "{{occasionId}}"
+                  "key": "categoryId",
+                  "value": "{{categoryId}}",
+                  "description": "Filter by Category ID (optional)"
                 },
                 {
-                  "key": "pageNumber",
-                  "value": "1"
+                  "key": "occasionId",
+                  "value": "{{occasionId}}",
+                  "description": "Filter by Occasion ID (optional)"
+                },
+                {
+                  "key": "keyword",
+                  "value": "",
+                  "description": "Search keyword for product name (optional)"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "PriceLowToHigh",
+                  "description": "Sort order: PriceLowToHigh, PriceHighToLow, Newest, Oldest, Discount (optional)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "1-based page number (default: 1)"
                 },
                 {
                   "key": "pageSize",
-                  "value": "10"
+                  "value": "10",
+                  "description": "Items per page (default: 10)"
                 }
               ]
             }
@@ -769,9 +841,52 @@
               "path": ["catalog", "categories"]
             }
           }
-        },
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
         {
-          "name": "Get Products by Category",
+          "name": "Update Cart Item Quantity",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cart/api/cart/items/:productId",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "api", "cart", "items", ":productId"],
+              "variable": [
+                {
+                  "key": "productId",
+                  "value": "{{productId}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Address & Store Coverage",
+      "item": [
+        {
+          "name": "Get Areas with Cities",
           "request": {
             "method": "GET",
             "header": [
@@ -782,13 +897,195 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/catalog/products/by-category?categoryId={{categoryId}}",
+              "raw": "{{baseUrl}}/address/api/areas",
               "host": ["{{baseUrl}}"],
-              "path": ["catalog", "products", "by-category"],
+              "path": ["address", "api", "areas"]
+            }
+          }
+        },
+        {
+          "name": "Find Nearest Covering Store",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/address/api/stores/nearest-store?lat=30.0444&lng=31.2357",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "api", "stores", "nearest-store"],
               "query": [
                 {
-                  "key": "categoryId",
-                  "value": "{{categoryId}}"
+                  "key": "lat",
+                  "value": "30.0444"
+                },
+                {
+                  "key": "lng",
+                  "value": "31.2357"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User Addresses",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.data && jsonData.data.length > 0) {",
+                  "    var firstAddr = jsonData.data[0];",
+                  "    pm.collectionVariables.set('addressId', firstAddr.id);",
+                  "    console.log('Saved addressId: ' + firstAddr.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/users/me/addresses",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "users", "me", "addresses"]
+            }
+          }
+        },
+        {
+          "name": "Create Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientName\": \"Layla Hassan\",\n  \"phone\": \"01111111101\",\n  \"addressLine\": \"123 Tahrir Square, Downtown\",\n  \"cityId\": \"00000000-0000-0000-0000-000000000001\",\n  \"areaId\": \"00000000-0000-0000-0000-000000000002\",\n  \"latitude\": 30.0444,\n  \"longitude\": 31.2357,\n  \"label\": \"Home\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/address/users/me/addresses",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "users", "me", "addresses"]
+            }
+          }
+        },
+        {
+          "name": "Get Address by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/users/me/addresses/:addressId",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "users", "me", "addresses", ":addressId"],
+              "variable": [
+                {
+                  "key": "addressId",
+                  "value": "{{addressId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Set Default Address",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/users/me/addresses/:addressId/default",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "users", "me", "addresses", ":addressId", "default"],
+              "variable": [
+                {
+                  "key": "addressId",
+                  "value": "{{addressId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Address",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientName\": \"Layla Hassan Updated\",\n  \"phone\": \"01111111101\",\n  \"addressLine\": \"456 Zamalek St\",\n  \"cityId\": \"00000000-0000-0000-0000-000000000001\",\n  \"areaId\": \"00000000-0000-0000-0000-000000000002\",\n  \"latitude\": 30.0561,\n  \"longitude\": 31.2215,\n  \"label\": \"Work\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/address/users/me/addresses/:addressId",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "users", "me", "addresses", ":addressId"],
+              "variable": [
+                {
+                  "key": "addressId",
+                  "value": "{{addressId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Address",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/users/me/addresses/:addressId",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "users", "me", "addresses", ":addressId"],
+              "variable": [
+                {
+                  "key": "addressId",
+                  "value": "{{addressId}}"
                 }
               ]
             }
