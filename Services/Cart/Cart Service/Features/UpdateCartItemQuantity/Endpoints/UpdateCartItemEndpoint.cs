@@ -1,3 +1,7 @@
+using Blocks.Contracts.Http;
+using Blocks.Contracts.Security;
+using Blocks.Domain.Errors;
+using Cart_Service.Features.Cart.ViewModels;
 using Cart_Service.Features.UpdateCartItemQuantity.Commands;
 using Cart_Service.Features.UpdateCartItemQuantity.DTOs;
 using MediatR;
@@ -17,11 +21,14 @@ namespace Cart_Service.Features.UpdateCartItemQuantity.Endpoints
                 ClaimsPrincipal user,
                 CancellationToken cancellationToken) =>
             {
-                var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                var customerIdClaim = user.FindFirstValue(FlowerClaimTypes.CustomerId)
+                                      ?? user.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var customerId))
+                if (string.IsNullOrEmpty(customerIdClaim) || !Guid.TryParse(customerIdClaim, out var customerId))
                 {
-                    return Results.Unauthorized();
+                    return Results.Json(
+                        ApiResponse<CartResponse>.Fail(Error.Unauthorized("You are not authorized to access this resource.")),
+                        statusCode: StatusCodes.Status401Unauthorized);
                 }
 
                 var command = new UpdateCartItemCommand(customerId, productId, request.Quantity);
@@ -30,14 +37,12 @@ namespace Cart_Service.Features.UpdateCartItemQuantity.Endpoints
 
                 if (result.IsSuccess)
                 {
-                    return Results.Ok(result.Value);
+                    return Results.Ok(ApiResponse<CartResponse>.Ok(result.Value));
                 }
 
-                return Results.BadRequest(new
-                {
-                    Error = result.Error?.Code.ToString(),
-                    Message = result.Error?.Message
-                });
+                return Results.Json(
+                    ApiResponse<CartResponse>.Fail(result.Error!),
+                    statusCode: result.Error!.StatusCode == 0 ? StatusCodes.Status400BadRequest : result.Error.StatusCode);
             })
             .WithName("UpdateCartItemQuantity")
             .WithTags("Cart")
