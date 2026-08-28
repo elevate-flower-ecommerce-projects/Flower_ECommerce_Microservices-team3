@@ -44,9 +44,9 @@
     },
     {
       "key": "productId",
-      "value": "",
+      "value": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
       "type": "string",
-      "description": "Product ID for fetching product details"
+      "description": "Product ID for fetching product details / adding to cart"
     },
     {
       "key": "addressId",

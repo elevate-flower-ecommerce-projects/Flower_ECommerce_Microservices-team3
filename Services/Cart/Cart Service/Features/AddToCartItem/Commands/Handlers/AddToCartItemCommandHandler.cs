@@ -32,10 +32,11 @@ public class AddToCartItemCommandHandler : IRequestHandler<AddToCartItemCommand,
             .Include(c => c.Items)
             .FirstOrDefaultAsync(c => c.CustomerId == request.CustomerId, cancellationToken);
 
+        var isNewCart = false;
         if (cart is null)
         {
             cart = Entities.Cart.Create(request.CustomerId);
-            await _cartRepository.AddAsync(cart, cancellationToken);
+            isNewCart = true;
         }
 
         const int availableStock = 50;
@@ -52,7 +53,15 @@ public class AddToCartItemCommandHandler : IRequestHandler<AddToCartItemCommand,
         const decimal defaultUnitPrice = 150m;
         cart.AddItem(request.ProductId, request.Quantity, defaultUnitPrice);
 
-        _cartRepository.Update(cart);
+        if (isNewCart)
+        {
+            await _cartRepository.AddAsync(cart, cancellationToken);
+        }
+        else
+        {
+            _cartRepository.Update(cart);
+        }
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var isArabic = request.Language.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
