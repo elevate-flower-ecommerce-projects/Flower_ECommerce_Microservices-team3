@@ -6,7 +6,7 @@ using Catalog_Service.Features.Home.GetSections;
 using Catalog_Service.Features.Occasions.GetPaginatedOccasions.Endpoints;
 using Catalog_Service.Features.Products.GetProductByCategory.Endpoints;
 using Catalog_Service.Features.Products.GetProductById;
-using Catalog_Service.Features.Products.GetProductsByOccasionId.Endpoints;
+using Catalog_Service.Features.Products.GetProducts;
 using Catalog_Service.Features.Products.SearchProducts.Endpoints;
 using Catalog_Service.Persistence;
 using Catalog_Service.Persistence.Repositories;
@@ -123,6 +123,7 @@ public class Program
         });
 
         app.UseHttpsRedirection();
+        app.UseStaticFiles();
 
         // Endpoints
         app.MapGet("/", () => Results.Redirect("/swagger"));

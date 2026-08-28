@@ -110,50 +110,6 @@ namespace Address___Store_Coverage_Service.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CityId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CityId", "Name")
-                        .IsUnique()
-                        .HasFilter("[DeletedAt] IS NULL");
-
-                    b.ToTable("Areas", (string)null);
-                });
-
-            modelBuilder.Entity("Address___Store_Coverage_Service.Entities.City", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -183,6 +139,50 @@ namespace Address___Store_Coverage_Service.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[DeletedAt] IS NULL");
+
+                    b.ToTable("Areas", (string)null);
+                });
+
+            modelBuilder.Entity("Address___Store_Coverage_Service.Entities.City", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AreaId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AreaId", "Name")
                         .IsUnique()
                         .HasFilter("[DeletedAt] IS NULL");
 
@@ -309,31 +309,20 @@ namespace Address___Store_Coverage_Service.Migrations
                     b.Navigation("City");
                 });
 
-            modelBuilder.Entity("Address___Store_Coverage_Service.Entities.Area", b =>
+            modelBuilder.Entity("Address___Store_Coverage_Service.Entities.City", b =>
                 {
-                    b.HasOne("Address___Store_Coverage_Service.Entities.City", "City")
-                        .WithMany("Areas")
-                        .HasForeignKey("CityId")
+                    b.HasOne("Address___Store_Coverage_Service.Entities.Area", "Area")
+                        .WithMany("Cities")
+                        .HasForeignKey("AreaId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("City");
+                    b.Navigation("Area");
                 });
 
-            modelBuilder.Entity("Address___Store_Coverage_Service.Entities.CoverageArea", b =>
+            modelBuilder.Entity("Address___Store_Coverage_Service.Entities.Area", b =>
                 {
-                    b.HasOne("Address___Store_Coverage_Service.Entities.Store", "Store")
-                        .WithOne("CoverageArea")
-                        .HasForeignKey("Address___Store_Coverage_Service.Entities.CoverageArea", "StoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Store");
-                });
-
-            modelBuilder.Entity("Address___Store_Coverage_Service.Entities.City", b =>
-                {
-                    b.Navigation("Areas");
+                    b.Navigation("Cities");
                 });
 
             modelBuilder.Entity("Address___Store_Coverage_Service.Entities.Store", b =>
