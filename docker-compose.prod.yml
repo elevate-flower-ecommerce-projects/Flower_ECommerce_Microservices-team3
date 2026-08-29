@@ -157,6 +157,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
+      CatalogService__BaseUrl: "http://catalog-service:8080"
     ports:
       - "5292:8080"
     networks:
