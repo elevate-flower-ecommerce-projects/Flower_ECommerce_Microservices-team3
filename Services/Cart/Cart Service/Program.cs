@@ -12,7 +12,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Globalization;
 using System.Text;
+using Cart_Service.Features.GetCart.Endpoints;
 using Cart_Service.Features.UpdateCartItemQuantity.Endpoints;
+using Cart_Service.Services;
 
 namespace Cart_Service;
 
@@ -31,6 +33,12 @@ public class Program
         // 2. Unit of Work & Generic Repository
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        builder.Services.AddHttpClient<ICatalogServiceClient, CatalogServiceClient>(client =>
+        {
+            client.BaseAddress = new Uri(
+                builder.Configuration["CatalogService:BaseUrl"] ?? "http://catalog-service:8080");
+            client.Timeout = TimeSpan.FromSeconds(5);
+        });
 
         // 3. MediatR & FluentValidation Pipeline
         var assembly = typeof(Program).Assembly;
@@ -182,6 +190,7 @@ public class Program
         app.MapGet("/", () => Results.Redirect("/swagger"));
         app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Cart Service", timestamp = DateTime.UtcNow }));
 
+        app.MapGetCartEndpoint();
         app.MapUpdateCartItemEndpoint();
 
         await app.RunAsync();
