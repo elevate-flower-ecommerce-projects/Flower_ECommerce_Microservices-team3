@@ -1,4 +1,4 @@
-﻿using Address___Store_Coverage_Service.Entities;
+using Address___Store_Coverage_Service.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,12 +16,14 @@ namespace Address___Store_Coverage_Service.Persistence.Configuration
                 .IsRequired()
                 .HasMaxLength(100);
 
-            
-            builder.HasIndex(a => new { a.CityId, a.Name })
+            builder.HasIndex(a => a.Name)
                 .IsUnique()
                 .HasFilter("[DeletedAt] IS NULL");
 
-            
+            builder.HasMany(a => a.Cities)
+                .WithOne(c => c.Area)
+                .HasForeignKey(c => c.AreaId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

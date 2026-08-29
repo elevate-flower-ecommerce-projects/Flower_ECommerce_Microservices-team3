@@ -130,6 +130,29 @@ namespace Catalog_Service.Migrations
                     b.ToTable("HomeSections");
                 });
 
+            modelBuilder.Entity("Catalog_Service.Entities.Inventory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("StoreId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId", "StoreId")
+                        .IsUnique();
+
+                    b.ToTable("Inventories", (string)null);
+                });
+
             modelBuilder.Entity("Catalog_Service.Entities.Occasion", b =>
                 {
                     b.Property<Guid>("Id")
@@ -334,6 +357,38 @@ namespace Catalog_Service.Migrations
                     b.HasIndex("OccasionId");
 
                     b.ToTable("ProductOccasions", "catalog");
+                });
+
+            modelBuilder.Entity("Catalog_Service.Entities.Promotion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("DiscountPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("StoreId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId", "StoreId", "IsActive", "StartDate", "EndDate");
+
+                    b.ToTable("Promotions", (string)null);
                 });
 
             modelBuilder.Entity("Catalog_Service.Entities.HomeSection", b =>

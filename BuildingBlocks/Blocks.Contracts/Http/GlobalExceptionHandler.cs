@@ -27,6 +27,18 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                     Error = new ApiError("Validation", string.Join("; ", valEx.Errors.Select(e => $"{e.PropertyName}: {e.ErrorMessage}")))
                 }
             ),
+            Microsoft.AspNetCore.Http.BadHttpRequestException badReqEx => (
+                StatusCodes.Status400BadRequest,
+                ApiResponse<object>.Fail(Error.Validation(badReqEx.Message, "request"))
+            ),
+            System.Text.Json.JsonException jsonEx => (
+                StatusCodes.Status400BadRequest,
+                ApiResponse<object>.Fail(Error.Validation($"Invalid JSON or parameter format: {jsonEx.Message}", "body"))
+            ),
+            ArgumentException argEx => (
+                StatusCodes.Status400BadRequest,
+                ApiResponse<object>.Fail(Error.Validation(argEx.Message, "request"))
+            ),
             KeyNotFoundException notFoundEx => (
                 StatusCodes.Status404NotFound,
                 ApiResponse<object>.Fail(Error.NotFound(notFoundEx.Message))
