@@ -460,16 +460,77 @@
                 "key": "Accept-Language",
                 "value": "{{acceptLanguage}}",
                 "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
               }
             ],
             "body": {
-              "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Driver Name\",\n  \"email\": \"driver@example.com\",\n  \"phoneNumber\": \"+201011111111\",\n  \"password\": \"DriverPassword123!\",\n  \"confirmPassword\": \"DriverPassword123!\",\n  \"vehicleType\": 1,\n  \"vehicleNumber\": \"ABC-123\",\n  \"nationalIdNumber\": \"29901011234567\",\n  \"vehicleLicenceImage\": \"https://example.com/license.jpg\",\n  \"nationalIdImage\": \"https://example.com/national_id.jpg\"\n}"
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "CountryCode",
+                  "value": "+20",
+                  "type": "text"
+                },
+                {
+                  "key": "FirstName",
+                  "value": "Ahmed",
+                  "type": "text"
+                },
+                {
+                  "key": "SecondName",
+                  "value": "Hassan",
+                  "type": "text"
+                },
+                {
+                  "key": "VehicleType",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "VehicleNumber",
+                  "value": "ABC-1234",
+                  "type": "text"
+                },
+                {
+                  "key": "Email",
+                  "value": "driver1@example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "PhoneNumber",
+                  "value": "1012345678",
+                  "type": "text"
+                },
+                {
+                  "key": "NationalId",
+                  "value": "29901011234567",
+                  "type": "text"
+                },
+                {
+                  "key": "Password",
+                  "value": "DriverPassword123!",
+                  "type": "text"
+                },
+                {
+                  "key": "ConfirmPassword",
+                  "value": "DriverPassword123!",
+                  "type": "text"
+                },
+                {
+                  "key": "Gender",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "VehicleLicenceFile",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "IdImage",
+                  "type": "file",
+                  "src": []
+                }
+              ]
             },
             "url": {
               "raw": "{{baseUrl}}/api/drivers/applications",

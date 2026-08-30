@@ -8,7 +8,7 @@ using Identity.Api.Exceptions;
 using Identity.Api.Features.Admin;
 using Identity.Api.Features.AdminLogin;
 using Identity.Api.Features.ChangePassword;
-using Identity.Api.Features.DriverApplication;
+using Identity.Api.Features.RegisterDriver;
 using Identity.Api.Features.Forgot_Password;
 using Identity.Api.Features.Login;
 using Identity.Api.Features.Logout;
