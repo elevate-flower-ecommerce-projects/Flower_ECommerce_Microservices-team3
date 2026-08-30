@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text.Json.Serialization;
 using Blocks.Contracts.Behaviors;
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
@@ -14,7 +16,6 @@ using MediatR;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using System.Globalization;
 
 namespace Catalog_Service;
 
@@ -29,6 +30,11 @@ public class Program
             options.UseSqlServer(
                 builder.Configuration.GetConnectionString("DefaultConnection"))
                    .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
+
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.SchemaFilter<EnumSchemaFilter>();
+        });
 
         // 2. Unit of Work & Generic Repository
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

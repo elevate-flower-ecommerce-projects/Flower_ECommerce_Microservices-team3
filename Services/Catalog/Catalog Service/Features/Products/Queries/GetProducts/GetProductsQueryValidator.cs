@@ -29,6 +29,11 @@ namespace Catalog_Service.Features.Products.Queries.GetProducts
                 .NotEqual(Guid.Empty)
                 .When(x => x.StoreId.HasValue)
                 .WithMessage("StoreId must be a valid GUID.");
+
+            RuleFor(x => x.Sort)
+                .IsInEnum()
+                .When(x => x.Sort.HasValue)
+                .WithMessage("Sort must be a valid product sort option.");
         }
     }
 }

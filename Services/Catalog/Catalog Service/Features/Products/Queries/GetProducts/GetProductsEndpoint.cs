@@ -16,7 +16,8 @@ namespace Catalog_Service.Features.Products.Queries.GetProducts
                     request.PageSize,
                     request.CategoryId,
                     request.OccasionId,
-                    request.StoreId);
+                    request.StoreId,
+                    request.Sort);
 
                 var result = await _sender.Send(query, cancellationToken);
 
