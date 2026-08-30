@@ -1,5 +1,6 @@
 using Blocks.Contracts.Http;
 using Identity.Application.Features.Drivers.Commands.SubmitDriverApplication;
+using Identity.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,24 +12,36 @@ namespace Identity.Api.Features.RegisterDriver
             this IEndpointRouteBuilder app)
         {
             var handler = async (
-                [FromForm] SubmitDriverApplicationRequest request,
+                [FromForm] string countryCode,
+                [FromForm] string firstName,
+                [FromForm] string secondName,
+                [FromForm] VehicleType vehicleType,
+                [FromForm] string vehicleNumber,
+                [FromForm] string email,
+                [FromForm] string phoneNumber,
+                [FromForm] string nationalId,
+                [FromForm] string password,
+                [FromForm] string confirmPassword,
+                [FromForm] Gender gender,
+                IFormFile? vehicleLicenceFile,
+                IFormFile? idImage,
                 IMediator mediator,
                 CancellationToken cancellationToken) =>
             {
                 var command = new SubmitDriverApplicationCommand(
-                    CountryCode: request.CountryCode,
-                    FirstName: request.FirstName,
-                    SecondName: request.SecondName,
-                    VehicleType: request.VehicleType,
-                    VehicleNumber: request.VehicleNumber,
-                    Email: request.Email,
-                    PhoneNumber: request.PhoneNumber,
-                    NationalId: request.NationalId,
-                    Password: request.Password,
-                    ConfirmPassword: request.ConfirmPassword,
-                    Gender: request.Gender,
-                    VehicleLicenceFile: request.VehicleLicenceFile,
-                    IdImage: request.IdImage
+                    CountryCode: countryCode,
+                    FirstName: firstName,
+                    SecondName: secondName,
+                    VehicleType: vehicleType,
+                    VehicleNumber: vehicleNumber,
+                    Email: email,
+                    PhoneNumber: phoneNumber,
+                    NationalId: nationalId,
+                    Password: password,
+                    ConfirmPassword: confirmPassword,
+                    Gender: gender,
+                    VehicleLicenceFile: vehicleLicenceFile,
+                    IdImage: idImage
                 );
 
                 var result = await mediator.Send(command, cancellationToken);
