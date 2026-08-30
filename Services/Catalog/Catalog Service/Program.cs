@@ -1,22 +1,21 @@
+using System.Globalization;
+using System.Text.Json.Serialization;
 using Blocks.Contracts.Behaviors;
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
 using Catalog_Service.Features.Categories.GetActiveCategories.Endpoints;
 using Catalog_Service.Features.Home.GetSections;
 using Catalog_Service.Features.Occasions.GetPaginatedOccasions.Endpoints;
-using Catalog_Service.Features.Products.GetProductByCategory.Endpoints;
-using Catalog_Service.Features.Products.GetProductById;
-using Catalog_Service.Features.Products.GetProducts;
-using Catalog_Service.Features.Products.SearchProducts.Endpoints;
+using Catalog_Service.Features.Products.Queries.GetProducts;
 using Catalog_Service.Persistence;
 using Catalog_Service.Persistence.Repositories;
+using Catalog_Service.Persistence.Repositories.Interfaces;
 using Catalog_Service.Persistence.Seeding;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using System.Globalization;
 
 namespace Catalog_Service;
 
@@ -32,17 +31,27 @@ public class Program
                 builder.Configuration.GetConnectionString("DefaultConnection"))
                    .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.SchemaFilter<EnumSchemaFilter>();
+        });
+
         // 2. Unit of Work & Generic Repository
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
+        builder.Services.AddScoped<IProductRepository, ProductRepository>();
+        builder.Services.AddScoped<IPromotionRepository, PromotionRepository>();
 
         // 3. MediatR & FluentValidation Pipeline
         var assembly = typeof(Program).Assembly;
-        builder.Services.AddMediatR(cfg =>
-        {
-            cfg.RegisterServicesFromAssembly(assembly);
-            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
-        });
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(
+        typeof(GetProductsQueryOrchestratorHandler).Assembly);
+
+    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+});
         builder.Services.AddValidatorsFromAssembly(assembly);
 
         // 4. Global Exception Handling
@@ -132,23 +141,15 @@ public class Program
         // Home Sections
         app.MapGetHomeSectionsEndpoint();
 
-        // Products
-        app.MapProductEndpoints();
+        ///List Products
+        app.MapGetProductsEndpoint();
 
         // Occasions
         app.MapGetActiveOccasionsEndpoint();
 
-        // Products by Occasion
-        app.MapGetProductsEndpoint();
-
         // Categories
         app.MapGetActiveCategoriesEndpoint();
 
-        // Products by Category
-        app.MapGetProductsByCategoryEndpoint();
-
-        // Search Products
-        app.MapSearchProductsEndpoint();
 
         await app.RunAsync();
     }
