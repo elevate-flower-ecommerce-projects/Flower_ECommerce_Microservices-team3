@@ -6,7 +6,8 @@ using MediatR;
 
 namespace Catalog_Service.Features.Products.Queries.GetProductsPage
 {
-    public sealed class GetProductsPageHandler(IProductRepository _productRepository)
+    public sealed class GetProductsPageHandler(
+        IProductRepository _productRepository)
         : IRequestHandler<
             GetProductsPageQuery,
             Result<PagedResult<ProductSummaryResponse>>>
@@ -21,6 +22,7 @@ namespace Catalog_Service.Features.Products.Queries.GetProductsPage
                 request.CategoryId,
                 request.OccasionId,
                 request.StoreId,
+                request.Sort,
                 cancellationToken);
 
             return Result.Success(result);

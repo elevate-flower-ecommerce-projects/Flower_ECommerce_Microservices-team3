@@ -17,15 +17,16 @@ public sealed class GetProductsQueryOrchestratorHandler(ISender sender)
         CancellationToken cancellationToken)
     {
         // 1. Get products page
-        var productsResult = await sender.Send(
-            new GetProductsPageQuery(
-                request.Page,
-                request.PageSize,
-                request.CategoryId,
-                request.OccasionId,
-                request.StoreId),
-            cancellationToken);
 
+        var productsResult = await sender.Send(
+                                   new GetProductsPageQuery(
+                                       request.Page,
+                                       request.PageSize,
+                                       request.CategoryId,
+                                       request.OccasionId,
+                                       request.StoreId,
+                                       request.Sort),
+                                       cancellationToken);
         if (productsResult.IsFailure)
             return productsResult.Error;
 

@@ -1,4 +1,5 @@
 ﻿using Blocks.Contracts.Pagination;
+using Catalog_Service.Entities.Enums;
 using Catalog_Service.Features.Products.Queries.GetProducts;
 
 namespace Catalog_Service.Persistence.Repositories.Interfaces;
@@ -11,5 +12,6 @@ public interface IProductRepository
         Guid? categoryId,
         Guid? occasionId,
         Guid? storeId,
+        ProductSort? sort,
         CancellationToken cancellationToken);
 }
