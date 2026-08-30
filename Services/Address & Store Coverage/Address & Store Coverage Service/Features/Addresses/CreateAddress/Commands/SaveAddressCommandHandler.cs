@@ -1,4 +1,5 @@
 ﻿using Address___Store_Coverage_Service.Entities;
+using Address___Store_Coverage_Service.Features.Addresses.Common;
 using Address___Store_Coverage_Service.Features.Addresses.CreateAddress.DTOs;
 using Address___Store_Coverage_Service.Persistence;
 using Blocks.Contracts.Common;
@@ -24,13 +25,13 @@ namespace Address___Store_Coverage_Service.Features.Addresses.CreateAddress.Comm
                             && a.DeletedAt == null
                             && a.IsDefault,
                     cancellationToken);
-           
-            var totalEver = await addressRepository.GetQueryable()
-                .CountAsync(a => a.CustomerId == request.CustomerId, cancellationToken);
+
             var label = string.IsNullOrWhiteSpace(request.Label)
-                ? $"Address {totalEver + 1}"
-                : request.Label.Trim();
-           
+    ? await AddressLabelGenerator.GenerateAsync(
+          addressRepository.GetQueryable(), request.CustomerId, addressId: null, cancellationToken)
+    : request.Label.Trim();
+
+
             var address = new Address
             {
                 CustomerId = request.CustomerId,

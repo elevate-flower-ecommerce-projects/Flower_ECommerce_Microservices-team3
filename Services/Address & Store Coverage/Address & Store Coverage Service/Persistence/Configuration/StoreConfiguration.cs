@@ -1,4 +1,4 @@
-﻿using Address___Store_Coverage_Service.Entities;
+using Address___Store_Coverage_Service.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -19,6 +19,11 @@ namespace Address___Store_Coverage_Service.Persistence.Configuration
                 .IsRequired();
             builder.Property(s => s.CoverageRadiusKm)
                 .IsRequired();
+
+            builder.HasOne(s => s.CoverageArea)
+                .WithOne(c => c.Store)
+                .HasForeignKey<CoverageArea>(c => c.StoreId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -11,12 +11,19 @@ public abstract class AuditEntity : BaseEntity
     public DateTime? DeletedAt { get; set; }
     public string? DeletedBy { get; set; }
 
-    public bool IsActive { get; private set; } = true;
+    public bool IsActive { get; set; } = true;
 
     public void Activate()
     {
         IsActive = true;
         DeletedAt = null;
         DeletedBy = null;
+    }
+
+    public void Deactivate(string? deletedBy = null)
+    {
+        IsActive = false;
+        DeletedAt = DateTime.UtcNow;
+        DeletedBy = deletedBy;
     }
 }
