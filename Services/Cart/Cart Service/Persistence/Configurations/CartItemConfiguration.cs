@@ -1,4 +1,4 @@
-﻿using Cart_Service.Entities;
+using Cart_Service.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,6 +11,7 @@ namespace Cart_Service.Persistence.Configurations
             builder.ToTable("CartItems");
 
             builder.HasKey(ci => ci.Id);
+            builder.Property(ci => ci.Id).ValueGeneratedNever();
 
             builder.Property(ci => ci.ProductId).IsRequired();
             builder.Property(ci => ci.Quantity).IsRequired();

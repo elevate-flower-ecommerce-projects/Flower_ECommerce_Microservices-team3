@@ -187,8 +187,6 @@ public class Program
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "Cart API v1");
         });
 
-        app.UseHttpsRedirection();
-
         app.MapGet("/", () => Results.Redirect("/swagger"));
         app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Cart Service", timestamp = DateTime.UtcNow }));
 
