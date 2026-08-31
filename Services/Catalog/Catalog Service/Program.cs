@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Globalization;
+using Catalog_Service.GrpcServices;
 
 namespace Catalog_Service;
 
@@ -74,6 +75,8 @@ public class Program
                 Version = "v1"
             });
         });
+
+        builder.Services.AddGrpc();
 
         var app = builder.Build();
 
@@ -148,6 +151,8 @@ public class Program
 
         // Search Products
         app.MapSearchProductsEndpoint();
+
+        app.MapGrpcService<StockGrpcService>();
 
         await app.RunAsync();
     }
