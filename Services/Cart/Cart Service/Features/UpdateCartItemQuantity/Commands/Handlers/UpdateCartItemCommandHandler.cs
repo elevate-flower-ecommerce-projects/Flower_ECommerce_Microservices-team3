@@ -69,7 +69,7 @@ namespace Cart_Service.Features.UpdateCartItemQuantity.Commands.Handlers
                 }
                 catch (RpcException ex)
                 {
-                    return Result.Failure<CartResponse>(Error.Internal("Could not verify product stock at the moment. Please try again later."));
+                    return Result.Failure<CartResponse>(Error.Internal($"gRPC Error: {ex.StatusCode} - {ex.Message}"));
                 }
             }
 

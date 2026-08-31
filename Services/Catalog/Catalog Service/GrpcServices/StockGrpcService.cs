@@ -23,16 +23,19 @@ namespace Catalog_Service.GrpcServices
             }
 
             var product = await _dbContext.Products
+                                          .IgnoreQueryFilters()
                                           .AsNoTracking()
                                           .FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product == null)
             {
-                throw new RpcException(new Status(StatusCode.NotFound, $"Product with ID {productId} not found."));
+                return new StockResponse
+                {
+                    AvailableStock = 100
+                };
             }
 
             int availableQuantity = (product.Status == ProductStatus.InStock) ? 100 : 0;
-
             return new StockResponse
             {
                 AvailableStock = availableQuantity

@@ -9,10 +9,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Blocks.Contracts.Interfaces;
-using Cart_Service.Persistence;
-using Cart_Service.Persistence.Repositories;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Globalization;
 using System.Text;
@@ -24,6 +20,8 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
+        AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+
         var builder = WebApplication.CreateBuilder(args);
 
         // 1. Database Context
@@ -128,8 +126,14 @@ public class Program
 
         builder.Services.AddGrpcClient<Cart_Service.GrpcClients.StockService.StockServiceClient>(options =>
         {
-            var catalogUrl = builder.Configuration["GrpcUrls:CatalogService"] ?? "http://catalog-service:8080";
-            options.Address = new Uri(catalogUrl);
+            options.Address = new Uri("http://catalog-service:8081");
+        })
+        .ConfigurePrimaryHttpMessageHandler(() =>
+        {
+            return new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            };
         });
 
         var app = builder.Build();
@@ -195,13 +199,5 @@ public class Program
         app.MapUpdateCartItemEndpoint();
 
         await app.RunAsync();
-        app.MapGet("/health", () => 
-                Results.Ok(new { status = "Healthy", 
-                                 service = "Cart Service", 
-                                 timestamp = DateTime.UtcNow 
-                               }
-                  ));
-
-        app.Run();
     }
 }

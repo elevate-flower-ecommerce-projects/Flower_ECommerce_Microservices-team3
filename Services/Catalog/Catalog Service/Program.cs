@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Globalization;
 using Catalog_Service.GrpcServices;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace Catalog_Service;
 
@@ -26,6 +27,14 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            options.ListenAnyIP(8081, listenOptions =>
+            {
+                listenOptions.Protocols = HttpProtocols.Http2;
+            });
+        });
 
         // 1. Database Context
         builder.Services.AddDbContext<FlowersCatalogDbContext>(options =>
