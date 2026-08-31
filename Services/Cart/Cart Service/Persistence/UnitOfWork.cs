@@ -65,6 +65,7 @@ namespace Cart_Service.Persistence
             try
             {
                 var result = await action();
+
                 var shouldRollback = result is Result r && r.IsFailure;
 
                 _depth--;

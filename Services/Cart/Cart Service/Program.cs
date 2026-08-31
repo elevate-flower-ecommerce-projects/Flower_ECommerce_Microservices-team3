@@ -9,6 +9,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Blocks.Contracts.Interfaces;
+using Cart_Service.Persistence;
+using Cart_Service.Persistence.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Globalization;
 using System.Text;
@@ -191,5 +195,13 @@ public class Program
         app.MapUpdateCartItemEndpoint();
 
         await app.RunAsync();
+        app.MapGet("/health", () => 
+                Results.Ok(new { status = "Healthy", 
+                                 service = "Cart Service", 
+                                 timestamp = DateTime.UtcNow 
+                               }
+                  ));
+
+        app.Run();
     }
 }

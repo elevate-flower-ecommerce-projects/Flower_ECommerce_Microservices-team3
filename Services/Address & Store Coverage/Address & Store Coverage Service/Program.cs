@@ -1,7 +1,11 @@
 using Address___Store_Coverage_Service.Features.Addresses.CreateAddress;
-using Address___Store_Coverage_Service.Features.Addresses.GetAddresses;
+using Address___Store_Coverage_Service.Features.Addresses.DeleteAddress;
 using Address___Store_Coverage_Service.Features.Addresses.GetAddressById;
+using Address___Store_Coverage_Service.Features.Addresses.SetDefaultAddress;
 using Address___Store_Coverage_Service.Features.Cities;
+using Address___Store_Coverage_Service.Features.Addresses.GetAddresses;
+using Address___Store_Coverage_Service.Features.Addresses.UpdateAddress;
+using Address___Store_Coverage_Service.Features.Areas;
 using Address___Store_Coverage_Service.Features.NearestCoveringStore;
 using Address___Store_Coverage_Service.Persistence;
 using Address___Store_Coverage_Service.Persistence.Repositories;
@@ -178,10 +182,13 @@ public class Program
 
         app.UseHttpsRedirection();
 
-        app.MapGetCitiesWithAreasEndpoint();
+        app.MapGetAreasWithCitiesEndpoint();
         app.MapCreateAddressEndpoint();
         app.MapGetAddressesEndpoint();
         app.MapGetAddressByIdEndpoint();
+        app.MapSetDefaultAddressEndpoint();
+        app.MapDeleteAddressEndpoint();
+        app.MapUpdateAddressEndpoint();
         app.MapFindNearestCoveringStoreEndpoint();
 
         app.MapGet("/", () => Results.Redirect("/swagger"));
