@@ -7,6 +7,8 @@ using Cart_Service.Features.UpdateCartItemQuantity.ViewModels;
 using Cart_Service.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Cart_Service.GrpcClients;
+using Grpc.Core;
 
 namespace Cart_Service.Features.UpdateCartItemQuantity.Commands.Handlers
 {
@@ -14,13 +16,16 @@ namespace Cart_Service.Features.UpdateCartItemQuantity.Commands.Handlers
     {
         private readonly IGenericRepository<Entities.Cart> _cartRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly StockService.StockServiceClient _stockClient;
 
         public UpdateCartItemCommandHandler(
             IGenericRepository<Entities.Cart> cartRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            StockService.StockServiceClient stockClient)
         {
             _cartRepository = cartRepository;
             _unitOfWork = unitOfWork;
+            _stockClient = stockClient;
         }
 
         public async Task<Result<CartResponse>> Handle(UpdateCartItemCommand request, CancellationToken cancellationToken)
@@ -46,15 +51,26 @@ namespace Cart_Service.Features.UpdateCartItemQuantity.Commands.Handlers
             }
             else
             {
-                int mockedAvailableStock = 10;
-
-                if (request.Quantity > mockedAvailableStock)
+                try
                 {
-                    return Result.Failure<CartResponse>(Error.Conflict($"Only {mockedAvailableStock} left in stock."));
-                }
+                    var stockResponse = await _stockClient.GetProductStockAsync(
+                        new StockRequest { ProductId = request.ProductId.ToString() },
+                        cancellationToken: cancellationToken);
 
-                cartItem.UpdateQuantity(request.Quantity);
-                cart.RecalculateTotals();
+                    int actualAvailableStock = stockResponse.AvailableStock;
+
+                    if (request.Quantity > actualAvailableStock)
+                    {
+                        return Result.Failure<CartResponse>(Error.Conflict($"Only {actualAvailableStock} left in stock."));
+                    }
+
+                    cartItem.UpdateQuantity(request.Quantity);
+                    cart.RecalculateTotals();
+                }
+                catch (RpcException ex)
+                {
+                    return Result.Failure<CartResponse>(Error.Internal("Could not verify product stock at the moment. Please try again later."));
+                }
             }
 
             _cartRepository.Update(cart);

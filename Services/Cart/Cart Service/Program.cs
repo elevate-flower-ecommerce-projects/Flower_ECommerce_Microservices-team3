@@ -60,7 +60,7 @@ public class Program
             options.SupportedUICultures = supportedCultures;
         });
 
-        // 6. Authentication & Authorization (الجديد عشان التوكن)
+        // 6. Authentication & Authorization
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -120,6 +120,12 @@ public class Program
                     Array.Empty<string>()
                 }
             });
+        });
+
+        builder.Services.AddGrpcClient<Cart_Service.GrpcClients.StockService.StockServiceClient>(options =>
+        {
+            var catalogUrl = builder.Configuration["GrpcUrls:CatalogService"] ?? "http://catalog-service:8080";
+            options.Address = new Uri(catalogUrl);
         });
 
         var app = builder.Build();

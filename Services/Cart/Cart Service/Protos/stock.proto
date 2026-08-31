@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "Cart_Service.GrpcClients"; 
+
+package stock;
+
+service StockService {
+  rpc GetProductStock (StockRequest) returns (StockResponse);
+}
+
+message StockRequest {
+  string productId = 1;
+}
+
+message StockResponse {
+  int32 availableStock = 1;
+}

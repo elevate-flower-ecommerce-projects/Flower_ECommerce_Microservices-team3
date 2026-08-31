@@ -17,7 +17,7 @@ namespace Cart_Service.Entities
 
         private CartItem(Guid cartId, Guid productId, int quantity, decimal unitPrice)
         {
-            Id = Guid.NewGuid(); // لو الـ BaseEntity مش بتعمله Generate أوتوماتيك
+            Id = Guid.NewGuid();
             CartId = cartId;
             ProductId = productId;
             Quantity = quantity;
