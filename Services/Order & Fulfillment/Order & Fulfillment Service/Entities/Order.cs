@@ -5,7 +5,7 @@ namespace Order___Fulfillment_Service.Entities;
 
 public class Order : AuditEntity
 {
-    public Guid UserId { get; set; }
+    public Guid CustomerId { get; set; }
     public Guid? CartId { get; set; }
     public Guid AddressId { get; set; }
     public Guid StoreId { get; set; }

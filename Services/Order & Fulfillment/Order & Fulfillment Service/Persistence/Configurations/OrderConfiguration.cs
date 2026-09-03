@@ -76,7 +76,7 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasForeignKey(i => i.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasIndex(o => o.UserId);
+        builder.HasIndex(o => o.CustomerId);
         builder.HasIndex(o => o.CartId);
         builder.HasIndex(o => o.Status);
         builder.HasIndex(o => o.CreatedAt);

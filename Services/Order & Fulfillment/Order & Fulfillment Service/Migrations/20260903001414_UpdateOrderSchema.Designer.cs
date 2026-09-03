@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Order___Fulfillment_Service.Persistence;
 
@@ -11,9 +12,11 @@ using Order___Fulfillment_Service.Persistence;
 namespace Order___Fulfillment_Service.Migrations
 {
     [DbContext(typeof(FlowersOrderDbContext))]
-    partial class FlowersOrderDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260903001414_UpdateOrderSchema")]
+    partial class UpdateOrderSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
