@@ -182,9 +182,19 @@ services:
       dockerfile: Services/Order & Fulfillment/Order & Fulfillment Service/Dockerfile
     container_name: flower_order_service
     restart: unless-stopped
+    depends_on:
+      sqlserver:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=FlowersOrderDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
+      CartService__BaseUrl: "http://cart-service:8080"
+      AddressService__BaseUrl: "http://address-service:8080"
+      PaymentService__BaseUrl: "http://payment-service:8080"
+      JwtSettings__Secret: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      JwtSettings__Issuer: ${JWT_ISSUER:-FlowersAuth}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-FlowersApp}
     networks:
       - flower_net
 
