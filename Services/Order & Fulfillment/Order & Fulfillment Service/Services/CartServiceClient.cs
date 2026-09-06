@@ -49,6 +49,40 @@ public sealed class CartServiceClient : ICartServiceClient
         }
     }
 
+    public async Task<CartDto?> GetUserCartAsync(string? bearerToken = null, CancellationToken ct = default)
+    {
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, "/api/cart");
+            if (!string.IsNullOrWhiteSpace(bearerToken))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+            }
+
+            using var response = await _httpClient.SendAsync(request, ct);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Cart service returned status code {StatusCode} for user cart", (int)response.StatusCode);
+                return null;
+            }
+
+            var envelope = await response.Content.ReadFromJsonAsync<CartApiResponseEnvelope>(JsonOptions, ct);
+            if (envelope?.Success != true || envelope.Data is null)
+            {
+                return null;
+            }
+
+            var data = envelope.Data;
+            var items = data.Items.Select(i => new CartItemDto(i.ProductId, i.ProductName, i.Quantity, i.UnitPrice)).ToList();
+            return new CartDto(data.Id, data.CustomerId, data.Subtotal, items);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to fetch user cart from Cart service");
+            return null;
+        }
+    }
+
     public async Task<bool> ClearCartAsync(Guid cartId, string? bearerToken = null, CancellationToken ct = default)
     {
         try

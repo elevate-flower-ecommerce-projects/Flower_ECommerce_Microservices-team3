@@ -2,7 +2,7 @@ namespace Order___Fulfillment_Service.Services;
 
 public record UserAddressDto(
     Guid Id,
-    Guid UserId,
+    Guid CustomerId,
     string RecipientName,
     string RecipientPhone,
     string AddressLine,
@@ -25,5 +25,6 @@ public interface IAddressServiceClient
 {
     Task<UserAddressDto?> GetAddressByIdAsync(Guid addressId, string? bearerToken = null, CancellationToken ct = default);
     Task<UserAddressDto?> GetDefaultAddressAsync(string? bearerToken = null, CancellationToken ct = default);
+    Task<IReadOnlyList<UserAddressDto>> GetUserAddressesAsync(string? bearerToken = null, CancellationToken ct = default);
     Task<StoreCoverageDto?> GetNearestCoveringStoreAsync(double latitude, double longitude, CancellationToken ct = default);
 }
