@@ -10,6 +10,8 @@ using Microsoft.OpenApi.Models;
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Security;
 using Order___Fulfillment_Service.Entities;
+using Order___Fulfillment_Service.Features.Checkout.EstimateDelivery;
+using Order___Fulfillment_Service.Features.Checkout.GetCheckoutDetails;
 using Order___Fulfillment_Service.Persistence;
 using Order___Fulfillment_Service.Persistence.Repositories;
 using Order___Fulfillment_Service.Services;
@@ -215,6 +217,10 @@ public class Program
 
         app.MapGet("/", () => Results.Redirect("/swagger"));
         app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Order & Fulfillment Service", timestamp = DateTime.UtcNow }));
+
+        // Checkout Endpoints
+        app.MapGetCheckoutDetailsEndpoint();
+        app.MapEstimateDeliveryEndpoint();
 
         await app.RunAsync();
     }
