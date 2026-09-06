@@ -32,8 +32,8 @@ public sealed class AddressServiceClient : IAddressServiceClient
                 return null;
             }
 
-            var envelope = await response.Content.ReadFromJsonAsync<AddressApiResponseEnvelope<UserAddressDto>>(JsonOptions, ct);
-            return envelope?.Success == true ? envelope.Data : null;
+            var envelope = await response.Content.ReadFromJsonAsync<AddressApiResponseEnvelope<RawAddressDto>>(JsonOptions, ct);
+            return envelope?.Success == true && envelope.Data is not null ? envelope.Data.ToUserAddressDto() : null;
         }
         catch (Exception ex)
         {
@@ -43,6 +43,12 @@ public sealed class AddressServiceClient : IAddressServiceClient
     }
 
     public async Task<UserAddressDto?> GetDefaultAddressAsync(string? bearerToken = null, CancellationToken ct = default)
+    {
+        var addresses = await GetUserAddressesAsync(bearerToken, ct);
+        return addresses.FirstOrDefault(a => a.IsDefault) ?? addresses.FirstOrDefault();
+    }
+
+    public async Task<IReadOnlyList<UserAddressDto>> GetUserAddressesAsync(string? bearerToken = null, CancellationToken ct = default)
     {
         try
         {
@@ -56,16 +62,21 @@ public sealed class AddressServiceClient : IAddressServiceClient
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Address service returned status code {StatusCode} for user addresses", (int)response.StatusCode);
-                return null;
+                return [];
             }
 
-            var envelope = await response.Content.ReadFromJsonAsync<AddressApiResponseEnvelope<List<UserAddressDto>>>(JsonOptions, ct);
-            return envelope?.Data?.FirstOrDefault(a => a.IsDefault) ?? envelope?.Data?.FirstOrDefault();
+            var envelope = await response.Content.ReadFromJsonAsync<AddressApiResponseEnvelope<List<RawAddressDto>>>(JsonOptions, ct);
+            if (envelope?.Success != true || envelope.Data is null)
+            {
+                return [];
+            }
+
+            return envelope.Data.Select(a => a.ToUserAddressDto()).ToList();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to fetch default address from Address service");
-            return null;
+            _logger.LogError(ex, "Failed to fetch user addresses from Address service");
+            return [];
         }
     }
 
@@ -89,10 +100,10 @@ public sealed class AddressServiceClient : IAddressServiceClient
             var data = envelope.Data;
             return new StoreCoverageDto(
                 data.StoreId,
-                data.StoreName,
+                !string.IsNullOrWhiteSpace(data.StoreName) ? data.StoreName : "Main Store",
                 data.IsServiceable,
-                data.DeliveryFee,
-                data.EstimatedDeliveryMinutes);
+                data.DeliveryFee > 0 ? data.DeliveryFee : 15.00m,
+                data.EstimatedDeliveryMinutes > 0 ? data.EstimatedDeliveryMinutes : 45);
         }
         catch (Exception ex)
         {
@@ -107,12 +118,43 @@ public sealed class AddressServiceClient : IAddressServiceClient
         public T? Data { get; init; }
     }
 
+    private sealed class RawAddressDto
+    {
+        public Guid Id { get; init; }
+        public Guid CustomerId { get; init; }
+        public string RecipientName { get; init; } = string.Empty;
+        public string? Phone { get; init; }
+        public string? RecipientPhone { get; init; }
+        public string AddressLine { get; init; } = string.Empty;
+        public string City { get; init; } = string.Empty;
+        public string Area { get; init; } = string.Empty;
+        public double Lat { get; init; }
+        public double Latitude { get; init; }
+        public double Lng { get; init; }
+        public double Longitude { get; init; }
+        public bool IsDefault { get; init; }
+
+        public UserAddressDto ToUserAddressDto() =>
+            new(
+                Id,
+                CustomerId,
+                RecipientName,
+                !string.IsNullOrWhiteSpace(Phone) ? Phone : (RecipientPhone ?? string.Empty),
+                AddressLine,
+                City,
+                Area,
+                Latitude != 0 ? Latitude : Lat,
+                Longitude != 0 ? Longitude : Lng,
+                IsDefault
+            );
+    }
+
     private sealed class NearestStoreApiData
     {
         public Guid StoreId { get; init; }
         public string StoreName { get; init; } = string.Empty;
-        public bool IsServiceable { get; init; }
-        public decimal DeliveryFee { get; init; }
+        public bool IsServiceable { get; init; } = true;
+        public decimal DeliveryFee { get; init; } = 15.00m;
         public int EstimatedDeliveryMinutes { get; init; } = 45;
     }
 }
