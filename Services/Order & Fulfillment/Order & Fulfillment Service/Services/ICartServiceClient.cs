@@ -7,5 +7,6 @@ public record CartDto(Guid Id, Guid CustomerId, decimal Subtotal, IReadOnlyList<
 public interface ICartServiceClient
 {
     Task<CartDto?> GetCartByIdAsync(Guid cartId, string? bearerToken = null, CancellationToken ct = default);
+    Task<CartDto?> GetUserCartAsync(string? bearerToken = null, CancellationToken ct = default);
     Task<bool> ClearCartAsync(Guid cartId, string? bearerToken = null, CancellationToken ct = default);
 }
