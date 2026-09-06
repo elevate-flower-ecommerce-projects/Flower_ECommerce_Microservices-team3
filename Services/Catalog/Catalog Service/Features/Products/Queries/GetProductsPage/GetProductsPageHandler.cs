@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Blocks.Contracts.Pagination;
 using Catalog_Service.Features.Products.Queries.GetProducts;
 using Catalog_Service.Persistence.Repositories.Interfaces;
@@ -23,6 +23,7 @@ namespace Catalog_Service.Features.Products.Queries.GetProductsPage
                 request.OccasionId,
                 request.StoreId,
                 request.Sort,
+                request.Keyword,
                 cancellationToken);
 
             return Result.Success(result);

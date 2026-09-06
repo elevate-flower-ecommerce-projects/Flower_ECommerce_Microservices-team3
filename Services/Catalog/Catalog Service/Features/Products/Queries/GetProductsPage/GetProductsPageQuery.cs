@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Blocks.Contracts.Pagination;
 using Catalog_Service.Entities.Enums;
 using Catalog_Service.Features.Products.Queries.GetProducts;
@@ -12,6 +12,7 @@ namespace Catalog_Service.Features.Products.Queries.GetProductsPage
         Guid? CategoryId,
         Guid? OccasionId,
         Guid? StoreId,
-        ProductSort? Sort
+        ProductSort? Sort,
+        string? Keyword = null
     ) : IRequest<Result<PagedResult<ProductSummaryResponse>>>;
 }

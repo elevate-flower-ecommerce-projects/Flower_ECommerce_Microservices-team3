@@ -13,22 +13,15 @@ namespace Cart_Service.Features.RemoveCartItem.Commands.Handlers;
 // [TEMPORARY BUILD] Temporary placeholder command handler for RemoveCartItem (SCRUM-25 / SCRUM-97) until intern finishes.
 // =========================================================================================================
 
-public class RemoveCartItemCommandHandler : IRequestHandler<RemoveCartItemCommand, Result<CartSummaryDto>>
+public class RemoveCartItemCommandHandler(
+    IGenericRepository<Entities.Cart> cartRepository,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<RemoveCartItemCommand, Result<CartSummaryDto>>
 {
-    private readonly IGenericRepository<Entities.Cart> _cartRepository;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public RemoveCartItemCommandHandler(
-        IGenericRepository<Entities.Cart> cartRepository,
-        IUnitOfWork unitOfWork)
-    {
-        _cartRepository = cartRepository;
-        _unitOfWork = unitOfWork;
-    }
 
     public async Task<Result<CartSummaryDto>> Handle(RemoveCartItemCommand request, CancellationToken cancellationToken)
     {
-        var cart = await _cartRepository.GetQueryable()
+        var cart = await cartRepository.GetQueryable()
             .Include(c => c.Items)
             .FirstOrDefaultAsync(c => c.CustomerId == request.CustomerId, cancellationToken);
 
@@ -44,7 +37,7 @@ public class RemoveCartItemCommandHandler : IRequestHandler<RemoveCartItemComman
         }
 
         cart.RemoveItemById(request.CartItemId);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var isArabic = request.Language.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
 

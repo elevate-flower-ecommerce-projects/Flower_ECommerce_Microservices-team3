@@ -1028,6 +1028,76 @@
       ]
     },
     {
+      "name": "Checkout",
+      "item": [
+        {
+          "name": "Get Checkout Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/checkout/details",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "checkout",
+                "details"
+              ]
+            },
+            "description": "Returns comprehensive checkout details for the authenticated customer: live cart subtotal, default delivery address, nearest covering store, delivery fee, grand total, estimated delivery time (ETA), supported payment methods, and gift options."
+          }
+        },
+        {
+          "name": "Estimate Delivery Time",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/checkout/estimate-delivery?addressId={{addressId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "checkout",
+                "estimate-delivery"
+              ],
+              "query": [
+                {
+                  "key": "addressId",
+                  "value": "{{addressId}}",
+                  "description": "GUID of the customer address to estimate delivery for"
+                }
+              ]
+            },
+            "description": "Calculates delivery fee and estimated delivery time for a specific delivery address. Returns 422 Unprocessable Entity if the address is outside store coverage."
+          }
+        }
+      ]
+    },
+    {
       "name": "Address & Store Coverage",
       "item": [
         {

@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Blocks.Contracts.Pagination;
 using Catalog_Service.Entities.Enums;
 using MediatR;
@@ -11,6 +11,7 @@ namespace Catalog_Service.Features.Products.Queries.GetProducts
         Guid? CategoryId = null,
         Guid? OccasionId = null,
         Guid? StoreId = null,
-        ProductSort? Sort = null
+        ProductSort? Sort = null,
+        string? Keyword = null
     ) : IRequest<Result<PagedResult<ProductSummaryResponse>>>;
 }
