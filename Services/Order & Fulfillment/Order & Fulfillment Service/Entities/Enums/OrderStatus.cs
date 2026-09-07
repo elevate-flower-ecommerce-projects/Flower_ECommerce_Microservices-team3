@@ -6,7 +6,9 @@ public enum OrderStatus
     PendingPayment,
     PaymentFailed,
     Preparing,
+    PickedUp,
     OutForDelivery,
+    AwaitingDeliveryConfirmation,
     Delivered,
     Cancelled
 }
