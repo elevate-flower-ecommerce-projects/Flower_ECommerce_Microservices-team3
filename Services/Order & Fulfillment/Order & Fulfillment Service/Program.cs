@@ -1,5 +1,7 @@
 using Blocks.Contracts.Behaviors;
+using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
+using Blocks.Contracts.Security;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -7,9 +9,9 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Blocks.Contracts.Http;
-using Blocks.Contracts.Security;
 using Order___Fulfillment_Service.Entities;
+using Order___Fulfillment_Service.Features.Orders.GetOrderById;
+using Order___Fulfillment_Service.Features.Orders.GetOrders;
 using Order___Fulfillment_Service.Persistence;
 using Order___Fulfillment_Service.Persistence.Repositories;
 using Order___Fulfillment_Service.Services;
@@ -189,6 +191,9 @@ public class Program
                     var db = services.GetRequiredService<FlowersOrderDbContext>();
                     await db.Database.MigrateAsync();
                     logger.LogInformation("Database migrations for Order Service completed successfully.");
+
+                    await Order___Fulfillment_Service.Persistence.Seeding.OrderSeeder.SeedAsync(db);
+                    logger.LogInformation("Order Seeder executed successfully.");
                     break;
                 }
                 catch (Exception ex)
@@ -212,6 +217,10 @@ public class Program
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "Order & Fulfillment API v1");
         });
+
+
+        app.MapGetOrdersEndpoint();
+        app.MapGetOrderByIdEndpoint();
 
         app.MapGet("/", () => Results.Redirect("/swagger"));
         app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Order & Fulfillment Service", timestamp = DateTime.UtcNow }));
