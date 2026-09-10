@@ -22,7 +22,7 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasMaxLength(50)
             .IsRequired();
 
-        builder.Property(o => o.PaymentGateway)
+        builder.Property(o => o.PaymentProvider)
             .HasConversion<string>()
             .HasMaxLength(50)
             .IsRequired(false);

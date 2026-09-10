@@ -1,19 +1,34 @@
+using Blocks.Contracts.Payment;
 using Order___Fulfillment_Service.Entities.Enums;
 
 namespace Order___Fulfillment_Service.Services;
+
+public record BillingData(
+    string FirstName,
+    string LastName,
+    string Email,
+    string PhoneNumber,
+    string Country,
+    string City,
+    string Street,
+    string Building,
+    string Floor,
+    string Apartment
+);
 
 public record CreatePaymentSessionRequest(
     Guid OrderId,
     decimal Amount,
     string Currency,
-    PaymentGateway Gateway,
-    DateTime EstimatedDeliveryAt
+    PaymentProvider PaymentProvider,
+    DateTime EstimatedDeliveryAt,
+    BillingData BillingData
 );
 
 public record CardSessionResultDto(
     Guid OrderId,
     OrderStatus Status,
-    PaymentGateway Gateway,
+    PaymentProvider PaymentProvider,
     string SessionId,
     string SessionUrl,
     string SuccessUrl,
