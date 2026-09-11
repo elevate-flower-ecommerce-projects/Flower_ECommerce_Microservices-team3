@@ -98,12 +98,20 @@ public sealed class AddressServiceClient : IAddressServiceClient
             }
 
             var data = envelope.Data;
+            // Dynamic delivery time estimation:
+            // Base preparation (15m) + Courier transit (3m per km, min 5m) + Dispatch/parking buffer (10m)
+            var transitMinutes = Math.Max((int)Math.Ceiling(data.DistanceKm * 3.0), 5);
+            var estimatedDeliveryMinutes = data.EstimatedDeliveryMinutes > 0
+                ? data.EstimatedDeliveryMinutes
+                : 15 + transitMinutes + 10;
+
             return new StoreCoverageDto(
                 data.StoreId,
                 !string.IsNullOrWhiteSpace(data.StoreName) ? data.StoreName : "Main Store",
                 data.IsServiceable,
+                data.DistanceKm,
                 data.DeliveryFee > 0 ? data.DeliveryFee : 15.00m,
-                data.EstimatedDeliveryMinutes > 0 ? data.EstimatedDeliveryMinutes : 45);
+                estimatedDeliveryMinutes);
         }
         catch (Exception ex)
         {
@@ -153,8 +161,9 @@ public sealed class AddressServiceClient : IAddressServiceClient
     {
         public Guid StoreId { get; init; }
         public string StoreName { get; init; } = string.Empty;
+        public double DistanceKm { get; init; }
         public bool IsServiceable { get; init; } = true;
         public decimal DeliveryFee { get; init; } = 15.00m;
-        public int EstimatedDeliveryMinutes { get; init; } = 45;
+        public int EstimatedDeliveryMinutes { get; init; }
     }
 }
