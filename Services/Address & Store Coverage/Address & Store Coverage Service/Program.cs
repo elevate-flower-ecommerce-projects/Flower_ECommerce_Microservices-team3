@@ -13,6 +13,7 @@ using Address___Store_Coverage_Service.Features.Addresses.GetAddresses;
 using Address___Store_Coverage_Service.Features.Addresses.UpdateAddress;
 using Address___Store_Coverage_Service.Features.Areas;
 using Address___Store_Coverage_Service.Features.NearestCoveringStore;
+using Address___Store_Coverage_Service.Features.InternalStores;
 using Address___Store_Coverage_Service.Persistence;
 using Address___Store_Coverage_Service.Persistence.Repositories;
 using Address___Store_Coverage_Service.Persistence.Seeding;
@@ -220,6 +221,9 @@ public class Program
         app.MapDeleteStoreEndpoint();
         app.MapGetCoverageAreaEndpoint();
         app.MapSetCoverageAreaEndpoint();
+
+        // Internal Service-to-Service Endpoints
+        app.MapGetStoreInternalEndpoint();
 
         app.MapGet("/", () => Results.Redirect("/swagger"));
         app.MapGet("/health", () => Results.Ok(new

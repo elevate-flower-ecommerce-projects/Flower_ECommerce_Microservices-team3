@@ -26,6 +26,12 @@ public class Order : AuditEntity
     public string AddressLine { get; set; } = string.Empty;
     public string City { get; set; } = string.Empty;
     public string Area { get; set; } = string.Empty;
+    public double DeliveryLatitude { get; set; }
+    public double DeliveryLongitude { get; set; }
+
+    // Driver Fulfillment (SCRUM-41)
+    public Guid? AssignedDriverId { get; set; }
+    public DateTime? AssignedAt { get; set; }
 
     public string? CancellationReason { get; set; }
 
