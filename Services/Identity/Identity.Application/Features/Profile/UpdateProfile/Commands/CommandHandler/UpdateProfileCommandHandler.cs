@@ -48,6 +48,11 @@ namespace Identity.Application.Features.Profile.UpdateProfile.Commands.CommandHa
 
             if (request.Photo != null)
             {
+                if (!string.IsNullOrWhiteSpace(user.PhotoUrl))
+                {
+                    await fileService.DeleteFileAsync(user.PhotoUrl, cancellationToken);
+                }
+
                 var photoUrl = await fileService.UploadFileAsync(request.Photo, "ProfilePictures", cancellationToken);
                 user.PhotoUrl = photoUrl;
             }

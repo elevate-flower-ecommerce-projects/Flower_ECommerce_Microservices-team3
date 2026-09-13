@@ -42,5 +42,33 @@ namespace Identity.Infrastructure.Services
 
             return $"{baseUrl}/{folderName}/{uniqueFileName}";
         }
+
+        public Task DeleteFileAsync(string fileUrl, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(fileUrl))
+                return Task.CompletedTask;
+
+            try
+            {
+                var uri = new Uri(fileUrl);
+                var path = uri.AbsolutePath;
+
+                path = path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+
+                var webRootPath = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                var fullPath = Path.Combine(webRootPath, path);
+
+                if (File.Exists(fullPath))
+                {
+                    File.Delete(fullPath);
+                }
+            }
+            catch
+            {
+             
+            }
+
+            return Task.CompletedTask;
+        }
     }
 }
