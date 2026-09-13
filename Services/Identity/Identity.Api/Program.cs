@@ -1,6 +1,3 @@
-using System.Globalization;
-using System.Text;
-using Microsoft.OpenApi.Models;
 using Blocks.Contracts.Interfaces;
 using FluentValidation;
 using Identity.Api.Authorization;
@@ -8,12 +5,13 @@ using Identity.Api.Exceptions;
 using Identity.Api.Features.Admin;
 using Identity.Api.Features.AdminLogin;
 using Identity.Api.Features.ChangePassword;
-using Identity.Api.Features.RegisterDriver;
 using Identity.Api.Features.Forgot_Password;
 using Identity.Api.Features.Login;
 using Identity.Api.Features.Logout;
+using Identity.Api.Features.Profile;
 using Identity.Api.Features.RefreshToken;
 using Identity.Api.Features.Register;
+using Identity.Api.Features.RegisterDriver;
 using Identity.Api.Features.Verify_OTP;
 using Identity.Application;
 using Identity.Application.Interfaces;
@@ -29,6 +27,10 @@ using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Globalization;
+using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Identity.Api
 {
@@ -39,7 +41,8 @@ namespace Identity.Api
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddDbContext<FlowersAuthDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+                       .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IDriverRepository, DriverRepository>();
@@ -103,11 +106,23 @@ namespace Identity.Api
             builder.Services.AddScoped<IResetTokenService, ResetTokenService>();
             builder.Services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
             builder.Services.AddSingleton<IHmacService, HmacService>();
+            builder.Services.AddScoped<IFileService, LocalFileService>();
+            builder.Services.AddHttpContextAccessor();
+
 
             builder.Services.AddApplication();
             builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
             builder.Services.AddAppMassTransit(builder.Configuration);
             builder.Services.AddControllers();
+            builder.Services.ConfigureHttpJsonOptions(options =>
+            {
+                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
+
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
             builder.Services.AddProblemDetails();
             builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
             
@@ -150,6 +165,7 @@ namespace Identity.Api
             });
 
             var app = builder.Build();
+            app.UseStaticFiles();
             app.UseExceptionHandler();
 
             var supportedCultures = new[]
@@ -281,6 +297,8 @@ namespace Identity.Api
             app.MapLoginEndpoint();
             app.MapRefreshTokenEndpoint();
             app.MapLogoutEndpoint();
+            app.MapUpdateProfileEndpoint();
+            app.MapGetProfileEndpoint();
             app.MapGet("/", () => Results.Redirect("/swagger"));
             app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Identity Service", timestamp = DateTime.UtcNow }));
 
