@@ -31,12 +31,12 @@ public record CardSessionResultDto(
     PaymentProvider PaymentProvider,
     string SessionId,
     string SessionUrl,
-    string SuccessUrl,
-    string CancelUrl,
-    DateTime ExpiresAt,
-    decimal Amount,
-    string Currency,
-    DateTime EstimatedDeliveryAt
+    string? SuccessUrl = null,
+    string? CancelUrl = null,
+    DateTime? ExpiresAt = null,
+    decimal Amount = 0,
+    string Currency = "EGP",
+    DateTime? EstimatedDeliveryAt = null
 );
 
 public interface IPaymentServiceClient

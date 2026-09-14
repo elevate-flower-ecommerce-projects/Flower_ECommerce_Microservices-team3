@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Payment_Service.Entities;
 using Payment_Service.Persistence;
 using Payment_Service.Persistence.Repositories;
@@ -35,6 +35,16 @@ public sealed class PaymentRepository(FlowersPaymentDbContext _context)
         return await _context.Payments
             .FirstOrDefaultAsync(
                 x => x.PaymobTransactionId == transactionId,
+                cancellationToken);
+    }
+
+    public async Task<Payment?> GetByPaymobOrderIdAsync(
+        string paymobOrderId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Payments
+            .FirstOrDefaultAsync(
+                x => x.PaymobOrderId == paymobOrderId,
                 cancellationToken);
     }
 }

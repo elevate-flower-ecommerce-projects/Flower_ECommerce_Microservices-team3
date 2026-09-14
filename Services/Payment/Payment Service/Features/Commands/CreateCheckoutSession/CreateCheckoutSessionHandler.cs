@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Blocks.Contracts.Payment;
 using Blocks.Domain.Errors;
 using MediatR;
@@ -79,10 +79,21 @@ public sealed class CreateCheckoutSessionHandler(
             cancellationToken);
 
         // 7. Return checkout information
+        var sessionId = !string.IsNullOrWhiteSpace(checkoutSession.IntentionId)
+            ? checkoutSession.IntentionId
+            : payment.Id.ToString();
+
         return Result<CreateCheckoutSessionResponse>.Success(
             new CreateCheckoutSessionResponse(
-                payment.OrderId,
-                payment.Id,
-                checkoutSession.PaymentUrl));
+                OrderId: payment.OrderId,
+                PaymentId: payment.Id,
+                PaymentUrl: checkoutSession.PaymentUrl,
+                SessionId: sessionId,
+                SessionUrl: checkoutSession.PaymentUrl,
+                PaymentProvider: PaymentProvider.Paymob,
+                Status: payment.Status.ToString(),
+                Amount: payment.Amount,
+                Currency: payment.Currency,
+                EstimatedDeliveryAt: request.EstimatedDeliveryAt));
     }
 }

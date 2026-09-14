@@ -1,3 +1,4 @@
+using Blocks.Contracts.Payment;
 using Microsoft.EntityFrameworkCore;
 using Order___Fulfillment_Service.Entities;
 using Order___Fulfillment_Service.Entities.Enums;
@@ -36,7 +37,7 @@ public static class OrderSeeder
                 StoreId = storeMaadi,
                 Status = OrderStatus.Preparing,
                 PaymentMethod = PaymentMethod.Card,
-                PaymentGateway = PaymentGateway.Stripe,
+                PaymentProvider = PaymentProvider.Paymob,
                 Subtotal = 150.00m,
                 DeliveryFee = 15.00m,
                 Total = 165.00m,
@@ -85,7 +86,7 @@ public static class OrderSeeder
                 StoreId = storeNasrCity,
                 Status = OrderStatus.Preparing,
                 PaymentMethod = PaymentMethod.COD,
-                PaymentGateway = null,
+                PaymentProvider = null,
                 Subtotal = 85.00m,
                 DeliveryFee = 15.00m,
                 Total = 100.00m,
@@ -125,7 +126,7 @@ public static class OrderSeeder
                 StoreId = storeHeliopolis,
                 Status = OrderStatus.Preparing,
                 PaymentMethod = PaymentMethod.Card,
-                PaymentGateway = PaymentGateway.Stripe,
+                PaymentProvider = PaymentProvider.Paymob,
                 Subtotal = 220.00m,
                 DeliveryFee = 15.00m,
                 Total = 235.00m,
@@ -176,7 +177,7 @@ public static class OrderSeeder
                 StoreId = storeDokki,
                 Status = OrderStatus.Delivered,
                 PaymentMethod = PaymentMethod.Card,
-                PaymentGateway = PaymentGateway.Stripe,
+                PaymentProvider = PaymentProvider.Paymob,
                 Subtotal = 120.00m,
                 DeliveryFee = 15.00m,
                 Total = 135.00m,
@@ -217,7 +218,7 @@ public static class OrderSeeder
                 StoreId = storeNasrCity,
                 Status = OrderStatus.PickedUp,
                 PaymentMethod = PaymentMethod.COD,
-                PaymentGateway = null,
+                PaymentProvider = null,
                 Subtotal = 75.00m,
                 DeliveryFee = 15.00m,
                 Total = 90.00m,
