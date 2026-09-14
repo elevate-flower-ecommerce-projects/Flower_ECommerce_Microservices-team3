@@ -71,6 +71,18 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasMaxLength(500)
             .IsRequired(false);
 
+        builder.Property(o => o.DeliveryLatitude)
+            .IsRequired();
+
+        builder.Property(o => o.DeliveryLongitude)
+            .IsRequired();
+
+        builder.Property(o => o.AssignedDriverId)
+            .IsRequired(false);
+
+        builder.Property(o => o.AssignedAt)
+            .IsRequired(false);
+
         builder.HasMany(o => o.Items)
             .WithOne(i => i.Order)
             .HasForeignKey(i => i.OrderId)
@@ -80,5 +92,7 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasIndex(o => o.CartId);
         builder.HasIndex(o => o.Status);
         builder.HasIndex(o => o.CreatedAt);
+        builder.HasIndex(o => o.AssignedDriverId);
+        builder.HasIndex(o => new { o.Status, o.AssignedDriverId });
     }
 }

@@ -1,4 +1,5 @@
 using Blocks.Contracts.Common;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Order___Fulfillment_Service.Persistence;
@@ -46,6 +47,20 @@ public class UnitOfWork : IUnitOfWork
     }
 
     private async Task<T> ExecuteInternalAsync<T>(Func<Task<T>> action, CancellationToken cancellationToken)
+    {
+        if (_depth == 0)
+        {
+            var strategy = _dbContext.Database.CreateExecutionStrategy();
+            return await strategy.ExecuteAsync(async () =>
+            {
+                return await ExecuteTransactionCoreAsync(action, cancellationToken);
+            });
+        }
+
+        return await ExecuteTransactionCoreAsync(action, cancellationToken);
+    }
+
+    private async Task<T> ExecuteTransactionCoreAsync<T>(Func<Task<T>> action, CancellationToken cancellationToken)
     {
         var isOutermost = _depth == 0;
 

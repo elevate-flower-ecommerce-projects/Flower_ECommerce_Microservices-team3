@@ -11,6 +11,7 @@ public class FlowersOrderDbContext : DbContext
 
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+    public DbSet<DriverLocation> DriverLocations => Set<DriverLocation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

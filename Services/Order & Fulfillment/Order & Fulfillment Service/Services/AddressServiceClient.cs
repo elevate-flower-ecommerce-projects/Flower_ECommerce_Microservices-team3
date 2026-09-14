@@ -112,10 +112,53 @@ public sealed class AddressServiceClient : IAddressServiceClient
         }
     }
 
+    public async Task<StoreInfoDto?> GetStoreByIdAsync(Guid storeId, CancellationToken ct = default)
+    {
+        try
+        {
+            using var response = await _httpClient.GetAsync($"/internal/stores/{storeId}", ct);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Address service returned status code {StatusCode} for store {StoreId}", (int)response.StatusCode, storeId);
+                return null;
+            }
+
+            var envelope = await response.Content.ReadFromJsonAsync<AddressApiResponseEnvelope<StoreApiData>>(JsonOptions, ct);
+            if (envelope?.Success != true || envelope.Data is null)
+            {
+                return null;
+            }
+
+            return new StoreInfoDto(
+                envelope.Data.Id,
+                envelope.Data.Name,
+                envelope.Data.Location?.Lat ?? 0,
+                envelope.Data.Location?.Lng ?? 0);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to fetch store {StoreId} from Address service", storeId);
+            return null;
+        }
+    }
+
     private sealed class AddressApiResponseEnvelope<T>
     {
         public bool Success { get; init; }
         public T? Data { get; init; }
+    }
+
+    private sealed class StoreApiData
+    {
+        public Guid Id { get; init; }
+        public string Name { get; init; } = string.Empty;
+        public StoreGeoLocationApiData? Location { get; init; }
+    }
+
+    private sealed class StoreGeoLocationApiData
+    {
+        public double Lat { get; init; }
+        public double Lng { get; init; }
     }
 
     private sealed class RawAddressDto
