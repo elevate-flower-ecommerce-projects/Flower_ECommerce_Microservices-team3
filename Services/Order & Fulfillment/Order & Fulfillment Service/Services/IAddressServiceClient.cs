@@ -17,6 +17,7 @@ public record StoreCoverageDto(
     Guid StoreId,
     string StoreName,
     bool IsServiceable,
+    double DistanceKm,
     decimal DeliveryFee,
     int EstimatedDeliveryMinutes
 );
