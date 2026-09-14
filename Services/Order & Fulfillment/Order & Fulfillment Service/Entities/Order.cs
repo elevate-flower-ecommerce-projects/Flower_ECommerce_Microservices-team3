@@ -1,3 +1,4 @@
+using Blocks.Contracts.Payment;
 using Blocks.Domain.Entities;
 using Order___Fulfillment_Service.Entities.Enums;
 
@@ -11,7 +12,7 @@ public class Order : AuditEntity
     public Guid StoreId { get; set; }
     public OrderStatus Status { get; set; } = OrderStatus.Placed;
     public PaymentMethod PaymentMethod { get; set; }
-    public PaymentGateway? PaymentGateway { get; set; }
+    public PaymentProvider? PaymentProvider { get; set; }
     public decimal Subtotal { get; set; }
     public decimal DeliveryFee { get; set; }
     public decimal Total { get; set; }
