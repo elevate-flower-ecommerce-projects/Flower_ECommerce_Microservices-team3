@@ -53,6 +53,12 @@
       "value": "",
       "type": "string",
       "description": "Address ID for address operations"
+    },
+    {
+      "key": "orderId",
+      "value": "b1111111-1111-1111-1111-111111111111",
+      "type": "string",
+      "description": "Order ID for order operations, payment processing, and driver fulfillment"
     }
   ],
   "item": [
@@ -1093,6 +1099,373 @@
               ]
             },
             "description": "Calculates delivery fee and estimated delivery time for a specific delivery address. Returns 422 Unprocessable Entity if the address is outside store coverage."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create Card Checkout Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"amount\": 250.00,\n  \"currency\": \"EGP\",\n  \"customerEmail\": \"customer@example.com\",\n  \"customerFirstName\": \"Ahmed\",\n  \"customerLastName\": \"Ali\",\n  \"customerPhone\": \"+201012345678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment/payments/checkout-session",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment",
+                "payments",
+                "checkout-session"
+              ]
+            },
+            "description": "Initiates a Paymob Card Payment intention and returns the unified checkout session URL (sessionUrl) where the customer completes payment."
+          }
+        },
+        {
+          "name": "Create Cash on Delivery (COD) Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"amount\": 250.00,\n  \"currency\": \"EGP\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment/payments/cod",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment",
+                "payments",
+                "cod"
+              ]
+            },
+            "description": "Records a Cash on Delivery (COD) payment initiation for an order, setting status to Pending until driver collects payment upon delivery."
+          }
+        },
+        {
+          "name": "Paymob Payment Webhook Callback",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"TRANSACTION\",\n  \"obj\": {\n    \"id\": 123456789,\n    \"success\": true,\n    \"pending\": false,\n    \"amount_cents\": 25000,\n    \"currency\": \"EGP\",\n    \"order\": {\n      \"id\": 987654321\n    },\n    \"data\": {\n      \"message\": \"Approved\"\n    },\n    \"is_refunded\": false,\n    \"is_voided\": false\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment/api/v1/payments/webhook",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment",
+                "api",
+                "v1",
+                "payments",
+                "webhook"
+              ]
+            },
+            "description": "Webhook endpoint invoked by Paymob upon transaction status change. Updates the payment status in the database and triggers fulfillment events."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Driver Fulfillment",
+      "item": [
+        {
+          "name": "Get Available Orders for Driver",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/order/drivers/available-orders?page=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "drivers",
+                "available-orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (defaults to 1)"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": "Page size (defaults to 10)"
+                }
+              ]
+            },
+            "description": "Retrieves paginated list of unassigned pending orders available for drivers to claim. Requires Driver Bearer token."
+          }
+        },
+        {
+          "name": "Claim / Accept Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/order/drivers/me/orders/:orderId/accept",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "drivers",
+                "me",
+                "orders",
+                ":orderId",
+                "accept"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the order to claim"
+                }
+              ]
+            },
+            "description": "Allows the authenticated driver to claim an available order. Transitions order status to Preparing and assigns it to the driver."
+          }
+        },
+        {
+          "name": "Get Active Order for Driver",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/order/drivers/me/active-order",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "drivers",
+                "me",
+                "active-order"
+              ]
+            },
+            "description": "Returns the active order currently being fulfilled by the authenticated driver (status PickedUp or OutForDelivery)."
+          }
+        },
+        {
+          "name": "Get Driver Order History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/order/drivers/me/orders?page=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "drivers",
+                "me",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (defaults to 1)"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": "Page size (defaults to 10)"
+                },
+                {
+                  "key": "status",
+                  "value": "Delivered",
+                  "disabled": true,
+                  "description": "Filter by OrderStatus (e.g. Delivered, Cancelled)"
+                }
+              ]
+            },
+            "description": "Retrieves the history of past orders fulfilled by the authenticated driver, optionally filtered by status."
+          }
+        },
+        {
+          "name": "Get Driver Order Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/order/drivers/me/orders/:orderId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "drivers",
+                "me",
+                "orders",
+                ":orderId"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the driver's order"
+                }
+              ]
+            },
+            "description": "Retrieves full details (recipient info, delivery address, items, timeline) for an order assigned to the driver."
+          }
+        },
+        {
+          "name": "Update Order Status (Driver)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newStatus\": \"PickedUp\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/order/orders/:orderId/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "orders",
+                ":orderId",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the order to update"
+                }
+              ]
+            },
+            "description": "Transitions the order delivery status. Valid driver transitions: PickedUp, OutForDelivery, AwaitingDeliveryConfirmation."
           }
         }
       ]
