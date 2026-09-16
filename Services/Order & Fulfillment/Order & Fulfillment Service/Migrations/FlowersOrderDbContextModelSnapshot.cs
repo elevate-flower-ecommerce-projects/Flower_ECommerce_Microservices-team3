@@ -115,6 +115,14 @@ namespace Order___Fulfillment_Service.Migrations
                     b.Property<double>("DeliveryLongitude")
                         .HasColumnType("float");
 
+                    b.Property<string>("DriverName")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("DriverPhone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<DateTime>("EstimatedDeliveryAt")
                         .HasColumnType("datetime2");
 

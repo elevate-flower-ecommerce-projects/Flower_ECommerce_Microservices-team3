@@ -5,6 +5,8 @@ using Identity.Api.Exceptions;
 using Identity.Api.Features.Admin;
 using Identity.Api.Features.AdminLogin;
 using Identity.Api.Features.ChangePassword;
+using Identity.Api.Features.RegisterDriver;
+using Identity.Api.Features.DriverProfile;
 using Identity.Api.Features.Forgot_Password;
 using Identity.Api.Features.Login;
 using Identity.Api.Features.Logout;
@@ -299,6 +301,7 @@ namespace Identity.Api
             app.MapLogoutEndpoint();
             app.MapUpdateProfileEndpoint();
             app.MapGetProfileEndpoint();
+            app.MapGetDriverProfileEndpoint();
             app.MapGet("/", () => Results.Redirect("/swagger"));
             app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Identity Service", timestamp = DateTime.UtcNow }));
 

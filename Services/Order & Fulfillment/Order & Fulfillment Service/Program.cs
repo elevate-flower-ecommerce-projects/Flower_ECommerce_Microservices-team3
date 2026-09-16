@@ -1,5 +1,7 @@
 using Blocks.Contracts.Behaviors;
+using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
+using Blocks.Contracts.Security;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -7,13 +9,14 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Blocks.Contracts.Http;
-using Blocks.Contracts.Security;
 using Order___Fulfillment_Service.Entities;
 using Order___Fulfillment_Service.Features.Checkout.EstimateDelivery;
 using Order___Fulfillment_Service.Features.Checkout.GetCheckoutDetails;
+using Order___Fulfillment_Service.Features.Drivers.ReportLocation;
+using Order___Fulfillment_Service.Features.Orders.GetOrderTracking;
 using Order___Fulfillment_Service.Persistence;
 using Order___Fulfillment_Service.Persistence.Repositories;
+using Order___Fulfillment_Service.Persistence.Seeding;
 using Order___Fulfillment_Service.Services;
 using System.Globalization;
 using System.Text;
@@ -55,6 +58,12 @@ public class Program
         builder.Services.AddHttpClient<IPaymentServiceClient, PaymentServiceClient>(client =>
         {
             client.BaseAddress = new Uri(builder.Configuration["PaymentService:BaseUrl"] ?? "http://payment-service:8080");
+            client.Timeout = TimeSpan.FromSeconds(10);
+        });
+
+        builder.Services.AddHttpClient<IIdentityServiceClient, IdentityServiceClient>(client =>
+        {
+            client.BaseAddress = new Uri(builder.Configuration["IdentityService:BaseUrl"] ?? "http://localhost:5000");
             client.Timeout = TimeSpan.FromSeconds(10);
         });
 
@@ -190,7 +199,8 @@ public class Program
                 {
                     var db = services.GetRequiredService<FlowersOrderDbContext>();
                     await db.Database.MigrateAsync();
-                    logger.LogInformation("Database migrations for Order Service completed successfully.");
+                    await FlowersOrderSeeder.SeedAsync(db);
+                    logger.LogInformation("Database migrations and seeding for Order Service completed successfully.");
                     break;
                 }
                 catch (Exception ex)
@@ -221,6 +231,10 @@ public class Program
         // Checkout Endpoints
         app.MapGetCheckoutDetailsEndpoint();
         app.MapEstimateDeliveryEndpoint();
+
+        app.MapGetOrderTrackingEndpoint();
+        app.MapReportDriverLocationEndpoint();
+
 
         await app.RunAsync();
     }

@@ -33,6 +33,9 @@ public class Order : AuditEntity
     public Guid? AssignedDriverId { get; set; }
     public DateTime? AssignedAt { get; set; }
 
+    public string? DriverName { get; set; }
+    public string? DriverPhone { get; set; }
+
     public string? CancellationReason { get; set; }
 
     public ICollection<OrderItem> Items { get; set; } = [];
