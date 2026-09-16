@@ -17,8 +17,16 @@ public record StoreCoverageDto(
     Guid StoreId,
     string StoreName,
     bool IsServiceable,
+    double DistanceKm,
     decimal DeliveryFee,
     int EstimatedDeliveryMinutes
+);
+
+public record StoreInfoDto(
+    Guid Id,
+    string Name,
+    double Lat,
+    double Lng
 );
 
 public interface IAddressServiceClient
@@ -27,4 +35,5 @@ public interface IAddressServiceClient
     Task<UserAddressDto?> GetDefaultAddressAsync(string? bearerToken = null, CancellationToken ct = default);
     Task<IReadOnlyList<UserAddressDto>> GetUserAddressesAsync(string? bearerToken = null, CancellationToken ct = default);
     Task<StoreCoverageDto?> GetNearestCoveringStoreAsync(double latitude, double longitude, CancellationToken ct = default);
+    Task<StoreInfoDto?> GetStoreByIdAsync(Guid storeId, CancellationToken ct = default);
 }

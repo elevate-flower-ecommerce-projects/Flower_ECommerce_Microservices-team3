@@ -14,6 +14,12 @@ using Order___Fulfillment_Service.Features.Checkout.EstimateDelivery;
 using Order___Fulfillment_Service.Features.Checkout.GetCheckoutDetails;
 using Order___Fulfillment_Service.Features.Drivers.ReportLocation;
 using Order___Fulfillment_Service.Features.Orders.GetOrderTracking;
+using Order___Fulfillment_Service.Features.DriverFulfillment.AcceptOrder;
+using Order___Fulfillment_Service.Features.DriverFulfillment.ActiveOrder;
+using Order___Fulfillment_Service.Features.DriverFulfillment.AvailableOrders;
+using Order___Fulfillment_Service.Features.DriverFulfillment.OrderDetail;
+using Order___Fulfillment_Service.Features.DriverFulfillment.OrderHistory;
+using Order___Fulfillment_Service.Features.DriverFulfillment.UpdateStatus;
 using Order___Fulfillment_Service.Persistence;
 using Order___Fulfillment_Service.Persistence.Repositories;
 using Order___Fulfillment_Service.Persistence.Seeding;
@@ -129,6 +135,7 @@ public class Program
         builder.Services.AddAuthorization(options =>
         {
             options.AddPolicy(FlowerClaimTypes.AdminPolicy, policy => policy.RequireRole(FlowerClaimTypes.AdminRole));
+            options.AddPolicy(FlowerClaimTypes.DriverPolicy, policy => policy.RequireRole(FlowerClaimTypes.DriverRole));
         });
 
         // 8. Swagger / OpenAPI Configuration
@@ -199,8 +206,8 @@ public class Program
                 {
                     var db = services.GetRequiredService<FlowersOrderDbContext>();
                     await db.Database.MigrateAsync();
-                    await FlowersOrderSeeder.SeedAsync(db);
-                    logger.LogInformation("Database migrations and seeding for Order Service completed successfully.");
+                    await OrderSeeder.SeedAsync(db);
+                    logger.LogInformation("Database migrations and data seeding for Order Service completed successfully.");
                     break;
                 }
                 catch (Exception ex)
@@ -235,6 +242,13 @@ public class Program
         app.MapGetOrderTrackingEndpoint();
         app.MapReportDriverLocationEndpoint();
 
+        // Driver Fulfillment Endpoints (SCRUM-41)
+        app.MapGetAvailableOrdersEndpoint();
+        app.MapAcceptOrderEndpoint();
+        app.MapGetActiveOrderEndpoint();
+        app.MapGetOrderHistoryEndpoint();
+        app.MapGetOrderDetailEndpoint();
+        app.MapUpdateStatusEndpoint();
 
         await app.RunAsync();
     }

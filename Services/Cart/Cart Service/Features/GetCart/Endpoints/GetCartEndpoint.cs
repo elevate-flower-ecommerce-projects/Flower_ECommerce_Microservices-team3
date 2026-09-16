@@ -19,7 +19,7 @@ namespace Cart_Service.Features.GetCart.Endpoints
             {
                 var customerIdClaim = user.FindFirstValue(FlowerClaimTypes.CustomerId)
                                       ?? user.FindFirstValue(ClaimTypes.NameIdentifier);
-
+                  
                 if (string.IsNullOrEmpty(customerIdClaim) || !Guid.TryParse(customerIdClaim, out var customerId))
                 {
                     return Results.Json(
@@ -44,14 +44,6 @@ namespace Cart_Service.Features.GetCart.Endpoints
                 .WithTags("Cart")
                 .WithSummary("Get Cart Summary (SCRUM-29 / SCRUM-107)")
                 .WithDescription("Returns every line item in the authenticated user's server-side cart, with current price and stock flags re-checked at read time.")
-                .Produces<ApiResponse<GetCartResponse>>(StatusCodes.Status200OK)
-                .Produces<ApiResponse<GetCartResponse>>(StatusCodes.Status401Unauthorized)
-                .RequireAuthorization();
-
-            app.MapGet("/api/cart", handler)
-                .WithName("GetCartApi")
-                .WithTags("Cart")
-                .WithSummary("Get Cart Summary (SCRUM-29 / SCRUM-107)")
                 .Produces<ApiResponse<GetCartResponse>>(StatusCodes.Status200OK)
                 .Produces<ApiResponse<GetCartResponse>>(StatusCodes.Status401Unauthorized)
                 .RequireAuthorization();
