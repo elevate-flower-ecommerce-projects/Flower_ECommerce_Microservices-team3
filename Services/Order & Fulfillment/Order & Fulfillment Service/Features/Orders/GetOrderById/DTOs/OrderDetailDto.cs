@@ -1,4 +1,5 @@
-﻿using Order___Fulfillment_Service.Entities.Enums;
+using Blocks.Contracts.Payment;
+using Order___Fulfillment_Service.Entities.Enums;
 
 namespace Order___Fulfillment_Service.Features.Orders.GetOrderById.DTOs
 {
@@ -6,7 +7,7 @@ namespace Order___Fulfillment_Service.Features.Orders.GetOrderById.DTOs
     Guid Id,
     OrderStatus Status,
     PaymentMethod PaymentMethod,
-    PaymentGateway? PaymentGateway,
+    PaymentProvider? PaymentProvider,
     List<OrderItemDto> Items,
     OrderAddressDto Address,
     decimal Subtotal,

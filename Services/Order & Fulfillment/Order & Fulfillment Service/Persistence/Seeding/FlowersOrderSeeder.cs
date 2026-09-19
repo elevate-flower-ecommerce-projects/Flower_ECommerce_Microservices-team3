@@ -35,6 +35,7 @@ public static class FlowersOrderSeeder
                 StoreId = Guid.NewGuid(),
                 Status = OrderStatus.OutForDelivery,
                 PaymentMethod = PaymentMethod.Card,
+                PaymentProvider = PaymentProvider.Paymob,
                 Subtotal = 100,
                 DeliveryFee = 15,
                 Total = 115,
@@ -57,9 +58,25 @@ public static class FlowersOrderSeeder
             outForDeliveryOrder.CustomerId = customer1Id;
             outForDeliveryOrder.AssignedDriverId = driver1Id;
             outForDeliveryOrder.Status = OrderStatus.OutForDelivery;
+            outForDeliveryOrder.PaymentMethod = PaymentMethod.Card;
+            outForDeliveryOrder.PaymentProvider = PaymentProvider.Paymob;
             outForDeliveryOrder.DriverName = null;
             outForDeliveryOrder.DriverPhone = null;
             outForDeliveryOrder.DriverPhotoUrl = null;
+        }
+
+        if (!await context.OrderItems.AnyAsync(i => i.OrderId == outForDeliveryOrderId))
+        {
+            await context.OrderItems.AddAsync(new OrderItem
+            {
+                Id = Guid.NewGuid(),
+                OrderId = outForDeliveryOrderId,
+                ProductId = Guid.NewGuid(),
+                ProductName = "Red Roses Bouquet (12 Stems)",
+                ThumbnailUrl = "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=200",
+                Quantity = 1,
+                UnitPrice = 100.00m
+            });
         }
 
         // ── 2. AwaitingDeliveryConfirmation (Customer 1 + Driver 2 Ahmed) ─
@@ -96,9 +113,25 @@ public static class FlowersOrderSeeder
             awaitingOrder.CustomerId = customer1Id;
             awaitingOrder.AssignedDriverId = driver2Id;
             awaitingOrder.Status = OrderStatus.AwaitingDeliveryConfirmation;
+            awaitingOrder.PaymentMethod = PaymentMethod.COD;
+            awaitingOrder.PaymentProvider = null;
             awaitingOrder.DriverName = null;
             awaitingOrder.DriverPhone = null;
             awaitingOrder.DriverPhotoUrl = null;
+        }
+
+        if (!await context.OrderItems.AnyAsync(i => i.OrderId == awaitingConfirmOrderId))
+        {
+            await context.OrderItems.AddAsync(new OrderItem
+            {
+                Id = Guid.NewGuid(),
+                OrderId = awaitingConfirmOrderId,
+                ProductId = Guid.NewGuid(),
+                ProductName = "White Lilies Bouquet",
+                ThumbnailUrl = "https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=200",
+                Quantity = 1,
+                UnitPrice = 80.00m
+            });
         }
 
         // ── 3. Cancelled (Customer 1) ───────────────────────────────────
@@ -134,6 +167,22 @@ public static class FlowersOrderSeeder
         {
             cancelledOrder.CustomerId = customer1Id;
             cancelledOrder.Status = OrderStatus.Cancelled;
+            cancelledOrder.PaymentMethod = PaymentMethod.Card;
+            cancelledOrder.PaymentProvider = PaymentProvider.Paymob;
+        }
+
+        if (!await context.OrderItems.AnyAsync(i => i.OrderId == cancelledOrderId))
+        {
+            await context.OrderItems.AddAsync(new OrderItem
+            {
+                Id = Guid.NewGuid(),
+                OrderId = cancelledOrderId,
+                ProductId = Guid.NewGuid(),
+                ProductName = "Pink Tulips Bunch",
+                ThumbnailUrl = "https://images.unsplash.com/photo-1524386416438-98b9b2d4b433?w=200",
+                Quantity = 1,
+                UnitPrice = 60.00m
+            });
         }
 
         // ── 4. Preparing (Customer 1 — No Driver Yet) ────────────────────
@@ -168,6 +217,22 @@ public static class FlowersOrderSeeder
         {
             preparingOrder.CustomerId = customer1Id;
             preparingOrder.Status = OrderStatus.Preparing;
+            preparingOrder.PaymentMethod = PaymentMethod.Card;
+            preparingOrder.PaymentProvider = PaymentProvider.Paymob;
+        }
+
+        if (!await context.OrderItems.AnyAsync(i => i.OrderId == preparingOrderId))
+        {
+            await context.OrderItems.AddAsync(new OrderItem
+            {
+                Id = Guid.NewGuid(),
+                OrderId = preparingOrderId,
+                ProductId = Guid.NewGuid(),
+                ProductName = "Sunflower Bouquet",
+                ThumbnailUrl = "https://images.unsplash.com/photo-1597848212624-a19eb35e2651?w=200",
+                Quantity = 1,
+                UnitPrice = 120.00m
+            });
         }
 
         // ── 5. Delivered (Customer 2 Layla + Driver 2 Ahmed) ─────────────
@@ -204,9 +269,25 @@ public static class FlowersOrderSeeder
             customer2Order.CustomerId = customer2Id;
             customer2Order.AssignedDriverId = driver2Id;
             customer2Order.Status = OrderStatus.Delivered;
+            customer2Order.PaymentMethod = PaymentMethod.Card;
+            customer2Order.PaymentProvider = PaymentProvider.Paymob;
             customer2Order.DriverName = null;
             customer2Order.DriverPhone = null;
             customer2Order.DriverPhotoUrl = null;
+        }
+
+        if (!await context.OrderItems.AnyAsync(i => i.OrderId == customer2OrderId))
+        {
+            await context.OrderItems.AddAsync(new OrderItem
+            {
+                Id = Guid.NewGuid(),
+                OrderId = customer2OrderId,
+                ProductId = Guid.NewGuid(),
+                ProductName = "Luxury Orchid Arrangement",
+                ThumbnailUrl = "https://images.unsplash.com/photo-1468327768560-75b778cbb551?w=200",
+                Quantity = 1,
+                UnitPrice = 150.00m
+            });
         }
 
         await context.SaveChangesAsync();

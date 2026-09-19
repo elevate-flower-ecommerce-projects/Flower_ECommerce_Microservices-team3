@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Blocks.Contracts.Interfaces;
 using Blocks.Domain.Errors;
 using MediatR;
@@ -26,14 +26,13 @@ namespace Order___Fulfillment_Service.Features.Orders.GetOrderById.Queries
                     o.Id,
                     o.Status,
                     o.PaymentMethod,
-                    o.PaymentGateway,
+                    o.PaymentProvider,
                     o.Items.OrderBy(i => i.ProductName)
                            .Select(i => new OrderItemDto(
                                i.ProductId,
                                i.ProductName,
                                i.Quantity,
-                               i.UnitPrice,
-                               i.ThumbnailUrl))
+                               i.UnitPrice))
                            .ToList(),
                     new OrderAddressDto(
                         o.RecipientName,
