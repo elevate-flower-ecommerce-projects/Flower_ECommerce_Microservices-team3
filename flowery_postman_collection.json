@@ -56,9 +56,15 @@
     },
     {
       "key": "orderId",
-      "value": "b1111111-1111-1111-1111-111111111111",
+      "value": "bbbb2222-0002-0002-0002-000000000002",
       "type": "string",
-      "description": "Order ID for order operations, payment processing, and driver fulfillment"
+      "description": "Order ID for order operations, payments, tracking, and driver fulfillment"
+    },
+    {
+      "key": "driverId",
+      "value": "01a03975-5bd9-7db4-8e83-599af35ee26c",
+      "type": "string",
+      "description": "Driver ID for driver profile and fulfillment operations"
     }
   ],
   "item": [
@@ -409,30 +415,15 @@
               "path": ["auth", "reset-password"]
             }
           }
-        }
-      ]
-    },
-    {
-      "name": "User Profile",
-      "item": [
+        },
         {
-          "name": "Update Profile",
+          "name": "Logout",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{bearerToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
+            "method": "POST",
             "header": [
               {
-                "key": "Accept-Language",
-                "value": "{{acceptLanguage}}",
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
                 "type": "text"
               },
               {
@@ -443,13 +434,116 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"John Doe Updated\",\n  \"email\": \"customer@example.com\",\n  \"phoneNumber\": \"+201000000000\",\n  \"gender\": \"Male\",\n  \"photoUrl\": \"https://example.com/avatar.jpg\"\n}"
+              "raw": "{\n  \"deviceId\": \"device-uuid-1234\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/identity/users/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["identity", "users", "me"]
-            }
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Revokes refresh tokens and unregisters device FCM token for the authenticated user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Profile",
+      "item": [
+        {
+          "name": "Get Current User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/GetProfile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "GetProfile"
+              ]
+            },
+            "description": "Retrieves the authenticated user's profile details (fullName, email, phone, gender, photoUrl)."
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "FullName",
+                  "value": "John Doe Updated",
+                  "type": "text"
+                },
+                {
+                  "key": "Email",
+                  "value": "customer@example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "Phone",
+                  "value": "01000000000",
+                  "type": "text"
+                },
+                {
+                  "key": "Gender",
+                  "value": "Male",
+                  "type": "text",
+                  "description": "Male or Female"
+                },
+                {
+                  "key": "Photo",
+                  "type": "file",
+                  "src": [],
+                  "description": "Profile picture file upload"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/UpdateProfile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "UpdateProfile"
+              ]
+            },
+            "description": "Updates the profile of the authenticated user (name, email, phone, gender, photo upload)."
           }
         }
       ]
@@ -698,6 +792,39 @@
                 }
               ]
             }
+          }
+        },
+        {
+          "name": "Get Driver Public Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/:driverId/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                ":driverId",
+                "profile"
+              ],
+              "variable": [
+                {
+                  "key": "driverId",
+                  "value": "{{driverId}}",
+                  "description": "GUID of the driver"
+                }
+              ]
+            },
+            "description": "Returns a driver's public profile (first name, last name, phone, photo URL). Used for service calls and display."
           }
         }
       ]
@@ -1104,6 +1231,167 @@
       ]
     },
     {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Get Customer Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders?page=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (defaults to 1)"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": "Page size (defaults to 10)"
+                },
+                {
+                  "key": "status",
+                  "value": "Pending",
+                  "disabled": true,
+                  "description": "Filter by OrderStatus (Pending, Confirmed, Preparing, PickedUp, OutForDelivery, Delivered, Cancelled)"
+                }
+              ]
+            },
+            "description": "Returns a paginated list of orders placed by the authenticated customer, optionally filtered by status."
+          }
+        },
+        {
+          "name": "Get Order Details by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/:orderId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                ":orderId"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the customer order"
+                }
+              ]
+            },
+            "description": "Retrieves comprehensive details for an order (line items, payment, address, delivery coordinates, timestamps, and status)."
+          }
+        },
+        {
+          "name": "Get Order Live Tracking",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/:orderId/tracking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                ":orderId",
+                "tracking"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the order to track"
+                }
+              ]
+            },
+            "description": "Returns real-time tracking data for a customer order: assigned driver snapshot (name, phone, photo), latest driver GPS location, store and destination coordinates, and estimated arrival time."
+          }
+        },
+        {
+          "name": "Confirm Order Delivery",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/:orderId/confirm-delivery",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                ":orderId",
+                "confirm-delivery"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the order to confirm"
+                }
+              ]
+            },
+            "description": "Customer confirms receipt of their order when status is AwaitingDeliveryConfirmation. Transitions the order status to Delivered."
+          }
+        }
+      ]
+    },
+    {
       "name": "Payments",
       "item": [
         {
@@ -1465,7 +1753,42 @@
                 }
               ]
             },
-            "description": "Transitions the order delivery status. Valid driver transitions: PickedUp, OutForDelivery, AwaitingDeliveryConfirmation."
+            "description": "Transitions the order delivery status. Valid driver transitions: PickedUp, OutForDelivery, AwaitingDeliveryConfirmation, Delivered."
+          }
+        },
+        {
+          "name": "Report Driver Location (GPS)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lat\": 30.0444,\n  \"lng\": 31.2357,\n  \"recordedAt\": \"2026-09-19T18:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/order/drivers/me/location",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "drivers",
+                "me",
+                "location"
+              ]
+            },
+            "description": "Allows the authenticated driver to report real-time GPS coordinates during order fulfillment. Updates driver location cache and powers customer live order tracking."
           }
         }
       ]
