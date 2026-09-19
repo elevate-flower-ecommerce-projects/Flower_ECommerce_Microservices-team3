@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Order___Fulfillment_Service.Persistence;
 
@@ -11,9 +12,11 @@ using Order___Fulfillment_Service.Persistence;
 namespace Order___Fulfillment_Service.Migrations
 {
     [DbContext(typeof(FlowersOrderDbContext))]
-    partial class FlowersOrderDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260909222212_AddDriverProfileSnapshot")]
+    partial class AddDriverProfileSnapshot
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -123,9 +126,6 @@ namespace Order___Fulfillment_Service.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("DriverPhotoUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("EstimatedDeliveryAt")
                         .HasColumnType("datetime2");
 
@@ -143,12 +143,12 @@ namespace Order___Fulfillment_Service.Migrations
                     b.Property<bool>("IsGift")
                         .HasColumnType("bit");
 
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
+                    b.Property<string>("PaymentGateway")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("PaymentProvider")
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 

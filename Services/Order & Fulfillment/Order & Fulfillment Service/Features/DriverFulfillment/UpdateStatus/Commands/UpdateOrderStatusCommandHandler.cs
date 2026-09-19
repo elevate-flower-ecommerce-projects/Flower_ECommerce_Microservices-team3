@@ -44,6 +44,7 @@ public sealed class UpdateOrderStatusCommandHandler(
                 DriverStatusUpdate.PickedUp => OrderStatus.PickedUp,
                 DriverStatusUpdate.OutForDelivery => OrderStatus.OutForDelivery,
                 DriverStatusUpdate.AwaitingDeliveryConfirmation => OrderStatus.AwaitingDeliveryConfirmation,
+                DriverStatusUpdate.Delivered => OrderStatus.Delivered,
                 _ => (OrderStatus?)null
             };
 
@@ -59,6 +60,8 @@ public sealed class UpdateOrderStatusCommandHandler(
                 (OrderStatus.Preparing, OrderStatus.PickedUp) => true,
                 (OrderStatus.PickedUp, OrderStatus.OutForDelivery) => true,
                 (OrderStatus.OutForDelivery, OrderStatus.AwaitingDeliveryConfirmation) => true,
+                (OrderStatus.OutForDelivery, OrderStatus.Delivered) => true,
+                (OrderStatus.AwaitingDeliveryConfirmation, OrderStatus.Delivered) => true,
                 _ => false
             };
 

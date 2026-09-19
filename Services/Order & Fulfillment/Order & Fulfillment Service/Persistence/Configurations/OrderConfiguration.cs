@@ -83,6 +83,14 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(o => o.AssignedAt)
             .IsRequired(false);
 
+        builder.Property(o => o.DriverName)
+           .HasMaxLength(150)
+           .IsRequired(false);
+
+        builder.Property(o => o.DriverPhone)
+            .HasMaxLength(20)
+            .IsRequired(false);
+
         builder.HasMany(o => o.Items)
             .WithOne(i => i.Order)
             .HasForeignKey(i => i.OrderId)
