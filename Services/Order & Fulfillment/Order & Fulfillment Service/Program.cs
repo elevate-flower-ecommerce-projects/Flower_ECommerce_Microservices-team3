@@ -15,6 +15,8 @@ using Order___Fulfillment_Service.Features.Checkout.GetCheckoutDetails;
 using Order___Fulfillment_Service.Features.Drivers.ReportLocation;
 using Order___Fulfillment_Service.Features.Orders.ConfirmDelivery;
 using Order___Fulfillment_Service.Features.Orders.GetOrderTracking;
+using Order___Fulfillment_Service.Features.Orders.GetOrderById;
+using Order___Fulfillment_Service.Features.Orders.GetOrders;
 using Order___Fulfillment_Service.Features.DriverFulfillment.AcceptOrder;
 using Order___Fulfillment_Service.Features.DriverFulfillment.ActiveOrder;
 using Order___Fulfillment_Service.Features.DriverFulfillment.AvailableOrders;
@@ -208,7 +210,7 @@ public class Program
                     var db = services.GetRequiredService<FlowersOrderDbContext>();
                     await db.Database.MigrateAsync();
                     await FlowersOrderSeeder.SeedAsync(db);
-                    // await OrderSeeder.SeedAsync(db);
+                    await OrderSeeder.SeedAsync(db);
                     logger.LogInformation("Database migrations and data seeding for Order Service completed successfully.");
                     break;
                 }
@@ -233,6 +235,10 @@ public class Program
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "Order & Fulfillment API v1");
         });
+
+
+        app.MapGetOrdersEndpoint();
+        app.MapGetOrderByIdEndpoint();
 
         app.MapGet("/", () => Results.Redirect("/swagger"));
         app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Order & Fulfillment Service", timestamp = DateTime.UtcNow }));
