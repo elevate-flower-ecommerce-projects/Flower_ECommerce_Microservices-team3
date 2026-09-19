@@ -1,7 +1,8 @@
-﻿using Blocks.Contracts.Http;
+using Blocks.Contracts.Http;
 using Blocks.Contracts.Security;
 using Blocks.Domain.Errors;
 using MediatR;
+using Order___Fulfillment_Service.Features.Orders.ConfirmDelivery.Commands;
 using System.Security.Claims;
 
 namespace Order___Fulfillment_Service.Features.Orders.ConfirmDelivery
@@ -10,7 +11,7 @@ namespace Order___Fulfillment_Service.Features.Orders.ConfirmDelivery
     {
         public static IEndpointRouteBuilder MapConfirmDeliveryEndpoint(this IEndpointRouteBuilder app)
         {
-            app.MapPost("/api/v1/orders/{orderId:guid}/confirm-delivery", async (
+            app.MapPost("/orders/{orderId:guid}/confirm-delivery", async (
                     Guid orderId,
                     ClaimsPrincipal user,
                     IMediator mediator,
@@ -26,8 +27,8 @@ namespace Order___Fulfillment_Service.Features.Orders.ConfirmDelivery
                             Error.Unauthorized("Invalid or missing user identity.")),
                         statusCode: StatusCodes.Status401Unauthorized);
                 }
-                var orchestratorCommand = new ConfirmDeliveryOrchestrator(orderId, customerId);
-                var result = await mediator.Send(orchestratorCommand, cancellationToken);
+                var command = new ConfirmOrderDeliveryCommand(orderId, customerId);
+                var result = await mediator.Send(command, cancellationToken);
                 
                 if (result.IsFailure)
                 {

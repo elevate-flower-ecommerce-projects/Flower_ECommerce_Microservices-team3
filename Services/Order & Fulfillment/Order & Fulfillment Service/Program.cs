@@ -13,6 +13,7 @@ using Order___Fulfillment_Service.Entities;
 using Order___Fulfillment_Service.Features.Checkout.EstimateDelivery;
 using Order___Fulfillment_Service.Features.Checkout.GetCheckoutDetails;
 using Order___Fulfillment_Service.Features.Drivers.ReportLocation;
+using Order___Fulfillment_Service.Features.Orders.ConfirmDelivery;
 using Order___Fulfillment_Service.Features.Orders.GetOrderTracking;
 using Order___Fulfillment_Service.Features.DriverFulfillment.AcceptOrder;
 using Order___Fulfillment_Service.Features.DriverFulfillment.ActiveOrder;
@@ -206,7 +207,8 @@ public class Program
                 {
                     var db = services.GetRequiredService<FlowersOrderDbContext>();
                     await db.Database.MigrateAsync();
-                    await OrderSeeder.SeedAsync(db);
+                    await FlowersOrderSeeder.SeedAsync(db);
+                    // await OrderSeeder.SeedAsync(db);
                     logger.LogInformation("Database migrations and data seeding for Order Service completed successfully.");
                     break;
                 }
@@ -241,6 +243,7 @@ public class Program
 
         app.MapGetOrderTrackingEndpoint();
         app.MapReportDriverLocationEndpoint();
+        app.MapConfirmDeliveryEndpoint();
 
         // Driver Fulfillment Endpoints (SCRUM-41)
         app.MapGetAvailableOrdersEndpoint();

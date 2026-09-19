@@ -34,6 +34,18 @@ namespace Order___Fulfillment_Service.Features.Orders.GetOrderTracking
             }
             var order = orderResult.Value;
 
+            if (order.Status == OrderStatus.Delivered)
+            {
+                return Result.Failure<OrderTrackingDataDto>(
+                    Error.Validation("This order has already been delivered."));
+            }
+
+            if (order.Status == OrderStatus.Cancelled)
+            {
+                return Result.Failure<OrderTrackingDataDto>(
+                    Error.Validation("This order has been cancelled."));
+            }
+
             if (order.AssignedDriverId == null)
             {
                 return Result.Failure<OrderTrackingDataDto>(
@@ -46,16 +58,11 @@ namespace Order___Fulfillment_Service.Features.Orders.GetOrderTracking
             }
             bool isLive = LiveStatuses.Contains(order.Status);
          
-            DriverSummaryDto? driver = null;
-            if (order.AssignedDriverId != null)
-            {
-                var profile = await identityServiceClient.GetDriverProfileAsync(order.AssignedDriverId.Value, cancellationToken);
-                driver = new DriverSummaryDto(
-                    order.AssignedDriverId.Value,
-                    order.DriverName ?? profile?.FullName ?? "Driver",
-                    order.DriverPhone ?? profile?.Phone ?? string.Empty,
-                    order.DriverPhotoUrl ?? profile?.PhotoUrl);
-            }
+            var driver = new DriverSummaryDto(
+                order.AssignedDriverId.Value,
+                order.DriverName ?? "Driver",
+                order.DriverPhone ?? string.Empty,
+                order.DriverPhotoUrl);
           
             LocationPointDto? currentLocation = null;
             if (isLive && order.AssignedDriverId != null)

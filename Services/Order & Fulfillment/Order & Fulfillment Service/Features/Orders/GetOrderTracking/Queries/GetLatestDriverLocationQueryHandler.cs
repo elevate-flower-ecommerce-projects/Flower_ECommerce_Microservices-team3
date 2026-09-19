@@ -17,7 +17,7 @@ namespace Order___Fulfillment_Service.Features.Orders.GetOrderTracking.Queries
         {
             var location = await driverLocationRepository.GetQueryable()
                 .AsNoTracking()
-                .Where(dl => dl.DriverId == request.DriverId && dl.ActiveOrderId == request.OrderId)
+                .Where(dl => dl.DriverId == request.DriverId)
                 .OrderByDescending(dl => dl.RecordedAt)
                 .Select(dl => new { dl.Lat, dl.Lng, dl.RecordedAt })
                 .FirstOrDefaultAsync(cancellationToken);

@@ -263,6 +263,7 @@ namespace Identity.Api
                         await context.Database.MigrateAsync();
 
                         await FlowersAuthSeeder.SeedAsync(context, passwordService);
+                        await FixedTestUsersSeeder.SeedAsync(context, passwordService);
                         logger.LogInformation("Database migration and seeding completed successfully.");
                         break;
                     }

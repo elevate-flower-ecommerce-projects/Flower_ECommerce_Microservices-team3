@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Http;
+using Blocks.Contracts.Http;
 using Blocks.Contracts.Security;
 using Blocks.Domain.Errors;
 using MediatR;
@@ -11,7 +11,7 @@ namespace Order___Fulfillment_Service.Features.Drivers.ReportLocation
     {
         public static IEndpointRouteBuilder MapReportDriverLocationEndpoint(this IEndpointRouteBuilder app)
         {
-            app.MapPost("/api/v1/drivers/location", async (
+            app.MapPost("/drivers/me/location", async (
                     ReportLocationRequest request,
                     ClaimsPrincipal user,
                     IMediator mediator,

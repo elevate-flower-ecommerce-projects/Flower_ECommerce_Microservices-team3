@@ -16,20 +16,20 @@ namespace Order___Fulfillment_Service.Features.Drivers.ReportLocation
             var activeOrderId = await mediator.Send(
                 new GetActiveOrderForDriverQuery(request.DriverId),
                 cancellationToken);
-            if (activeOrderId == null)
-            {
-                return Result.Success<string?>(null);
-            }
             
+            // Always save location, even if no active order exists
             await mediator.Send(
                 new UpsertDriverLocationCommand(
                     request.DriverId,
-                    activeOrderId.Value,
+                    activeOrderId,
                     request.Lat,
                     request.Lng,
                     request.RecordedAt),
                 cancellationToken);
-            return Result.Success<string?>("Location recorded successfully");
+
+            return activeOrderId != null
+                ? Result.Success<string?>("Location recorded successfully")
+                : Result.Success<string?>("Location recorded (no active order)");
         }
     }
 }

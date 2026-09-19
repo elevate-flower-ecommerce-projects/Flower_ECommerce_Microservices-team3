@@ -36,6 +36,7 @@ public class Order : AuditEntity
 
     public string? DriverName { get; set; }
     public string? DriverPhone { get; set; }
+    public string? DriverPhotoUrl { get; set; }
 
     public string? CancellationReason { get; set; }
 

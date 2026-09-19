@@ -148,13 +148,14 @@ namespace Identity.Infrastructure.Persistence.Data
                     Email = "driver3@flowers.com",
                     HashPassword = driverHash,
                     Phone = "01222222203",
+                    PhotoUrl = "https://cdn.flowery-app.com/drivers/tarek.jpg",
                     Gender = Gender.Male,
                     Role = UserRole.Driver,
                     CreatedAt = DateTime.UtcNow
                 }
             };
 
-            // 1. Seed any missing users by Email
+            // 1. Seed any missing users by Email (or update PhotoUrl if missing)
             foreach (var user in seedUsers)
             {
                 var existingUser = await context.Users
@@ -164,6 +165,10 @@ namespace Identity.Infrastructure.Persistence.Data
                 if (existingUser == null)
                 {
                     await context.Users.AddAsync(user);
+                }
+                else if (string.IsNullOrEmpty(existingUser.PhotoUrl) && !string.IsNullOrEmpty(user.PhotoUrl))
+                {
+                    existingUser.PhotoUrl = user.PhotoUrl;
                 }
             }
             await context.SaveChangesAsync();

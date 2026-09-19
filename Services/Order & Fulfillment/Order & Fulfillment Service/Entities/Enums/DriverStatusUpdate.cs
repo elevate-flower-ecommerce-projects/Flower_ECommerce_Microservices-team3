@@ -4,5 +4,6 @@ public enum DriverStatusUpdate
 {
     PickedUp,
     OutForDelivery,
-    AwaitingDeliveryConfirmation
+    AwaitingDeliveryConfirmation,
+    Delivered
 }
