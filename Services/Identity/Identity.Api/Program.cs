@@ -6,7 +6,6 @@ using Identity.Api.Features.Admin;
 using Identity.Api.Features.AdminLogin;
 using Identity.Api.Features.ChangePassword;
 using Identity.Api.Features.RegisterDriver;
-using Identity.Api.Features.DriverProfile;
 using Identity.Api.Features.Forgot_Password;
 using Identity.Api.Features.Login;
 using Identity.Api.Features.Logout;
@@ -33,6 +32,9 @@ using Microsoft.OpenApi.Models;
 using System.Globalization;
 using System.Text;
 using System.Text.Json.Serialization;
+using Flower.Identity.Features.Drivers.Vehicle.GetVehicle;
+using Identity.Api.Features.Vehicle;
+using Identity.Application.Features.VehicleTypes.GetVehicleTypes;
 
 namespace Identity.Api
 {
@@ -301,8 +303,10 @@ namespace Identity.Api
             app.MapRefreshTokenEndpoint();
             app.MapLogoutEndpoint();
             app.MapUpdateProfileEndpoint();
+            app.MapGetVehicleEndpoint();
+            app.MapGetVehicleTypesEndpoint();
+            app.MapUpdateVehicleEndpoint();
             app.MapGetProfileEndpoint();
-            app.MapGetDriverProfileEndpoint();
             app.MapGet("/", () => Results.Redirect("/swagger"));
             app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Identity Service", timestamp = DateTime.UtcNow }));
 
