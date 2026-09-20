@@ -47,6 +47,10 @@ namespace Cart_Service.Features.GetCart.Endpoints
                 .Produces<ApiResponse<GetCartResponse>>(StatusCodes.Status200OK)
                 .Produces<ApiResponse<GetCartResponse>>(StatusCodes.Status401Unauthorized)
                 .RequireAuthorization();
+
+            app.MapGet("/api/cart", handler).ExcludeFromDescription().RequireAuthorization();
+            app.MapGet("/cart/cart", handler).ExcludeFromDescription().RequireAuthorization();
+            app.MapGet("/api/v1/cart", handler).ExcludeFromDescription().RequireAuthorization();
         }
     }
 }

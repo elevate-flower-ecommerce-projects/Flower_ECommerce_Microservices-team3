@@ -1090,10 +1090,44 @@
               "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 1\n}"
             },
             "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", "items"]
+            },
+            "description": "Adds a product to the authenticated customer's cart or increments quantity if it already exists. Returns the updated CartSummaryResponse."
+          }
+        },
+        {
+          "name": "Add Item to Cart (Legacy Route)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 1\n}"
+            },
+            "url": {
               "raw": "{{baseUrl}}/cart/cart/items",
               "host": ["{{baseUrl}}"],
               "path": ["cart", "cart", "items"]
-            }
+            },
+            "description": "Legacy/Gateway prefix route for adding an item to the authenticated customer's cart."
           }
         },
         {

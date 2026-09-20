@@ -96,8 +96,10 @@ public class Program
         builder.Services.AddHttpClient<IProductCatalogClient, ProductCatalogClient>(
         client =>
         {
-            client.BaseAddress = new Uri(
-                builder.Configuration["Services:Catalog"]!);
+            var catalogUrl = builder.Configuration["CatalogService:BaseUrl"]
+                          ?? builder.Configuration["Services:Catalog"]
+                          ?? "http://catalog-service:8080";
+            client.BaseAddress = new Uri(catalogUrl);
         });
 
         builder.Services.AddAuthorization();
