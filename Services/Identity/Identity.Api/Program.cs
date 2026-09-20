@@ -33,6 +33,8 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json.Serialization;
 using Flower.Identity.Features.Drivers.Vehicle.GetVehicle;
+using Identity.Api.Features.Vehicle;
+using Identity.Application.Features.VehicleTypes.GetVehicleTypes;
 
 namespace Identity.Api
 {
@@ -302,6 +304,8 @@ namespace Identity.Api
             app.MapLogoutEndpoint();
             app.MapUpdateProfileEndpoint();
             app.MapGetVehicleEndpoint();
+            app.MapGetVehicleTypesEndpoint();
+            app.MapUpdateVehicleEndpoint();
             app.MapGetProfileEndpoint();
             app.MapGet("/", () => Results.Redirect("/swagger"));
             app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Identity Service", timestamp = DateTime.UtcNow }));

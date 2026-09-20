@@ -23,6 +23,7 @@ public static class GetVehicleEndpoint
 
                 return result;
             })
+            .WithTags("Vehicle")
             .RequireAuthorization();
 
         return app;
