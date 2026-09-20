@@ -175,11 +175,16 @@ services:
   # ────────────────────────────────────────────────────────────────────────────
   order-service:
     image: ${DOCKER_USERNAME:-hossammokhtar}/flower-order-service:latest
+    build:
+      context: .
+      dockerfile: Services/Order & Fulfillment/Order & Fulfillment Service/Dockerfile
     container_name: flower_order_service
     restart: unless-stopped
     depends_on:
       sqlserver:
         condition: service_healthy
+      identity-api:
+        condition: service_started
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
@@ -187,6 +192,7 @@ services:
       CartService__BaseUrl: "http://cart-service:8080"
       AddressService__BaseUrl: "http://address-service:8080"
       PaymentService__BaseUrl: "http://payment-service:8080"
+      IdentityService__BaseUrl: "http://identity-api:8080"
       JwtSettings__Secret: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
       JwtSettings__Issuer: ${JWT_ISSUER:-FlowersAuth}
       JwtSettings__Audience: ${JWT_AUDIENCE:-FlowersApp}

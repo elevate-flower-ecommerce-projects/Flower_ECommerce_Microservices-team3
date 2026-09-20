@@ -203,15 +203,16 @@ public class Program
 
             var retryCount = 0;
             const int maxRetries = 5;
+            var migrationSucceeded = false;
+
             while (retryCount < maxRetries)
             {
                 try
                 {
                     var db = services.GetRequiredService<FlowersOrderDbContext>();
                     await db.Database.MigrateAsync();
-                    await FlowersOrderSeeder.SeedAsync(db);
-                    await OrderSeeder.SeedAsync(db);
-                    logger.LogInformation("Database migrations and data seeding for Order Service completed successfully.");
+                    logger.LogInformation("Database migrations applied successfully.");
+                    migrationSucceeded = true;
                     break;
                 }
                 catch (Exception ex)
@@ -226,6 +227,61 @@ public class Program
                         logger.LogWarning("Database migration attempt {Retry}/{MaxRetries} failed. Retrying in 2s...", retryCount, maxRetries);
                         await Task.Delay(2000);
                     }
+                }
+            }
+
+            // Schema safeguard: ensure recent schema additions exist even if persistent volume has dirty migration history
+            if (migrationSucceeded)
+            {
+                try
+                {
+                    var db = services.GetRequiredService<FlowersOrderDbContext>();
+                    await db.Database.ExecuteSqlRawAsync(@"
+                        IF OBJECT_ID(N'dbo.Orders', N'U') IS NOT NULL
+                        BEGIN
+                            IF COLUMNPROPERTY(OBJECT_ID(N'dbo.Orders'), N'PaymentProvider', N'ColumnId') IS NULL
+                            BEGIN
+                                IF COLUMNPROPERTY(OBJECT_ID(N'dbo.Orders'), N'PaymentGateway', N'ColumnId') IS NOT NULL
+                                    EXEC sp_rename N'dbo.Orders.PaymentGateway', N'PaymentProvider', N'COLUMN';
+                                ELSE
+                                    ALTER TABLE dbo.Orders ADD PaymentProvider NVARCHAR(50) NULL;
+                            END;
+                            IF COLUMNPROPERTY(OBJECT_ID(N'dbo.Orders'), N'DriverName', N'ColumnId') IS NULL
+                                ALTER TABLE dbo.Orders ADD DriverName NVARCHAR(150) NULL;
+                            IF COLUMNPROPERTY(OBJECT_ID(N'dbo.Orders'), N'DriverPhone', N'ColumnId') IS NULL
+                                ALTER TABLE dbo.Orders ADD DriverPhone NVARCHAR(20) NULL;
+                            IF COLUMNPROPERTY(OBJECT_ID(N'dbo.Orders'), N'DriverPhotoUrl', N'ColumnId') IS NULL
+                                ALTER TABLE dbo.Orders ADD DriverPhotoUrl NVARCHAR(MAX) NULL;
+                        END;
+                    ");
+                    logger.LogInformation("Database schema safeguard verified.");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "Schema safeguard check encountered an exception (ignorable if columns already exist).");
+                }
+
+                // Data Seeding
+                try
+                {
+                    var db = services.GetRequiredService<FlowersOrderDbContext>();
+                    await FlowersOrderSeeder.SeedAsync(db);
+                    logger.LogInformation("FlowersOrderSeeder executed successfully.");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "FlowersOrderSeeder warning (non-fatal, data may already exist).");
+                }
+
+                try
+                {
+                    var db = services.GetRequiredService<FlowersOrderDbContext>();
+                    await OrderSeeder.SeedAsync(db);
+                    logger.LogInformation("OrderSeeder executed successfully.");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "OrderSeeder warning (non-fatal, data may already exist).");
                 }
             }
         }

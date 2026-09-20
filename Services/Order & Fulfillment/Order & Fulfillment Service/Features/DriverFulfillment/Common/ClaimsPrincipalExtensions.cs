@@ -7,7 +7,8 @@ public static class ClaimsPrincipalExtensions
 {
     public static Guid? GetDriverId(this ClaimsPrincipal user)
     {
-        var rawId = user.FindFirstValue(ClaimTypes.NameIdentifier)
+        var rawId = user.FindFirstValue("driver_id")
+                    ?? user.FindFirstValue(ClaimTypes.NameIdentifier)
                     ?? user.FindFirstValue("sub")
                     ?? user.FindFirstValue(FlowerClaimTypes.CustomerId);
 
