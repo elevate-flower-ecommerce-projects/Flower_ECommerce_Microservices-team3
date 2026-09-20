@@ -182,9 +182,19 @@ services:
       dockerfile: Services/Order & Fulfillment/Order & Fulfillment Service/Dockerfile
     container_name: flower_order_service
     restart: unless-stopped
+    depends_on:
+      sqlserver:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=FlowersOrderDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
+      CartService__BaseUrl: "http://cart-service:8080"
+      AddressService__BaseUrl: "http://address-service:8080"
+      PaymentService__BaseUrl: "http://payment-service:8080"
+      JwtSettings__Secret: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      JwtSettings__Issuer: ${JWT_ISSUER:-FlowersAuth}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-FlowersApp}
     networks:
       - flower_net
 
@@ -198,9 +208,19 @@ services:
       dockerfile: Services/Payment/Payment Service/Dockerfile
     container_name: flower_payment_service
     restart: unless-stopped
+    depends_on:
+      sqlserver:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=FlowersPaymentDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
+      Paymob__BaseUrl: ${PAYMOB_BASE_URL:-https://accept.paymob.com/api/}
+      Paymob__ApiKey: ${PAYMOB_API_KEY:-}
+      Paymob__SecretKey: ${PAYMOB_SECRET_KEY:-}
+      Paymob__PublicKey: ${PAYMOB_PUBLIC_KEY:-}
+      Paymob__HmacSecret: ${PAYMOB_HMAC_SECRET:-}
+      Paymob__IntegrationId: ${PAYMOB_INTEGRATION_ID:-0}
     networks:
       - flower_net
 

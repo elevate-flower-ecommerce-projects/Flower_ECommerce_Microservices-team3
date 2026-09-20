@@ -1,4 +1,4 @@
-﻿using Catalog_Service.Entities.Enums;
+using Catalog_Service.Entities.Enums;
 
 namespace Catalog_Service.Features.Products.Queries.GetProducts
 {
@@ -8,6 +8,9 @@ namespace Catalog_Service.Features.Products.Queries.GetProducts
         Guid? CategoryId = null,
         Guid? OccasionId = null,
         Guid? StoreId = null,
-        ProductSort? Sort = null
+        ProductSort? Sort = null,
+        ProductSort? SortBy = null,
+        string? Keyword = null,
+        string? Search = null
     );
 }

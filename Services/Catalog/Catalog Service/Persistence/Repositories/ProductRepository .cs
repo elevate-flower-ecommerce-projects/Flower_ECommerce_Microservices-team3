@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Pagination;
+using Blocks.Contracts.Pagination;
 using Catalog_Service.Entities;
 using Catalog_Service.Entities.Enums;
 using Catalog_Service.Features.Products.Queries.GetProducts;
@@ -21,6 +21,7 @@ public sealed class ProductRepository : GenericRepository<Product>, IProductRepo
         Guid? occasionId,
         Guid? storeId,
         ProductSort? sort,
+        string? keyword,
         CancellationToken cancellationToken)
     {
         var query = _context.Products
@@ -40,6 +41,16 @@ public sealed class ProductRepository : GenericRepository<Product>, IProductRepo
             query = query.Where(p =>
                 p.ProductOccasions.Any(po =>
                     po.OccasionId == occasionId.Value));
+        }
+
+        // Keyword / Search filter
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            var trimmed = keyword.Trim();
+            query = query.Where(p =>
+                p.Name.Contains(trimmed) ||
+                (p.NameAr != null && p.NameAr.Contains(trimmed)) ||
+                (p.Description != null && p.Description.Contains(trimmed)));
         }
 
         // Total count before pagination

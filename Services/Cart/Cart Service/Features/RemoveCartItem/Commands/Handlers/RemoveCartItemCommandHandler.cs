@@ -2,53 +2,42 @@ using Blocks.Contracts.Common;
 using Blocks.Contracts.Interfaces;
 using Blocks.Domain.Errors;
 using Cart_Service.Entities;
-using Cart_Service.Features.Cart.DTOs;
-using Cart_Service.Persistence;
+using Cart_Service.Features.AddToCartItem;
+using Cart_Service.Infrastructure.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cart_Service.Features.RemoveCartItem.Commands.Handlers;
 
-// =========================================================================================================
-// [TEMPORARY BUILD] Temporary placeholder command handler for RemoveCartItem (SCRUM-25 / SCRUM-97) until intern finishes.
-// =========================================================================================================
-
-public class RemoveCartItemCommandHandler : IRequestHandler<RemoveCartItemCommand, Result<CartSummaryDto>>
+public class RemoveCartItemCommandHandler(
+    IGenericRepository<Entities.Cart> cartRepository,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<RemoveCartItemCommand, Result<CartSummaryResponse>>
 {
-    private readonly IGenericRepository<Entities.Cart> _cartRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public RemoveCartItemCommandHandler(
-        IGenericRepository<Entities.Cart> cartRepository,
-        IUnitOfWork unitOfWork)
+    public async Task<Result<CartSummaryResponse>> Handle(RemoveCartItemCommand request, CancellationToken cancellationToken)
     {
-        _cartRepository = cartRepository;
-        _unitOfWork = unitOfWork;
-    }
-
-    public async Task<Result<CartSummaryDto>> Handle(RemoveCartItemCommand request, CancellationToken cancellationToken)
-    {
-        var cart = await _cartRepository.GetQueryable()
+        var cart = await cartRepository.GetQueryable()
             .Include(c => c.Items)
             .FirstOrDefaultAsync(c => c.CustomerId == request.CustomerId, cancellationToken);
 
         if (cart is null)
         {
-            return Result.Failure<CartSummaryDto>(Error.NotFound("The requested resource was not found."));
+            return Result.Failure<CartSummaryResponse>(Error.NotFound("The requested resource was not found."));
         }
 
         var item = cart.FindItemById(request.CartItemId);
         if (item is null)
         {
-            return Result.Failure<CartSummaryDto>(Error.NotFound("The requested cart line was not found."));
+            return Result.Failure<CartSummaryResponse>(Error.NotFound("The requested cart line was not found."));
         }
 
         cart.RemoveItemById(request.CartItemId);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var isArabic = request.Language.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
 
-        var responseItems = cart.Items.Select(i => new CartItemSummaryDto(
+        var responseItems = cart.Items.Select(i => new CartItemSummaryResponse(
             Id: i.Id,
             ProductId: i.ProductId,
             ProductName: isArabic ? "باقة زهور مميزة" : "Fresh Flower Arrangement",
@@ -64,7 +53,7 @@ public class RemoveCartItemCommandHandler : IRequestHandler<RemoveCartItemComman
         decimal deliveryFee = 0m;
         var total = subtotal + deliveryFee;
 
-        return Result.Success(new CartSummaryDto(
+        return Result.Success(new CartSummaryResponse(
             Items: responseItems,
             Subtotal: subtotal,
             DeliveryFee: deliveryFee,

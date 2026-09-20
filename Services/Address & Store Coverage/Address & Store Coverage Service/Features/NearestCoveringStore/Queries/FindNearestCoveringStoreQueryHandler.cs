@@ -1,4 +1,4 @@
-﻿using Address___Store_Coverage_Service.Entities;
+using Address___Store_Coverage_Service.Entities;
 using Address___Store_Coverage_Service.Features.NearestCoveringStore.DTOs;
 using Blocks.Contracts.Common;
 using Blocks.Contracts.Interfaces;
@@ -23,12 +23,13 @@ namespace Address___Store_Coverage_Service.Features.NearestCoveringStore.Queries
                 .Where(s => s.IsActive && s.DeletedAt == null)
                 .Where(s => Math.Abs(s.Latitude - request.Latitude)
                             <= s.CoverageRadiusKm / MinKmPerDegreeLat)
-                .Select(s => new { s.Id, s.Latitude, s.Longitude, s.CoverageRadiusKm })
+                .Select(s => new { s.Id, s.Name, s.Latitude, s.Longitude, s.CoverageRadiusKm })
                 .ToListAsync(cancellationToken);
             var nearest = candidates
                 .Select(s => new
                 {
                     s.Id,
+                    s.Name,
                     DistanceKm = CalculateDistanceKm(
                         request.Latitude, request.Longitude,
                         s.Latitude, s.Longitude),
@@ -43,7 +44,7 @@ namespace Address___Store_Coverage_Service.Features.NearestCoveringStore.Queries
                 return Result.Failure<NearestStoreDto>(
                     Error.Validation("This location is outside our delivery coverage area."));
             }
-            return Result.Success(new NearestStoreDto(nearest.Id));
+            return Result.Success(new NearestStoreDto(nearest.Id, Math.Round(nearest.DistanceKm, 2), nearest.Name));
         }
         private static double CalculateDistanceKm(
           double lat1, double lon1,

@@ -13,6 +13,8 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Services/Order & Fulfillment/Order & Fulfillment Service/Order & Fulfillment Service.csproj", "Services/Order & Fulfillment/Order & Fulfillment Service/"]
+COPY ["BuildingBlocks/Blocks.Contracts/Blocks.Contracts.csproj", "BuildingBlocks/Blocks.Contracts/"]
+COPY ["BuildingBlocks/Blocks.Domain/Blocks.Domain.csproj", "BuildingBlocks/Blocks.Domain/"]
 RUN dotnet restore "./Services/Order & Fulfillment/Order & Fulfillment Service/Order & Fulfillment Service.csproj"
 COPY . .
 WORKDIR "/src/Services/Order & Fulfillment/Order & Fulfillment Service"

@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace Catalog_Service.Features.Products.Queries.GetProducts
 {
@@ -34,6 +34,11 @@ namespace Catalog_Service.Features.Products.Queries.GetProducts
                 .IsInEnum()
                 .When(x => x.Sort.HasValue)
                 .WithMessage("Sort must be a valid product sort option.");
+
+            RuleFor(x => x.Keyword)
+                .MaximumLength(200)
+                .When(x => !string.IsNullOrEmpty(x.Keyword))
+                .WithMessage("Keyword must not exceed 200 characters.");
         }
     }
 }

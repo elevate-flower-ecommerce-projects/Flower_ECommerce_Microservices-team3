@@ -1,9 +1,15 @@
+using System.Globalization;
+using System.Text;
 using Blocks.Contracts.Behaviors;
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Interfaces;
-using Cart_Service.Features.AddToCartItem.Endpoints;
+using Cart_Service.Abstractions;
+using Cart_Service.Features.AddToCartItem;
+using Cart_Service.Features.GetCart.Endpoints;
 using Cart_Service.Features.RemoveCartItem.Endpoints;
 using Cart_Service.Features.UpdateCartItemQuantity.Endpoints;
+using Cart_Service.Infrastructure.Clients;
+using Cart_Service.Infrastructure.Interfaces;
 using Cart_Service.Persistence;
 using Cart_Service.Persistence.Repositories;
 using FluentValidation;
@@ -13,10 +19,6 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Globalization;
-using System.Text;
-using Cart_Service.Features.GetCart.Endpoints;
-using Cart_Service.Services;
 
 namespace Cart_Service;
 
@@ -34,13 +36,9 @@ public class Program
 
         // 2. Unit of Work & Generic Repository
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped<ICartRepository, CartRepository>();
         builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-        builder.Services.AddHttpClient<ICatalogServiceClient, CatalogServiceClient>(client =>
-        {
-            client.BaseAddress = new Uri(
-                builder.Configuration["CatalogService:BaseUrl"] ?? "http://catalog-service:8080");
-            client.Timeout = TimeSpan.FromSeconds(5);
-        });
+
 
         // 3. MediatR & FluentValidation Pipeline
         var assembly = typeof(Program).Assembly;
@@ -70,7 +68,7 @@ public class Program
             options.SupportedUICultures = supportedCultures;
         });
 
-        // 6. Authentication & Authorization (الجديد عشان التوكن)
+        // 6. Authentication & Authorization
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -93,6 +91,13 @@ public class Program
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
                 ClockSkew = TimeSpan.Zero
             };
+        });
+
+        builder.Services.AddHttpClient<IProductCatalogClient, ProductCatalogClient>(
+        client =>
+        {
+            client.BaseAddress = new Uri(
+                builder.Configuration["Services:Catalog"]!);
         });
 
         builder.Services.AddAuthorization();
@@ -181,13 +186,14 @@ public class Program
             }
         }
 
-        app.UseSwagger();
-        app.UseSwaggerUI(c =>
+        if (app.Environment.IsDevelopment())
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Cart API v1");
-        });
-
-        app.UseHttpsRedirection();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Cart API v1");
+            });
+        }
 
         app.MapGet("/", () => Results.Redirect("/swagger"));
         app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Cart Service", timestamp = DateTime.UtcNow }));

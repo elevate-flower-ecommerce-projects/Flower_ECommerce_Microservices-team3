@@ -363,3 +363,9 @@ MigrationBackup/
 FodyWeavers.xsd.claude/
 /flowery_team2_postman_collection.json
 /flowery_team1_postman_collection.json
+
+# Ignore profile pictures uploaded during testing
+**/wwwroot/ProfilePictures/*
+
+# Keep the folder structure if needed
+!**/wwwroot/ProfilePictures/.gitkeep

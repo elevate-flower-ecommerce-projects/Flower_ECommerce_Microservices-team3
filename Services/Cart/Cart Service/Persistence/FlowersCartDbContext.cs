@@ -18,5 +18,18 @@ namespace Cart_Service.Persistence
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(FlowersCartDbContext).Assembly);
         }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            foreach (var entry in ChangeTracker.Entries<CartItem>())
+            {
+                if (entry.State == EntityState.Modified && entry.Property(p => p.CartId).IsModified)
+                {
+                    entry.State = EntityState.Added;
+                }
+            }
+
+            return base.SaveChangesAsync(cancellationToken);
+        }
     }
 }

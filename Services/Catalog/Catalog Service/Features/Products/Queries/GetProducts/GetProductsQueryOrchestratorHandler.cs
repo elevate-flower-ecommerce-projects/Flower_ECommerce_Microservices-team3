@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Blocks.Contracts.Pagination;
 using Catalog_Service.Features.Products.Queries.GetActivePromotions;
 using Catalog_Service.Features.Products.Queries.GetProductStock;
@@ -25,10 +25,11 @@ public sealed class GetProductsQueryOrchestratorHandler(ISender sender)
                                        request.CategoryId,
                                        request.OccasionId,
                                        request.StoreId,
-                                       request.Sort),
+                                       request.Sort,
+                                       request.Keyword),
                                        cancellationToken);
         if (productsResult.IsFailure)
-            return productsResult.Error;
+            return productsResult.Error!;
 
         var products = productsResult.Value.Items;
 
@@ -59,7 +60,7 @@ public sealed class GetProductsQueryOrchestratorHandler(ISender sender)
             cancellationToken);
 
         if (promotionsResult.IsFailure)
-            return promotionsResult.Error;
+            return promotionsResult.Error!;
 
         // 5. Get product stock
         var stockResult = await sender.Send(
@@ -67,7 +68,7 @@ public sealed class GetProductsQueryOrchestratorHandler(ISender sender)
             cancellationToken);
 
         if (stockResult.IsFailure)
-            return stockResult.Error;
+            return stockResult.Error!;
 
         // 6. Create lookup dictionaries
         var promotions = promotionsResult.Value

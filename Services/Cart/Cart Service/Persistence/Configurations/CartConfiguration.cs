@@ -1,4 +1,4 @@
-﻿using Cart_Service.Entities;
+using Cart_Service.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,6 +11,7 @@ namespace Cart_Service.Persistence.Configurations
             builder.ToTable("Carts");
 
             builder.HasKey(c => c.Id);
+            builder.Property(c => c.Id).ValueGeneratedNever();
 
             builder.HasIndex(c => c.CustomerId).IsUnique();
 

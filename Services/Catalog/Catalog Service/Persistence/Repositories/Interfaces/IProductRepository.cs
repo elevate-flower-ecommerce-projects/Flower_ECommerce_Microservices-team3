@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Pagination;
+using Blocks.Contracts.Pagination;
 using Catalog_Service.Entities.Enums;
 using Catalog_Service.Features.Products.Queries.GetProducts;
 
@@ -13,5 +13,6 @@ public interface IProductRepository
         Guid? occasionId,
         Guid? storeId,
         ProductSort? sort,
+        string? keyword,
         CancellationToken cancellationToken);
 }
