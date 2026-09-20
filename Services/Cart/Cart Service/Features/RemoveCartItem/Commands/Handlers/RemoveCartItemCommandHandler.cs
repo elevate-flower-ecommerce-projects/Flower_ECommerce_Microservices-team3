@@ -2,24 +2,20 @@ using Blocks.Contracts.Common;
 using Blocks.Contracts.Interfaces;
 using Blocks.Domain.Errors;
 using Cart_Service.Entities;
-using Cart_Service.Features.Cart.DTOs;
-using Cart_Service.Persistence;
+using Cart_Service.Features.AddToCartItem;
+using Cart_Service.Infrastructure.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cart_Service.Features.RemoveCartItem.Commands.Handlers;
 
-// =========================================================================================================
-// [TEMPORARY BUILD] Temporary placeholder command handler for RemoveCartItem (SCRUM-25 / SCRUM-97) until intern finishes.
-// =========================================================================================================
-
 public class RemoveCartItemCommandHandler(
     IGenericRepository<Entities.Cart> cartRepository,
     IUnitOfWork unitOfWork)
-    : IRequestHandler<RemoveCartItemCommand, Result<CartSummaryDto>>
+    : IRequestHandler<RemoveCartItemCommand, Result<CartSummaryResponse>>
 {
 
-    public async Task<Result<CartSummaryDto>> Handle(RemoveCartItemCommand request, CancellationToken cancellationToken)
+    public async Task<Result<CartSummaryResponse>> Handle(RemoveCartItemCommand request, CancellationToken cancellationToken)
     {
         var cart = await cartRepository.GetQueryable()
             .Include(c => c.Items)
@@ -27,13 +23,13 @@ public class RemoveCartItemCommandHandler(
 
         if (cart is null)
         {
-            return Result.Failure<CartSummaryDto>(Error.NotFound("The requested resource was not found."));
+            return Result.Failure<CartSummaryResponse>(Error.NotFound("The requested resource was not found."));
         }
 
         var item = cart.FindItemById(request.CartItemId);
         if (item is null)
         {
-            return Result.Failure<CartSummaryDto>(Error.NotFound("The requested cart line was not found."));
+            return Result.Failure<CartSummaryResponse>(Error.NotFound("The requested cart line was not found."));
         }
 
         cart.RemoveItemById(request.CartItemId);
@@ -41,7 +37,7 @@ public class RemoveCartItemCommandHandler(
 
         var isArabic = request.Language.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
 
-        var responseItems = cart.Items.Select(i => new CartItemSummaryDto(
+        var responseItems = cart.Items.Select(i => new CartItemSummaryResponse(
             Id: i.Id,
             ProductId: i.ProductId,
             ProductName: isArabic ? "باقة زهور مميزة" : "Fresh Flower Arrangement",
@@ -57,7 +53,7 @@ public class RemoveCartItemCommandHandler(
         decimal deliveryFee = 0m;
         var total = subtotal + deliveryFee;
 
-        return Result.Success(new CartSummaryDto(
+        return Result.Success(new CartSummaryResponse(
             Items: responseItems,
             Subtotal: subtotal,
             DeliveryFee: deliveryFee,

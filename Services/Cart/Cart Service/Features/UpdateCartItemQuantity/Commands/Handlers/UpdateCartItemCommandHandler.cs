@@ -4,9 +4,9 @@ using Blocks.Domain.Errors;
 using Cart_Service.Features.Cart.ViewModels;
 using Cart_Service.Entities;
 using Cart_Service.Features.UpdateCartItemQuantity.ViewModels;
-using Cart_Service.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Cart_Service.Infrastructure.Interfaces;
 
 namespace Cart_Service.Features.UpdateCartItemQuantity.Commands.Handlers;
 
