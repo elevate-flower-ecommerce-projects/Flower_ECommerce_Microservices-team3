@@ -11,5 +11,9 @@ namespace Identity.Application.Interfaces
         Task<bool> ExistsByNationalIdAsync(
             string nationalId,
             CancellationToken cancellationToken = default);
+
+        Task<Driver?> GetByIdAsNoTrackingAsync(
+            Guid driverId,
+            CancellationToken cancellationToken = default);
     }
 }
