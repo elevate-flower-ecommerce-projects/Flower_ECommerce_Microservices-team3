@@ -32,6 +32,11 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=FlowersCartDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;
+      - CatalogService__BaseUrl=http://catalog-service:8080
+      - JwtSettings__Secret=${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      - JwtSettings__Issuer=${JWT_ISSUER:-FlowersAuth}
+      - JwtSettings__Audience=${JWT_AUDIENCE:-FlowersApp}
     ports:
       - "5292:8080"
 
@@ -39,6 +44,13 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=FlowersOrderDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;
+      - CartService__BaseUrl=http://cart-service:8080
+      - AddressService__BaseUrl=http://address-service:8080
+      - PaymentService__BaseUrl=http://payment-service:8080
+      - JwtSettings__Secret=${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      - JwtSettings__Issuer=${JWT_ISSUER:-FlowersAuth}
+      - JwtSettings__Audience=${JWT_AUDIENCE:-FlowersApp}
     ports:
       - "5109:8080"
 
@@ -46,6 +58,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=FlowersPaymentDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;
     ports:
       - "5260:8080"
 
@@ -53,5 +66,6 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=FlowersAddressStoreCoverageDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;
     ports:
       - "5272:8080"

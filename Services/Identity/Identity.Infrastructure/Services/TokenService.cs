@@ -1,3 +1,4 @@
+using Blocks.Contracts.Security;
 using Identity.Application.DTOs;
 using Identity.Application.Interfaces;
 using Identity.Application.Settings;
@@ -24,12 +25,17 @@ public class TokenService : ITokenService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role.ToString()),
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.Email, user.Email),
+            new(ClaimTypes.Role, user.Role.ToString())
         };
+
+        if (user.CustomerId is { } customerId && customerId != Guid.Empty)
+        {
+            claims.Add(new Claim(FlowerClaimTypes.CustomerId, customerId.ToString()));
+        }
 
         var token = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,

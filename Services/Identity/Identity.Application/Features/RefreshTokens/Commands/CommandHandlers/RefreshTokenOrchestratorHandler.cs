@@ -2,12 +2,14 @@ using Blocks.Contracts.Common;
 using Blocks.Contracts.Interfaces;
 using Blocks.Domain.Errors;
 using Identity.Application.DTOs;
+using Identity.Application.Features.Customers.Queries;
 using Identity.Application.Features.RefreshTokens.Commands;
 using Identity.Application.Features.RefreshTokens.Queries;
 using Identity.Application.Features.RefreshTokens.ViewModels;
 using Identity.Application.Interfaces;
 using Identity.Application.Settings;
 using Identity.Domain.Entities;
+using Identity.Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.Options;
 
@@ -35,18 +37,25 @@ public class RefreshTokenOrchestratorHandler(
         }
 
         var user = await userRepository.FirstOrDefaultAsync(
-            u => u.Id == existingToken.UserId,
-            u => new UserTokenDto(u.Id, u.Email, u.Role, true)
-        );
+    u => u.Id == existingToken.UserId && u.DeletedAt == null,
+    u => new { u.Id, u.Email, u.Role, u.IsActive }
+);
 
         if (user is null || !user.IsActive)
         {
             return Result.Failure<RefreshTokenResponseVm>(
                 Error.Unauthorized("Invalid or expired refresh token."));
         }
+        Guid? customerId = user.Role == UserRole.Customer
+    ? await mediator.Send(new GetCustomerIdByUserIdQuery(user.Id), cancellationToken)
+    : null;
+
+        var userTokenDto = new UserTokenDto(
+            user.Id, user.Email, user.Role, user.IsActive, customerId);
 
         var newRefreshTokenValue = tokenService.GenerateRefreshToken();
-        var newAccessToken = tokenService.GenerateAccessToken(user);
+        var newAccessToken = tokenService.GenerateAccessToken(userTokenDto);
+        
         var expiresAt = DateTime.UtcNow.AddMinutes(jwtSettings.Value.AccessTokenExpirationMinutes);
 
         await unitOfWork.BeginTransactionAsync(cancellationToken);

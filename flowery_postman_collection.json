@@ -44,9 +44,27 @@
     },
     {
       "key": "productId",
+      "value": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "type": "string",
+      "description": "Product ID for fetching product details / adding to cart"
+    },
+    {
+      "key": "addressId",
       "value": "",
       "type": "string",
-      "description": "Product ID for fetching product details"
+      "description": "Address ID for address operations"
+    },
+    {
+      "key": "orderId",
+      "value": "bbbb2222-0002-0002-0002-000000000002",
+      "type": "string",
+      "description": "Order ID for order operations, payments, tracking, and driver fulfillment"
+    },
+    {
+      "key": "driverId",
+      "value": "01a03975-5bd9-7db4-8e83-599af35ee26c",
+      "type": "string",
+      "description": "Driver ID for driver profile and fulfillment operations"
     }
   ],
   "item": [
@@ -86,6 +104,54 @@
               "raw": "{{baseUrl}}/catalog/health",
               "host": ["{{baseUrl}}"],
               "path": ["catalog", "health"]
+            }
+          }
+        },
+        {
+          "name": "Cart Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cart/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "health"]
+            }
+          }
+        },
+        {
+          "name": "Address Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/address/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "health"]
+            }
+          }
+        },
+        {
+          "name": "Order Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/order/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["order", "health"]
+            }
+          }
+        },
+        {
+          "name": "Payment Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payment/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["payment", "health"]
             }
           }
         }
@@ -349,30 +415,15 @@
               "path": ["auth", "reset-password"]
             }
           }
-        }
-      ]
-    },
-    {
-      "name": "User Profile",
-      "item": [
+        },
         {
-          "name": "Update Profile",
+          "name": "Logout",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{bearerToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
+            "method": "POST",
             "header": [
               {
-                "key": "Accept-Language",
-                "value": "{{acceptLanguage}}",
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
                 "type": "text"
               },
               {
@@ -383,13 +434,116 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"John Doe Updated\",\n  \"email\": \"customer@example.com\",\n  \"phoneNumber\": \"+201000000000\",\n  \"gender\": \"Male\",\n  \"photoUrl\": \"https://example.com/avatar.jpg\"\n}"
+              "raw": "{\n  \"deviceId\": \"device-uuid-1234\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/identity/users/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["identity", "users", "me"]
-            }
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Revokes refresh tokens and unregisters device FCM token for the authenticated user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Profile",
+      "item": [
+        {
+          "name": "Get Current User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/GetProfile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "GetProfile"
+              ]
+            },
+            "description": "Retrieves the authenticated user's profile details (fullName, email, phone, gender, photoUrl)."
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "FullName",
+                  "value": "John Doe Updated",
+                  "type": "text"
+                },
+                {
+                  "key": "Email",
+                  "value": "customer@example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "Phone",
+                  "value": "01000000000",
+                  "type": "text"
+                },
+                {
+                  "key": "Gender",
+                  "value": "Male",
+                  "type": "text",
+                  "description": "Male or Female"
+                },
+                {
+                  "key": "Photo",
+                  "type": "file",
+                  "src": [],
+                  "description": "Profile picture file upload"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/UpdateProfile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "UpdateProfile"
+              ]
+            },
+            "description": "Updates the profile of the authenticated user (name, email, phone, gender, photo upload)."
           }
         }
       ]
@@ -406,16 +560,77 @@
                 "key": "Accept-Language",
                 "value": "{{acceptLanguage}}",
                 "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
               }
             ],
             "body": {
-              "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Driver Name\",\n  \"email\": \"driver@example.com\",\n  \"phoneNumber\": \"+201011111111\",\n  \"password\": \"DriverPassword123!\",\n  \"confirmPassword\": \"DriverPassword123!\",\n  \"vehicleType\": 1,\n  \"vehicleNumber\": \"ABC-123\",\n  \"nationalIdNumber\": \"29901011234567\",\n  \"vehicleLicenceImage\": \"https://example.com/license.jpg\",\n  \"nationalIdImage\": \"https://example.com/national_id.jpg\"\n}"
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "CountryCode",
+                  "value": "+20",
+                  "type": "text"
+                },
+                {
+                  "key": "FirstName",
+                  "value": "Ahmed",
+                  "type": "text"
+                },
+                {
+                  "key": "SecondName",
+                  "value": "Hassan",
+                  "type": "text"
+                },
+                {
+                  "key": "VehicleType",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "VehicleNumber",
+                  "value": "ABC-1234",
+                  "type": "text"
+                },
+                {
+                  "key": "Email",
+                  "value": "driver1@example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "PhoneNumber",
+                  "value": "1012345678",
+                  "type": "text"
+                },
+                {
+                  "key": "NationalId",
+                  "value": "29901011234567",
+                  "type": "text"
+                },
+                {
+                  "key": "Password",
+                  "value": "DriverPassword123!",
+                  "type": "text"
+                },
+                {
+                  "key": "ConfirmPassword",
+                  "value": "DriverPassword123!",
+                  "type": "text"
+                },
+                {
+                  "key": "Gender",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "VehicleLicenceFile",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "IdImage",
+                  "type": "file",
+                  "src": []
+                }
+              ]
             },
             "url": {
               "raw": "{{baseUrl}}/api/drivers/applications",
@@ -578,6 +793,39 @@
               ]
             }
           }
+        },
+        {
+          "name": "Get Driver Public Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/:driverId/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                ":driverId",
+                "profile"
+              ],
+              "variable": [
+                {
+                  "key": "driverId",
+                  "value": "{{driverId}}",
+                  "description": "GUID of the driver"
+                }
+              ]
+            },
+            "description": "Returns a driver's public profile (first name, last name, phone, photo URL). Used for service calls and display."
+          }
         }
       ]
     },
@@ -665,7 +913,7 @@
           }
         },
         {
-          "name": "Get Products by Occasion (Paginated)",
+          "name": "Get Products (Paginated, Filterable, Searchable)",
           "event": [
             {
               "listen": "test",
@@ -692,21 +940,39 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/catalog/products?occasionId={{occasionId}}&pageNumber=1&pageSize=10",
+              "raw": "{{baseUrl}}/catalog/products?categoryId={{categoryId}}&occasionId={{occasionId}}&keyword=&sortBy=PriceLowToHigh&page=1&pageSize=10",
               "host": ["{{baseUrl}}"],
               "path": ["catalog", "products"],
               "query": [
                 {
-                  "key": "occasionId",
-                  "value": "{{occasionId}}"
+                  "key": "categoryId",
+                  "value": "{{categoryId}}",
+                  "description": "Filter by Category ID (optional)"
                 },
                 {
-                  "key": "pageNumber",
-                  "value": "1"
+                  "key": "occasionId",
+                  "value": "{{occasionId}}",
+                  "description": "Filter by Occasion ID (optional)"
+                },
+                {
+                  "key": "keyword",
+                  "value": "",
+                  "description": "Search keyword for product name (optional)"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "PriceLowToHigh",
+                  "description": "Sort order: PriceLowToHigh, PriceHighToLow, Newest, Oldest, Discount (optional)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "1-based page number (default: 1)"
                 },
                 {
                   "key": "pageSize",
-                  "value": "10"
+                  "value": "10",
+                  "description": "Items per page (default: 10)"
                 }
               ]
             }
@@ -769,9 +1035,769 @@
               "path": ["catalog", "categories"]
             }
           }
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Get Cart Summary (SCRUM-29 / SCRUM-107)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cart/cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "cart"]
+            }
+          }
         },
         {
-          "name": "Get Products by Category",
+          "name": "Add Item to Cart (SCRUM-11 / SCRUM-87 / SCRUM-88)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cart/cart/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "cart", "items"]
+            }
+          }
+        },
+        {
+          "name": "Update Cart Item Quantity",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cart/api/cart/items/:productId",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "api", "cart", "items", ":productId"],
+              "variable": [
+                {
+                  "key": "productId",
+                  "value": "{{productId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove Item from Cart (SCRUM-25 / SCRUM-97)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cart/cart/items/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["cart", "cart", "items", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Checkout",
+      "item": [
+        {
+          "name": "Get Checkout Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/checkout/details",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "checkout",
+                "details"
+              ]
+            },
+            "description": "Returns comprehensive checkout details for the authenticated customer: live cart subtotal, default delivery address, nearest covering store, delivery fee, grand total, estimated delivery time (ETA), supported payment methods, and gift options."
+          }
+        },
+        {
+          "name": "Estimate Delivery Time",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/checkout/estimate-delivery?addressId={{addressId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "checkout",
+                "estimate-delivery"
+              ],
+              "query": [
+                {
+                  "key": "addressId",
+                  "value": "{{addressId}}",
+                  "description": "GUID of the customer address to estimate delivery for"
+                }
+              ]
+            },
+            "description": "Calculates delivery fee and estimated delivery time for a specific delivery address. Returns 422 Unprocessable Entity if the address is outside store coverage."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Get Customer Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders?page=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (defaults to 1)"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": "Page size (defaults to 10)"
+                },
+                {
+                  "key": "status",
+                  "value": "Pending",
+                  "disabled": true,
+                  "description": "Filter by OrderStatus (Pending, Confirmed, Preparing, PickedUp, OutForDelivery, Delivered, Cancelled)"
+                }
+              ]
+            },
+            "description": "Returns a paginated list of orders placed by the authenticated customer, optionally filtered by status."
+          }
+        },
+        {
+          "name": "Get Order Details by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/:orderId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                ":orderId"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the customer order"
+                }
+              ]
+            },
+            "description": "Retrieves comprehensive details for an order (line items, payment, address, delivery coordinates, timestamps, and status)."
+          }
+        },
+        {
+          "name": "Get Order Live Tracking",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/:orderId/tracking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                ":orderId",
+                "tracking"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the order to track"
+                }
+              ]
+            },
+            "description": "Returns real-time tracking data for a customer order: assigned driver snapshot (name, phone, photo), latest driver GPS location, store and destination coordinates, and estimated arrival time."
+          }
+        },
+        {
+          "name": "Confirm Order Delivery",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/:orderId/confirm-delivery",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                ":orderId",
+                "confirm-delivery"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the order to confirm"
+                }
+              ]
+            },
+            "description": "Customer confirms receipt of their order when status is AwaitingDeliveryConfirmation. Transitions the order status to Delivered."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create Card Checkout Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"amount\": 250.00,\n  \"currency\": \"EGP\",\n  \"customerEmail\": \"customer@example.com\",\n  \"customerFirstName\": \"Ahmed\",\n  \"customerLastName\": \"Ali\",\n  \"customerPhone\": \"+201012345678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment/payments/checkout-session",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment",
+                "payments",
+                "checkout-session"
+              ]
+            },
+            "description": "Initiates a Paymob Card Payment intention and returns the unified checkout session URL (sessionUrl) where the customer completes payment."
+          }
+        },
+        {
+          "name": "Create Cash on Delivery (COD) Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"amount\": 250.00,\n  \"currency\": \"EGP\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment/payments/cod",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment",
+                "payments",
+                "cod"
+              ]
+            },
+            "description": "Records a Cash on Delivery (COD) payment initiation for an order, setting status to Pending until driver collects payment upon delivery."
+          }
+        },
+        {
+          "name": "Paymob Payment Webhook Callback",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"TRANSACTION\",\n  \"obj\": {\n    \"id\": 123456789,\n    \"success\": true,\n    \"pending\": false,\n    \"amount_cents\": 25000,\n    \"currency\": \"EGP\",\n    \"order\": {\n      \"id\": 987654321\n    },\n    \"data\": {\n      \"message\": \"Approved\"\n    },\n    \"is_refunded\": false,\n    \"is_voided\": false\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment/api/v1/payments/webhook",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment",
+                "api",
+                "v1",
+                "payments",
+                "webhook"
+              ]
+            },
+            "description": "Webhook endpoint invoked by Paymob upon transaction status change. Updates the payment status in the database and triggers fulfillment events."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Driver Fulfillment",
+      "item": [
+        {
+          "name": "Get Available Orders for Driver",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/order/drivers/available-orders?page=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "drivers",
+                "available-orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (defaults to 1)"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": "Page size (defaults to 10)"
+                }
+              ]
+            },
+            "description": "Retrieves paginated list of unassigned pending orders available for drivers to claim. Requires Driver Bearer token."
+          }
+        },
+        {
+          "name": "Claim / Accept Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/order/drivers/me/orders/:orderId/accept",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "drivers",
+                "me",
+                "orders",
+                ":orderId",
+                "accept"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the order to claim"
+                }
+              ]
+            },
+            "description": "Allows the authenticated driver to claim an available order. Transitions order status to Preparing and assigns it to the driver."
+          }
+        },
+        {
+          "name": "Get Active Order for Driver",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/order/drivers/me/active-order",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "drivers",
+                "me",
+                "active-order"
+              ]
+            },
+            "description": "Returns the active order currently being fulfilled by the authenticated driver (status PickedUp or OutForDelivery)."
+          }
+        },
+        {
+          "name": "Get Driver Order History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/order/drivers/me/orders?page=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "drivers",
+                "me",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (defaults to 1)"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": "Page size (defaults to 10)"
+                },
+                {
+                  "key": "status",
+                  "value": "Delivered",
+                  "disabled": true,
+                  "description": "Filter by OrderStatus (e.g. Delivered, Cancelled)"
+                }
+              ]
+            },
+            "description": "Retrieves the history of past orders fulfilled by the authenticated driver, optionally filtered by status."
+          }
+        },
+        {
+          "name": "Get Driver Order Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/order/drivers/me/orders/:orderId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "drivers",
+                "me",
+                "orders",
+                ":orderId"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the driver's order"
+                }
+              ]
+            },
+            "description": "Retrieves full details (recipient info, delivery address, items, timeline) for an order assigned to the driver."
+          }
+        },
+        {
+          "name": "Update Order Status (Driver)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newStatus\": \"PickedUp\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/order/orders/:orderId/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "orders",
+                ":orderId",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the order to update"
+                }
+              ]
+            },
+            "description": "Transitions the order delivery status. Valid driver transitions: PickedUp, OutForDelivery, AwaitingDeliveryConfirmation, Delivered."
+          }
+        },
+        {
+          "name": "Report Driver Location (GPS)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lat\": 30.0444,\n  \"lng\": 31.2357,\n  \"recordedAt\": \"2026-09-19T18:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/order/drivers/me/location",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "drivers",
+                "me",
+                "location"
+              ]
+            },
+            "description": "Allows the authenticated driver to report real-time GPS coordinates during order fulfillment. Updates driver location cache and powers customer live order tracking."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Address & Store Coverage",
+      "item": [
+        {
+          "name": "Get Areas with Cities",
           "request": {
             "method": "GET",
             "header": [
@@ -782,13 +1808,388 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/catalog/products/by-category?categoryId={{categoryId}}",
+              "raw": "{{baseUrl}}/address/api/areas",
               "host": ["{{baseUrl}}"],
-              "path": ["catalog", "products", "by-category"],
+              "path": ["address", "api", "areas"]
+            }
+          }
+        },
+        {
+          "name": "Find Nearest Covering Store",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/address/api/stores/nearest-store?lat=30.0444&lng=31.2357",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "api", "stores", "nearest-store"],
               "query": [
                 {
-                  "key": "categoryId",
-                  "value": "{{categoryId}}"
+                  "key": "lat",
+                  "value": "30.0444"
+                },
+                {
+                  "key": "lng",
+                  "value": "31.2357"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User Addresses",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.data && jsonData.data.length > 0) {",
+                  "    var firstAddr = jsonData.data[0];",
+                  "    pm.collectionVariables.set('addressId', firstAddr.id);",
+                  "    console.log('Saved addressId: ' + firstAddr.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/users/me/addresses",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "users", "me", "addresses"]
+            }
+          }
+        },
+        {
+          "name": "Create Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientName\": \"Layla Hassan\",\n  \"phone\": \"01111111101\",\n  \"addressLine\": \"123 Tahrir Square, Downtown\",\n  \"cityId\": \"00000000-0000-0000-0000-000000000001\",\n  \"areaId\": \"00000000-0000-0000-0000-000000000002\",\n  \"latitude\": 30.0444,\n  \"longitude\": 31.2357,\n  \"label\": \"Home\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/address/users/me/addresses",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "users", "me", "addresses"]
+            }
+          }
+        },
+        {
+          "name": "Get Address by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/users/me/addresses/:addressId",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "users", "me", "addresses", ":addressId"],
+              "variable": [
+                {
+                  "key": "addressId",
+                  "value": "{{addressId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Set Default Address",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/users/me/addresses/:addressId/default",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "users", "me", "addresses", ":addressId", "default"],
+              "variable": [
+                {
+                  "key": "addressId",
+                  "value": "{{addressId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Address",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientName\": \"Layla Hassan Updated\",\n  \"phone\": \"01111111101\",\n  \"addressLine\": \"456 Zamalek St\",\n  \"cityId\": \"00000000-0000-0000-0000-000000000001\",\n  \"areaId\": \"00000000-0000-0000-0000-000000000002\",\n  \"latitude\": 30.0561,\n  \"longitude\": 31.2215,\n  \"label\": \"Work\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/address/users/me/addresses/:addressId",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "users", "me", "addresses", ":addressId"],
+              "variable": [
+                {
+                  "key": "addressId",
+                  "value": "{{addressId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Address",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/users/me/addresses/:addressId",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "users", "me", "addresses", ":addressId"],
+              "variable": [
+                {
+                  "key": "addressId",
+                  "value": "{{addressId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Get Stores",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/admin/stores?page=1&pageSize=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "admin", "stores"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Create Store",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Downtown Branch\",\n  \"address\": \"10 Tahrir Square, Cairo\",\n  \"phoneNumber\": \"01012345678\",\n  \"latitude\": 30.0444,\n  \"longitude\": 31.2357,\n  \"openingTime\": \"09:00:00\",\n  \"closingTime\": \"23:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/address/admin/stores",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "admin", "stores"]
+            }
+          }
+        },
+        {
+          "name": "Admin - Get Store by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/admin/stores/:storeId",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "admin", "stores", ":storeId"],
+              "variable": [
+                {
+                  "key": "storeId",
+                  "value": "00000000-0000-0000-0000-000000000001"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Update Store",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Downtown Branch Updated\",\n  \"address\": \"10 Tahrir Square, Cairo\",\n  \"phoneNumber\": \"01012345678\",\n  \"latitude\": 30.0444,\n  \"longitude\": 31.2357,\n  \"openingTime\": \"09:00:00\",\n  \"closingTime\": \"23:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/address/admin/stores/:storeId",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "admin", "stores", ":storeId"],
+              "variable": [
+                {
+                  "key": "storeId",
+                  "value": "00000000-0000-0000-0000-000000000001"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Delete Store",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/admin/stores/:storeId",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "admin", "stores", ":storeId"],
+              "variable": [
+                {
+                  "key": "storeId",
+                  "value": "00000000-0000-0000-0000-000000000001"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Get Store Coverage Area",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/address/admin/stores/:storeId/coverage-area",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "admin", "stores", ":storeId", "coverage-area"],
+              "variable": [
+                {
+                  "key": "storeId",
+                  "value": "00000000-0000-0000-0000-000000000001"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Set Store Coverage Area",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"boundaryType\": 2,\n  \"radiusMeters\": 5000,\n  \"polygon\": null,\n  \"cities\": [\"00000000-0000-0000-0000-000000000001\"],\n  \"areas\": [\"00000000-0000-0000-0000-000000000002\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/address/admin/stores/:storeId/coverage-area",
+              "host": ["{{baseUrl}}"],
+              "path": ["address", "admin", "stores", ":storeId", "coverage-area"],
+              "variable": [
+                {
+                  "key": "storeId",
+                  "value": "00000000-0000-0000-0000-000000000001"
                 }
               ]
             }

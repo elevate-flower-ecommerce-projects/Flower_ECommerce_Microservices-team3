@@ -17,6 +17,8 @@ public class FlowersCatalogDbContext : DbContext
     public DbSet<ProductOccasion> ProductOccasions => Set<ProductOccasion>();
     public DbSet<HomeSection> HomeSections => Set<HomeSection>();
 
+    public DbSet<Promotion> Promotions => Set<Promotion>();
+    public DbSet<Inventory> Inventories => Set<Inventory>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

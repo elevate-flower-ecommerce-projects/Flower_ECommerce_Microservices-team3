@@ -60,6 +60,9 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.HasIndex(p => p.Name)
             .HasDatabaseName("IX_Products_Name");
 
+        builder.HasIndex(p => p.NameAr)
+            .HasDatabaseName("IX_Products_NameAr");
+
         builder.HasQueryFilter(p => p.IsActive);
     }
 }

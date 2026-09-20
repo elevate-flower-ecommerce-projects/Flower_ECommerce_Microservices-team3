@@ -74,7 +74,7 @@ public class AdminLoginOrchestratorHandler(
 
             rateLimiter.Reset(request.Email, request.IpAddress);
 
-            var userDto = new UserTokenDto(user!.Id, emailLower, user.Role, user.IsActive);
+            var userDto = new UserTokenDto(user!.Id, emailLower, user.Role, user.IsActive, CustomerId: null);
             var accessToken = tokenService.GenerateAccessToken(userDto);
             var refreshTokenValue = tokenService.GenerateRefreshToken();
 

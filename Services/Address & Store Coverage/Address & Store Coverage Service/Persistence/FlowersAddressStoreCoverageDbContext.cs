@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Address___Store_Coverage_Service.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Address___Store_Coverage_Service.Persistence
 {
@@ -7,6 +8,12 @@ namespace Address___Store_Coverage_Service.Persistence
         public FlowersAddressStoreCoverageDbContext(DbContextOptions<FlowersAddressStoreCoverageDbContext> options) : base(options)
         {
         }
+
+        public DbSet<City> Cities => Set<City>();
+        public DbSet<Area> Areas => Set<Area>();
+        public DbSet<Address> Addresses => Set<Address>();
+        public DbSet<Store> Stores => Set<Store>();
+        public DbSet<CoverageArea> CoverageAreas => Set<CoverageArea>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

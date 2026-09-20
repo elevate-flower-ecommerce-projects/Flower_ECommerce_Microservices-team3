@@ -55,6 +55,9 @@ namespace Catalog_Service.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("NameAr")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -125,6 +128,29 @@ namespace Catalog_Service.Migrations
                     b.HasIndex("OccasionId");
 
                     b.ToTable("HomeSections");
+                });
+
+            modelBuilder.Entity("Catalog_Service.Entities.Inventory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("StoreId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId", "StoreId")
+                        .IsUnique();
+
+                    b.ToTable("Inventories", (string)null);
                 });
 
             modelBuilder.Entity("Catalog_Service.Entities.Occasion", b =>
@@ -260,6 +286,9 @@ namespace Catalog_Service.Migrations
                     b.HasIndex("Name")
                         .HasDatabaseName("IX_Products_Name");
 
+                    b.HasIndex("NameAr")
+                        .HasDatabaseName("IX_Products_NameAr");
+
                     b.HasIndex("IsBestSeller", "BestSellerOrder")
                         .HasDatabaseName("IX_Products_IsBestSeller");
 
@@ -328,6 +357,38 @@ namespace Catalog_Service.Migrations
                     b.HasIndex("OccasionId");
 
                     b.ToTable("ProductOccasions", "catalog");
+                });
+
+            modelBuilder.Entity("Catalog_Service.Entities.Promotion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("DiscountPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("StoreId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId", "StoreId", "IsActive", "StartDate", "EndDate");
+
+                    b.ToTable("Promotions", (string)null);
                 });
 
             modelBuilder.Entity("Catalog_Service.Entities.HomeSection", b =>

@@ -50,7 +50,16 @@ builder.Services.AddReverseProxy()
 var app = builder.Build();
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Gateway");
+    c.SwaggerEndpoint("/identity/swagger/v1/swagger.json", "Identity API");
+    c.SwaggerEndpoint("/catalog/swagger/v1/swagger.json", "Catalog API");
+    c.SwaggerEndpoint("/cart/swagger/v1/swagger.json", "Cart API");
+    c.SwaggerEndpoint("/address/swagger/v1/swagger.json", "Address & Store Coverage API");
+    c.SwaggerEndpoint("/order/swagger/v1/swagger.json", "Order API");
+    c.SwaggerEndpoint("/payment/swagger/v1/swagger.json", "Payment API");
+});
 
 // Enable CORS middleware before HttpsRedirection & ReverseProxy
 app.UseCors("AllowAll");

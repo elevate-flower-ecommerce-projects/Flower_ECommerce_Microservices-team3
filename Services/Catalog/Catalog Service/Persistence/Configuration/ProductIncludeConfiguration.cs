@@ -23,5 +23,7 @@ public class ProductIncludeConfiguration : IEntityTypeConfiguration<ProductInclu
             .WithMany(p => p.Includes)
             .HasForeignKey(pi => pi.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasQueryFilter(pi => pi.Product.IsActive);
     }
 }

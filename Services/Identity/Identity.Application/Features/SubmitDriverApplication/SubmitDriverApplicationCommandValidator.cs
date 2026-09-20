@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Identity.Application.Features.Drivers.Commands.SubmitDriverApplication;
 using Microsoft.AspNetCore.Http;
 
@@ -87,9 +87,9 @@ public sealed class SubmitDriverApplicationCommandValidator
             .WithMessage("Invalid ID image file.");
     }
 
-    private static bool IsValidFile(IFormFile file)
+    private static bool IsValidFile(IFormFile? file)
     {
-        if (file.Length <= 0 || file.Length > MaxFileSize)
+        if (file is null || file.Length <= 0 || file.Length > MaxFileSize)
             return false;
 
         return AllowedExtensions.Contains(
