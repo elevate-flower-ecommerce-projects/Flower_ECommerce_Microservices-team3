@@ -11,8 +11,8 @@ using Identity.Api.Features.Login;
 using Identity.Api.Features.Logout;
 using Identity.Api.Features.Profile;
 using Identity.Api.Features.RefreshToken;
+using Identity.Api.Features.DriverProfile;
 using Identity.Api.Features.Register;
-using Identity.Api.Features.RegisterDriver;
 using Identity.Api.Features.Verify_OTP;
 using Identity.Application;
 using Identity.Application.Interfaces;
@@ -307,6 +307,7 @@ namespace Identity.Api
             app.MapGetVehicleTypesEndpoint();
             app.MapUpdateVehicleEndpoint();
             app.MapGetProfileEndpoint();
+            app.MapGetDriverProfileEndpoint();
             app.MapGet("/", () => Results.Redirect("/swagger"));
             app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Identity Service", timestamp = DateTime.UtcNow }));
 

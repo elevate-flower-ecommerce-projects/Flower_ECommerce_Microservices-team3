@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Identity.Application.Features.VehicleTypes.GetVehicleTypes;
 using Identity.Domain.Enums;
 using MediatR;
@@ -19,6 +19,6 @@ public sealed class GetVehicleTypesHandler
                 vehicleType.ToString()))
             .ToList();
 
-        return Result.Success();
+        return Task.FromResult(Result.Success(vehicleTypes));
     }
 }

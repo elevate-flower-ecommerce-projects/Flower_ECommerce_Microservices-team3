@@ -826,6 +826,104 @@
             },
             "description": "Returns a driver's public profile (first name, last name, phone, photo URL). Used for service calls and display."
           }
+        },
+        {
+          "name": "Get Vehicle Types",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vehicle-types",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vehicle-types"
+              ]
+            },
+            "description": "Returns available vehicle types (1 = Car, 2 = Motorcycle) for driver registration and profile management."
+          }
+        },
+        {
+          "name": "Get Driver Vehicle",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/drivers/me/vehicle",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "drivers",
+                "me",
+                "vehicle"
+              ]
+            },
+            "description": "Retrieves the vehicle type and vehicle plate number for the authenticated driver."
+          }
+        },
+        {
+          "name": "Update Driver Vehicle",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicleType\": 1,\n  \"vehicleNumber\": \"ABC 1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/drivers/me/vehicle",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "drivers",
+                "me",
+                "vehicle"
+              ]
+            },
+            "description": "Updates the vehicle type (1 = Car, 2 = Motorcycle) and vehicle plate number for the authenticated driver."
+          }
         }
       ]
     },

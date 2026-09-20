@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Blocks.Domain.Errors;
 using Identity.Application.Features.Vehicle.UpdateVehicle;
 using Identity.Application.Interfaces;
@@ -15,7 +15,7 @@ public sealed class UpdateVehicleHandler(
         UpdateVehicleCommand request,
         CancellationToken cancellationToken)
     {
-        var driver = await driverRepository.GetByIdAsync(
+        var driver = await driverRepository.GetByDriverOrUserIdAsync(
             request.DriverId,
             cancellationToken);
 
