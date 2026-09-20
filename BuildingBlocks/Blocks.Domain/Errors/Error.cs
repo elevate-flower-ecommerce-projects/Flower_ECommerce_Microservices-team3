@@ -14,6 +14,8 @@ public sealed record Error(ErrorCode Code, string Message, string? Field = null)
         _                         => 500
     };
 
+    public static Error BadRequest(string message) => new(ErrorCode.BadRequest, message);
+
     public static Error NotFound(string message) => new(ErrorCode.NotFound, message);
     public static Error Conflict(string message) => new(ErrorCode.Conflict, message);
     public static Error Unauthorized(string message) => new(ErrorCode.Unauthorized, message);

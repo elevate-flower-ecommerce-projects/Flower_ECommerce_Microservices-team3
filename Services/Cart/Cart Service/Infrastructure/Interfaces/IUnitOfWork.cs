@@ -1,4 +1,4 @@
-﻿namespace Cart_Service.Persistence
+﻿namespace Cart_Service.Infrastructure.Interfaces
 {
     public interface IUnitOfWork : IAsyncDisposable
     {

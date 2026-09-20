@@ -2,6 +2,7 @@ namespace Blocks.Domain.Errors;
 
 public enum ErrorCode
 {
+    BadRequest,
     NotFound,
     Conflict,
     Unauthorized,
