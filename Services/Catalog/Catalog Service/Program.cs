@@ -6,6 +6,7 @@ using Blocks.Contracts.Interfaces;
 using Catalog_Service.Features.Categories.GetActiveCategories.Endpoints;
 using Catalog_Service.Features.Home.GetSections;
 using Catalog_Service.Features.Occasions.GetPaginatedOccasions.Endpoints;
+using Catalog_Service.Features.Products.Queries.GetProductByID;
 using Catalog_Service.Features.Products.Queries.GetProducts;
 using Catalog_Service.Persistence;
 using Catalog_Service.Persistence.Repositories;
@@ -143,6 +144,9 @@ builder.Services.AddMediatR(cfg =>
 
         ///List Products
         app.MapGetProductsEndpoint();
+
+        // Get Product By ID
+        app.MapGetProductByIdEndpoint();
 
         // Occasions
         app.MapGetActiveOccasionsEndpoint();

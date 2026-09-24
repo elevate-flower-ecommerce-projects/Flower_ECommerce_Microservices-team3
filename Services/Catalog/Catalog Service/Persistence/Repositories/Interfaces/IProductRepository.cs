@@ -1,10 +1,12 @@
+using Blocks.Contracts.Interfaces;
 using Blocks.Contracts.Pagination;
+using Catalog_Service.Entities;
 using Catalog_Service.Entities.Enums;
 using Catalog_Service.Features.Products.Queries.GetProducts;
 
 namespace Catalog_Service.Persistence.Repositories.Interfaces;
 
-public interface IProductRepository
+public interface IProductRepository : IGenericRepository<Product>
 {
     Task<PagedResult<ProductSummaryResponse>> GetProductsPageAsync(
         int page,
