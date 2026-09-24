@@ -107,7 +107,10 @@ services:
       context: .
       dockerfile: Services/Identity/Identity.Api/Dockerfile
     container_name: flower_identity_api
+    user: "root"
     restart: unless-stopped
+    volumes:
+      - identity_wwwroot:/app/wwwroot
     depends_on:
       sqlserver:
         condition: service_healthy
@@ -234,13 +237,15 @@ services:
     networks:
       - flower_net
 
-# ────────────────────────────────────────────────────────────────────────────
+# ────────────────────────────────────────────────────────────────────────────identity-api
 # Volumes & Networks
 # ────────────────────────────────────────────────────────────────────────────
 volumes:
   mssql_data:
     driver: local
   seq_data:
+    driver: local
+  identity_wwwroot:
     driver: local
 
 networks:
