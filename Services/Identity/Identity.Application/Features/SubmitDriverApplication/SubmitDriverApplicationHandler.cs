@@ -2,6 +2,7 @@ using Blocks.Contracts.Common;
 using DomainError = Blocks.Domain.Errors.Error;
 using Identity.Application.Interfaces;
 using Identity.Domain.Entities;
+using Identity.Domain.Enums;
 using MediatR;
 
 namespace Identity.Application.Features.Drivers.Commands.SubmitDriverApplication;
@@ -50,7 +51,7 @@ public sealed class SubmitDriverApplicationCommandHandler(
                 DomainError.Conflict("AUTH_NATIONAL_ID_EXISTS"));
         }
 
-        // Create User
+        // Create User (Pending Driver)
         var user = new User
         {
             FirstName = request.FirstName,
@@ -58,44 +59,44 @@ public sealed class SubmitDriverApplicationCommandHandler(
             Email = request.Email,
             Phone = phone,
             Gender = request.Gender,
+            Role = UserRole.Driver,
+            IsActive = false,
             HashPassword = passwordService.Hash(request.Password)
         };
 
         userRepo.Add(user);
 
-        // Create Driver
-        var driver = new Driver
-        {
-            UserId = user.Id,
-            VehicleType = request.VehicleType,
-            VehicleNumber = request.VehicleNumber,
-            NationalIdNumber = request.NationalId
-        };
-
         // Upload Vehicle Licence if provided
+        string vehicleLicenceUrl = string.Empty;
         if (request.VehicleLicenceFile is not null)
         {
-            driver.VehicleLicenceImage =
-                await fileStorageService.UploadAsync(
-                    request.VehicleLicenceFile,
-                    $"drivers/{driver.Id}/vehicle-licence",
-                    cancellationToken);
+            vehicleLicenceUrl = await fileStorageService.UploadAsync(
+                request.VehicleLicenceFile,
+                $"drivers/{user.Id}/vehicle-licence",
+                cancellationToken);
         }
 
         // Upload National ID if provided
+        string nationalIdUrl = string.Empty;
         if (request.IdImage is not null)
         {
-            driver.NationalIdImage =
-                await fileStorageService.UploadAsync(
-                    request.IdImage,
-                    $"drivers/{driver.Id}/national-id",
-                    cancellationToken);
+            nationalIdUrl = await fileStorageService.UploadAsync(
+                request.IdImage,
+                $"drivers/{user.Id}/national-id",
+                cancellationToken);
         }
 
-        driverRepo.Add(driver);
-
         // Create Driver Application
-        var application = new Identity.Domain.Entities.DriverApplication { UserId = user.Id };
+        var application = new Identity.Domain.Entities.DriverApplication
+        {
+            Id = Guid.CreateVersion7(),
+            UserId = user.Id,
+            VehicleType = request.VehicleType,
+            VehicleNumber = request.VehicleNumber,
+            VehicleLicenceImage = vehicleLicenceUrl,
+            NationalIdNumber = request.NationalId,
+            NationalIdImage = nationalIdUrl
+        };
 
         driverApplicationRepo.Add(application);
 

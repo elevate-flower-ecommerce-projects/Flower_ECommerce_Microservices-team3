@@ -112,4 +112,15 @@ public sealed class ProductRepository : GenericRepository<Product>, IProductRepo
             totalCount,
             pagination);
     }
+
+    public async Task<Product?> GetProductDetailsByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Products
+            .AsNoTracking()
+            .Include(p => p.Images)
+            .Include(p => p.Includes)
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+    }
 }

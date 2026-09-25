@@ -50,6 +50,41 @@ public sealed class PaymentServiceClient : IPaymentServiceClient
         }
     }
 
+    public async Task<bool> CreateCodPaymentAsync(
+        Guid orderId,
+        decimal amount,
+        string currency = "EGP",
+        string? bearerToken = null,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/payments/cod")
+            {
+                Content = JsonContent.Create(new { orderId, amount, currency })
+            };
+
+            if (!string.IsNullOrWhiteSpace(bearerToken))
+            {
+                httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+            }
+
+            using var response = await _httpClient.SendAsync(httpRequest, ct);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Payment service returned status code {StatusCode} for COD order {OrderId}", (int)response.StatusCode, orderId);
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to call Payment service to create COD for order {OrderId}", orderId);
+            return false;
+        }
+    }
+
     private sealed class PaymentApiResponseEnvelope<T>
     {
         public bool Success { get; init; }

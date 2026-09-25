@@ -52,6 +52,15 @@ builder.Services.AddHttpClient<IPaymobClient, PaymobClient>(client =>
     client.Timeout = TimeSpan.FromSeconds(30);
 });
 
+builder.Services.AddHttpClient<IOrderServiceClient, OrderServiceClient>(client =>
+{
+    var orderUrl = builder.Configuration["OrderService:BaseUrl"]
+                ?? builder.Configuration["Services:Order"]
+                ?? "http://order-service:8080";
+    client.BaseAddress = new Uri(orderUrl);
+    client.Timeout = TimeSpan.FromSeconds(15);
+});
+
 // Repositories & Unit of Work
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -205,6 +205,7 @@ public class Program
         app.MapAddToCartItemEndpoint();
         app.MapRemoveCartItemEndpoint();
         app.MapUpdateCartItemEndpoint();
+        Cart_Service.Features.ClearCart.ClearCartEndpoint.MapClearCartEndpoint(app);
 
         await app.RunAsync();
     }

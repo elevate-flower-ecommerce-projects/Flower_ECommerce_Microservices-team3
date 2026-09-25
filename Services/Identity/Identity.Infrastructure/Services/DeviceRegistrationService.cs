@@ -18,30 +18,34 @@ namespace Identity.Infrastructure.Services
         {
             var currentTime = DateTime.UtcNow;
 
-          
             var matchedDevices = await userDeviceRepository.FindAsync(
                 device => (device.UserId == userId && device.DeviceId == deviceId)
                           || device.FcmToken == fcmToken,
                 cancellationToken);
 
-          
             var currentUserDevice = matchedDevices.FirstOrDefault(
                 device => device.UserId == userId && device.DeviceId == deviceId);
 
-          
+            // Find any other devices that currently hold this exact FcmToken
             var staleDevices = matchedDevices.Where(
                 device => device.FcmToken == fcmToken && device.Id != currentUserDevice?.Id).ToList();
 
-            foreach (var stale in staleDevices)
+            // Revoke the token from stale devices and persist before assigning the token to the new/current device
+            // to prevent unique index violation (UX_UserDevices_FcmToken) in SQL Server.
+            if (staleDevices.Count > 0)
             {
-                stale.IsActive = false;
-                stale.UpdatedAt = currentTime;
+                foreach (var stale in staleDevices)
+                {
+                    stale.IsActive = false;
+                    stale.FcmToken = $"revoked_{Guid.NewGuid():N}";
+                    stale.UpdatedAt = currentTime;
+                }
+
+                await unitOfWork.SaveChangesAsync(cancellationToken);
             }
 
-        
             if (currentUserDevice is null)
             {
-               
                 userDeviceRepository.Add(new UserDevice
                 {
                     UserId = userId,
@@ -57,12 +61,10 @@ namespace Identity.Infrastructure.Services
             }
             else
             {
-                
                 currentUserDevice.FcmToken = fcmToken;
                 currentUserDevice.IsActive = true;
                 currentUserDevice.RefreshTokenExpiresAt = refreshTokenExpiresAt;
                 currentUserDevice.UpdatedAt = currentTime;
-               
 
                 return currentUserDevice.NotificationsEnabled;
             }
@@ -80,6 +82,7 @@ namespace Identity.Infrastructure.Services
             foreach (var device in devices)
             {
                 device.IsActive = false;
+                device.FcmToken = $"logged_out_{Guid.NewGuid():N}";
                 device.UpdatedAt = DateTime.UtcNow;
             }
 
@@ -104,10 +107,16 @@ namespace Identity.Infrastructure.Services
             var staleDevices = matchedDevices.Where(
                 d => d.FcmToken == fcmToken && d.Id != currentUserDevice?.Id).ToList();
 
-            foreach (var stale in staleDevices)
+            if (staleDevices.Count > 0)
             {
-                stale.IsActive = false;
-                stale.UpdatedAt = currentTime;
+                foreach (var stale in staleDevices)
+                {
+                    stale.IsActive = false;
+                    stale.FcmToken = $"revoked_{Guid.NewGuid():N}";
+                    stale.UpdatedAt = currentTime;
+                }
+
+                await unitOfWork.SaveChangesAsync(cancellationToken);
             }
 
             if (currentUserDevice is null)
@@ -152,7 +161,7 @@ namespace Identity.Infrastructure.Services
                 {
                     UserId = userId,
                     DeviceId = deviceId,
-                    FcmToken = string.Empty,
+                    FcmToken = $"unregistered_{Guid.NewGuid():N}",
                     IsActive = true,
                     NotificationsEnabled = enabled,
                     UpdatedAt = currentTime
@@ -169,4 +178,3 @@ namespace Identity.Infrastructure.Services
         }
     }
 }
-

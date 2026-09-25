@@ -22,6 +22,9 @@ using Order___Fulfillment_Service.Features.DriverFulfillment.ActiveOrder;
 using Order___Fulfillment_Service.Features.DriverFulfillment.AvailableOrders;
 using Order___Fulfillment_Service.Features.DriverFulfillment.OrderDetail;
 using Order___Fulfillment_Service.Features.DriverFulfillment.OrderHistory;
+using Order___Fulfillment_Service.Features.Orders.PlaceOrder;
+using Order___Fulfillment_Service.Features.Orders.CancelOrder;
+using Order___Fulfillment_Service.Features.Orders.MarkPaid;
 using Order___Fulfillment_Service.Features.DriverFulfillment.UpdateStatus;
 using Order___Fulfillment_Service.Persistence;
 using Order___Fulfillment_Service.Persistence.Repositories;
@@ -72,7 +75,10 @@ public class Program
 
         builder.Services.AddHttpClient<IIdentityServiceClient, IdentityServiceClient>(client =>
         {
-            client.BaseAddress = new Uri(builder.Configuration["IdentityService:BaseUrl"] ?? "http://localhost:5000");
+            var identityUrl = builder.Configuration["IdentityService:BaseUrl"]
+                           ?? builder.Configuration["Services:Identity"]
+                           ?? "http://identity-api:8080";
+            client.BaseAddress = new Uri(identityUrl);
             client.Timeout = TimeSpan.FromSeconds(10);
         });
 
@@ -295,6 +301,9 @@ public class Program
 
         app.MapGetOrdersEndpoint();
         app.MapGetOrderByIdEndpoint();
+        app.MapPlaceOrderEndpoint();
+        app.MapCancelOrderEndpoint();
+        app.MapMarkPaidEndpoint();
 
         app.MapGet("/", () => Results.Redirect("/swagger"));
         app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Order & Fulfillment Service", timestamp = DateTime.UtcNow }));

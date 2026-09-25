@@ -1,4 +1,4 @@
-{
+﻿{
   "info": {
     "_postman_id": "flowery-api-gateway-collection",
     "name": "Flowery E-Commerce API Gateway",
@@ -78,8 +78,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
             }
           }
         },
@@ -90,8 +94,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/identity/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["identity", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "identity",
+                "health"
+              ]
             }
           }
         },
@@ -102,8 +111,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalog/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalog",
+                "health"
+              ]
             }
           }
         },
@@ -114,8 +128,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/cart/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["cart", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "health"
+              ]
             }
           }
         },
@@ -126,8 +145,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/address/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "health"
+              ]
             }
           }
         },
@@ -138,8 +162,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/order/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["order", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "health"
+              ]
             }
           }
         },
@@ -150,8 +179,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/payment/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["payment", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment",
+                "health"
+              ]
             }
           }
         }
@@ -197,8 +231,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           }
         },
@@ -224,8 +263,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             }
           }
         },
@@ -266,8 +310,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/admin-login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "admin-login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin-login"
+              ]
             }
           }
         },
@@ -293,8 +342,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "refresh"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
             }
           }
         },
@@ -330,8 +384,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/change-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "change-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "change-password"
+              ]
             }
           }
         },
@@ -357,8 +416,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/forgot-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "forgot-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
             }
           }
         },
@@ -384,8 +448,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/verify-otp",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "verify-otp"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "verify-otp"
+              ]
             }
           }
         },
@@ -411,8 +480,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/reset-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "reset-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
             }
           }
         },
@@ -714,8 +788,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/drivers/applications",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "drivers", "applications"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "applications"
+              ]
             }
           }
         },
@@ -742,8 +822,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/admin/drivers/applications?page=1&pageSize=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "drivers", "applications"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "drivers",
+                "applications"
+              ],
               "query": [
                 {
                   "key": "Status",
@@ -786,8 +873,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/admin/drivers/applications/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "drivers", "applications", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "drivers",
+                "applications",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -820,8 +915,17 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/admin/drivers/applications/:id/approve",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "drivers", "applications", ":id", "approve"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "drivers",
+                "applications",
+                ":id",
+                "approve"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -863,8 +967,17 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/admin/drivers/applications/:id/reject",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "drivers", "applications", ":id", "reject"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "drivers",
+                "applications",
+                ":id",
+                "reject"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -1110,8 +1223,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/catalog/home/sections",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "home", "sections"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalog",
+                "home",
+                "sections"
+              ]
             }
           }
         },
@@ -1144,8 +1263,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/catalog/occasions?pageNumber=1&pageSize=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "occasions"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalog",
+                "occasions"
+              ],
               "query": [
                 {
                   "key": "pageNumber",
@@ -1188,8 +1312,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/catalog/products?categoryId={{categoryId}}&occasionId={{occasionId}}&keyword=&sortBy=PriceLowToHigh&page=1&pageSize=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "products"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalog",
+                "products"
+              ],
               "query": [
                 {
                   "key": "categoryId",
@@ -1238,8 +1367,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/catalog/products/:productId",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "products", ":productId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalog",
+                "products",
+                ":productId"
+              ],
               "variable": [
                 {
                   "key": "productId",
@@ -1278,8 +1413,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/catalog/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "categories"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalog",
+                "categories"
+              ]
             }
           }
         }
@@ -1306,8 +1446,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/cart/cart",
-              "host": ["{{baseUrl}}"],
-              "path": ["cart", "cart"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "cart"
+              ]
             }
           }
         },
@@ -1338,8 +1483,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/cart/items",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "cart", "items"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cart",
+                "items"
+              ]
             },
             "description": "Adds a product to the authenticated customer's cart or increments quantity if it already exists. Returns the updated CartSummaryResponse."
           }
@@ -1371,8 +1523,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/cart/cart/items",
-              "host": ["{{baseUrl}}"],
-              "path": ["cart", "cart", "items"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "cart",
+                "items"
+              ]
             },
             "description": "Legacy/Gateway prefix route for adding an item to the authenticated customer's cart."
           }
@@ -1399,8 +1557,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/cart/api/cart/items/:productId",
-              "host": ["{{baseUrl}}"],
-              "path": ["cart", "api", "cart", "items", ":productId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "api",
+                "cart",
+                "items",
+                ":productId"
+              ],
               "variable": [
                 {
                   "key": "productId",
@@ -1428,8 +1594,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/cart/cart/items/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["cart", "cart", "items", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "cart",
+                "items",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -1437,6 +1610,35 @@
                 }
               ]
             }
+          }
+        },
+        {
+          "name": "Clear Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cart/cart",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "cart"
+              ]
+            },
+            "description": "Clears all items from the customer's cart."
           }
         }
       ]
@@ -1514,6 +1716,80 @@
     {
       "name": "Orders",
       "item": [
+        {
+          "name": "Place Order (Cash on Delivery)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressId\": \"{{addressId}}\",\n  \"paymentMethod\": \"COD\",\n  \"notes\": \"Please ring the bell upon arrival\",\n  \"customerPhone\": \"+201012345678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "Places an order using Cash on Delivery (COD). Validates cart and delivery coverage, calculates distance and fee, takes an order snapshot, transitions order to Preparing, and clears the cart."
+          }
+        },
+        {
+          "name": "Place Order (Card / Paymob)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressId\": \"{{addressId}}\",\n  \"paymentMethod\": \"Card\",\n  \"notes\": \"Handle flowers with care\",\n  \"customerPhone\": \"+201012345678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "Places an order using Credit Card (Paymob). Validates cart and delivery coverage, creates a Paymob checkout intention session, sets order to PendingPayment, and returns the paymentUrl to redirect the user to."
+          }
+        },
         {
           "name": "Get Customer Orders",
           "request": {
@@ -1668,6 +1944,51 @@
               ]
             },
             "description": "Customer confirms receipt of their order when status is AwaitingDeliveryConfirmation. Transitions the order status to Delivered."
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Changed my mind\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/:orderId/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                ":orderId",
+                "cancel"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}"
+                }
+              ]
+            },
+            "description": "Allows customer to cancel an order before it has been picked up or dispatched for delivery."
           }
         }
       ]
@@ -2090,8 +2411,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/api/areas",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "api", "areas"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "api",
+                "areas"
+              ]
             }
           }
         },
@@ -2102,8 +2429,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/address/api/stores/nearest-store?lat=30.0444&lng=31.2357",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "api", "stores", "nearest-store"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "api",
+                "stores",
+                "nearest-store"
+              ],
               "query": [
                 {
                   "key": "lat",
@@ -2146,8 +2480,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/users/me/addresses",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "users", "me", "addresses"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "users",
+                "me",
+                "addresses"
+              ]
             }
           }
         },
@@ -2173,8 +2514,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/address/users/me/addresses",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "users", "me", "addresses"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "users",
+                "me",
+                "addresses"
+              ]
             }
           }
         },
@@ -2191,8 +2539,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/users/me/addresses/:addressId",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "users", "me", "addresses", ":addressId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "users",
+                "me",
+                "addresses",
+                ":addressId"
+              ],
               "variable": [
                 {
                   "key": "addressId",
@@ -2215,8 +2571,17 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/users/me/addresses/:addressId/default",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "users", "me", "addresses", ":addressId", "default"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "users",
+                "me",
+                "addresses",
+                ":addressId",
+                "default"
+              ],
               "variable": [
                 {
                   "key": "addressId",
@@ -2248,8 +2613,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/address/users/me/addresses/:addressId",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "users", "me", "addresses", ":addressId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "users",
+                "me",
+                "addresses",
+                ":addressId"
+              ],
               "variable": [
                 {
                   "key": "addressId",
@@ -2272,8 +2645,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/users/me/addresses/:addressId",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "users", "me", "addresses", ":addressId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "users",
+                "me",
+                "addresses",
+                ":addressId"
+              ],
               "variable": [
                 {
                   "key": "addressId",
@@ -2296,8 +2677,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/admin/stores?page=1&pageSize=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "admin", "stores"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "admin",
+                "stores"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -2333,8 +2720,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/address/admin/stores",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "admin", "stores"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "admin",
+                "stores"
+              ]
             }
           }
         },
@@ -2351,8 +2744,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/admin/stores/:storeId",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "admin", "stores", ":storeId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "admin",
+                "stores",
+                ":storeId"
+              ],
               "variable": [
                 {
                   "key": "storeId",
@@ -2384,8 +2784,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/address/admin/stores/:storeId",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "admin", "stores", ":storeId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "admin",
+                "stores",
+                ":storeId"
+              ],
               "variable": [
                 {
                   "key": "storeId",
@@ -2408,8 +2815,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/admin/stores/:storeId",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "admin", "stores", ":storeId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "admin",
+                "stores",
+                ":storeId"
+              ],
               "variable": [
                 {
                   "key": "storeId",
@@ -2432,8 +2846,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/admin/stores/:storeId/coverage-area",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "admin", "stores", ":storeId", "coverage-area"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "admin",
+                "stores",
+                ":storeId",
+                "coverage-area"
+              ],
               "variable": [
                 {
                   "key": "storeId",
@@ -2465,8 +2887,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/address/admin/stores/:storeId/coverage-area",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "admin", "stores", ":storeId", "coverage-area"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "admin",
+                "stores",
+                ":storeId",
+                "coverage-area"
+              ],
               "variable": [
                 {
                   "key": "storeId",

@@ -17,4 +17,8 @@ public interface IProductRepository : IGenericRepository<Product>
         ProductSort? sort,
         string? keyword,
         CancellationToken cancellationToken);
+
+    Task<Product?> GetProductDetailsByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
 }

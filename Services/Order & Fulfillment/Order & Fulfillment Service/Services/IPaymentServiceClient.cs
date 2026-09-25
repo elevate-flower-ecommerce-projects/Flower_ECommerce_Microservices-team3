@@ -45,4 +45,11 @@ public interface IPaymentServiceClient
         CreatePaymentSessionRequest request,
         string? bearerToken = null,
         CancellationToken ct = default);
+
+    Task<bool> CreateCodPaymentAsync(
+        Guid orderId,
+        decimal amount,
+        string currency = "EGP",
+        string? bearerToken = null,
+        CancellationToken ct = default);
 }

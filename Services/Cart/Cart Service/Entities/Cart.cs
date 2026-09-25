@@ -72,6 +72,12 @@ namespace Cart_Service.Entities
             }
         }
 
+        public void ClearItems()
+        {
+            _items.Clear();
+            RecalculateTotals();
+        }
+
         public void RecalculateTotals()
         {
             Subtotal = _items.Sum(x => x.LineTotal);
