@@ -8,9 +8,14 @@ public record LoginUserDto(
     bool IsActive,
     string? DriverStatus);
 
+public record LoginDeviceDto(
+    string DeviceId,
+    bool NotificationsEnabled);
+
 public record LoginResponseDto(
     string AccessToken,
     string RefreshToken,
     int ExpiresIn,
     string? DriverStatus,
-    LoginUserDto User);
+    LoginUserDto User,
+    LoginDeviceDto? Device);

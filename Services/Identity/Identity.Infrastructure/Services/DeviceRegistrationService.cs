@@ -1,61 +1,89 @@
-﻿using Blocks.Contracts.Interfaces;
+using Blocks.Contracts.Interfaces;
 using Identity.Application.Interfaces;
 using Identity.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 
 namespace Identity.Infrastructure.Services
 {
     public class DeviceRegistrationService(
-    IGenericRepository<UserDevice> userDeviceRepository,
-    IUnitOfWork unitOfWork)
-    : IDeviceRegistrationService
+        IGenericRepository<UserDevice> userDeviceRepository,
+        IUnitOfWork unitOfWork)
+        : IDeviceRegistrationService
     {
-        public async Task RegisterAsync(
-        Guid userId,
-        string deviceId,
-        string fcmToken,
-        CancellationToken cancellationToken = default)
+        public async Task<bool> RegisterAsync(
+            Guid userId,
+            string deviceId,
+            string fcmToken,
+            DateTime refreshTokenExpiresAt,
+            CancellationToken cancellationToken = default)
         {
             var currentTime = DateTime.UtcNow;
 
+          
             var matchedDevices = await userDeviceRepository.FindAsync(
-                device => (device.UserId == userId && device.DeviceId == deviceId) || device.FcmToken == fcmToken,
+                device => (device.UserId == userId && device.DeviceId == deviceId)
+                          || device.FcmToken == fcmToken,
                 cancellationToken);
 
+          
             var currentUserDevice = matchedDevices.FirstOrDefault(
                 device => device.UserId == userId && device.DeviceId == deviceId);
 
-            var oldUsersDevices = matchedDevices.Where(
+          
+            var staleDevices = matchedDevices.Where(
                 device => device.FcmToken == fcmToken && device.Id != currentUserDevice?.Id).ToList();
 
-            if (oldUsersDevices.Count > 0)
+            foreach (var stale in staleDevices)
             {
-                foreach (var oldDevice in oldUsersDevices)
-                {
-                    userDeviceRepository.Delete(oldDevice);
-                }
-
-                await unitOfWork.SaveChangesAsync(cancellationToken);
+                stale.IsActive = false;
+                stale.UpdatedAt = currentTime;
             }
 
+        
             if (currentUserDevice is null)
             {
+               
                 userDeviceRepository.Add(new UserDevice
                 {
                     UserId = userId,
                     DeviceId = deviceId,
                     FcmToken = fcmToken,
+                    IsActive = true,
+                    NotificationsEnabled = true,
+                    RefreshTokenExpiresAt = refreshTokenExpiresAt,
                     UpdatedAt = currentTime
                 });
+
+                return true;
             }
             else
             {
+                
                 currentUserDevice.FcmToken = fcmToken;
+                currentUserDevice.IsActive = true;
+                currentUserDevice.RefreshTokenExpiresAt = refreshTokenExpiresAt;
                 currentUserDevice.UpdatedAt = currentTime;
+               
+
+                return currentUserDevice.NotificationsEnabled;
+            }
+        }
+
+        public async Task UnregisterAsync(
+            Guid userId,
+            string deviceId,
+            CancellationToken cancellationToken = default)
+        {
+            var devices = await userDeviceRepository.FindAsync(
+                d => d.UserId == userId && d.DeviceId == deviceId,
+                cancellationToken);
+
+            foreach (var device in devices)
+            {
+                device.IsActive = false;
+                device.UpdatedAt = DateTime.UtcNow;
+                
             }
         }
     }
 }
+
