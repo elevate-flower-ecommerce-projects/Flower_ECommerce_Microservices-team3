@@ -1,4 +1,4 @@
-﻿{
+{
   "info": {
     "_postman_id": "flowery-api-gateway-collection",
     "name": "Flowery E-Commerce API Gateway",
@@ -2428,7 +2428,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/address/api/stores/nearest-store?lat=30.0444&lng=31.2357",
+              "raw": "{{baseUrl}}/address/api/stores/nearest-store?lat=30.0511&lng=31.3656",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -2441,11 +2441,11 @@
               "query": [
                 {
                   "key": "lat",
-                  "value": "30.0444"
+                  "value": "30.0511"
                 },
                 {
                   "key": "lng",
-                  "value": "31.2357"
+                  "value": "31.3656"
                 }
               ]
             }
@@ -2494,6 +2494,21 @@
         },
         {
           "name": "Create Address",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.data && jsonData.data.id) {",
+                  "    pm.collectionVariables.set('addressId', jsonData.data.id);",
+                  "    console.log('Saved addressId: ' + jsonData.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -2510,7 +2525,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"recipientName\": \"Layla Hassan\",\n  \"phone\": \"01111111101\",\n  \"addressLine\": \"123 Tahrir Square, Downtown\",\n  \"cityId\": \"00000000-0000-0000-0000-000000000001\",\n  \"areaId\": \"00000000-0000-0000-0000-000000000002\",\n  \"latitude\": 30.0444,\n  \"longitude\": 31.2357,\n  \"label\": \"Home\"\n}"
+              "raw": "{\n  \"recipientName\": \"Layla Hassan\",\n  \"phone\": \"01011111101\",\n  \"addressLine\": \"123 Abbas El Akkad, Nasr City\",\n  \"cityId\": \"c1000000-0000-0000-0000-000000000039\",\n  \"areaId\": \"a1000000-0000-0000-0000-000000000001\",\n  \"latitude\": 30.0511,\n  \"longitude\": 31.3656,\n  \"label\": \"Home\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/address/users/me/addresses",
