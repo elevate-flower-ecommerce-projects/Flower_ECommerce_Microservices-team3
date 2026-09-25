@@ -156,10 +156,12 @@ public class LoginCommandHandler(
             var accessToken = tokenService.GenerateAccessToken(userTokenDto);
             var refreshTokenValue = tokenService.GenerateRefreshToken();
 
+            var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationDays);
+
             await mediator.Send(new SaveRefreshTokenCommand(
                 refreshTokenValue,
                 user.Id,
-                DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationDays),
+                refreshTokenExpiresAt,
                 request.DeviceId),
                 cancellationToken);
 
@@ -172,12 +174,14 @@ public class LoginCommandHandler(
             });
 
             // ── 8. Save / Update FCM Token ──
+            bool notificationsEnabled = true;
             if (!string.IsNullOrWhiteSpace(request.DeviceId) && !string.IsNullOrWhiteSpace(request.FcmToken))
             {
-                await deviceRegistrationService.RegisterAsync(
+                notificationsEnabled = await deviceRegistrationService.RegisterAsync(
                     user.Id,
                     request.DeviceId,
                     request.FcmToken,
+                    refreshTokenExpiresAt,
                     cancellationToken);
             }
 
@@ -194,12 +198,17 @@ public class LoginCommandHandler(
                 user.IsActive,
                 driverStatus);
 
+            var loginDeviceDto = new LoginDeviceDto(
+                request.DeviceId ?? string.Empty,
+                notificationsEnabled);
+
             return Result.Success(new LoginResponseDto(
                 accessToken,
                 refreshTokenValue,
                 expiresIn,
                 driverStatus,
-                loginUserDto));
+                loginUserDto,
+                loginDeviceDto));
         }
         catch
         {
