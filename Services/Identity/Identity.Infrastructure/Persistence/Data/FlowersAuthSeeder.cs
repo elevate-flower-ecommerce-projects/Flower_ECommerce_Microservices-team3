@@ -10,12 +10,25 @@ namespace Identity.Infrastructure.Persistence.Data
         public static async Task SeedAsync(FlowersAuthDbContext context, IPasswordService passwordService)
         {
             var adminHash = passwordService.Hash("Admin@12345");
+            var defaultAdminHash = passwordService.Hash("AdminPassword123!");
             var customerHash = passwordService.Hash("Customer@12345");
             var driverHash = passwordService.Hash("Driver@12345");
 
             var seedUsers = new List<User>
             {
                 // Admins
+                new()
+                {
+                    Id = Guid.CreateVersion7(),
+                    FirstName = "Flowery",
+                    LastName = "Admin",
+                    Email = "admin@example.com",
+                    HashPassword = defaultAdminHash,
+                    Phone = "01000000000",
+                    Gender = Gender.Male,
+                    Role = UserRole.Admin,
+                    CreatedAt = DateTime.UtcNow
+                },
                 new()
                 {
                     Id = Guid.CreateVersion7(),
@@ -166,9 +179,18 @@ namespace Identity.Infrastructure.Persistence.Data
                 {
                     await context.Users.AddAsync(user);
                 }
-                else if (string.IsNullOrEmpty(existingUser.PhotoUrl) && !string.IsNullOrEmpty(user.PhotoUrl))
+                else
                 {
-                    existingUser.PhotoUrl = user.PhotoUrl;
+                    if (user.Role == UserRole.Admin)
+                    {
+                        existingUser.Role = UserRole.Admin;
+                        existingUser.HashPassword = user.HashPassword;
+                    }
+
+                    if (string.IsNullOrEmpty(existingUser.PhotoUrl) && !string.IsNullOrEmpty(user.PhotoUrl))
+                    {
+                        existingUser.PhotoUrl = user.PhotoUrl;
+                    }
                 }
             }
             await context.SaveChangesAsync();

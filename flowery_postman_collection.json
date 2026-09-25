@@ -545,6 +545,86 @@
             },
             "description": "Updates the profile of the authenticated user (name, email, phone, gender, photo upload)."
           }
+        },
+        {
+          "name": "Update Device FCM Token",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"device-12345\",\n  \"fcmToken\": \"fcm_test_push_token_sample\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/devices/fcm-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "devices",
+                "fcm-token"
+              ]
+            },
+            "description": "Updates the FCM push notification token for the user's active device."
+          }
+        },
+        {
+          "name": "Set Device Notifications (Enable / Disable)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"device-12345\",\n  \"enabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/devices/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "devices",
+                "notifications"
+              ]
+            },
+            "description": "Enables or disables push notifications for the user's active device."
+          }
         }
       ]
     },
@@ -853,6 +933,61 @@
           }
         },
         {
+          "name": "Get Countries",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/countries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "countries"
+              ]
+            },
+            "description": "Returns all 250 countries matching Flutter schema: isoCode, name, phoneCode, flag emoji, currency, latitude, longitude, and timezones (zoneName, gmtOffset, gmtOffsetName, abbreviation, tzName). Optional ?wrapped=true returns ApiResponse wrapper."
+          },
+          "response": [
+            {
+              "name": "200 OK - Country List",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/countries",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "countries"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"isoCode\": \"AF\",\n    \"name\": \"Afghanistan\",\n    \"phoneCode\": \"93\",\n    \"flag\": \"🇦🇫\",\n    \"currency\": \"AFN\",\n    \"latitude\": \"33.00000000\",\n    \"longitude\": \"65.00000000\",\n    \"timezones\": [\n      {\n        \"zoneName\": \"Asia/Kabul\",\n        \"gmtOffset\": 16200,\n        \"gmtOffsetName\": \"UTC+04:30\",\n        \"abbreviation\": \"AFT\",\n        \"tzName\": \"Afghanistan Time\"\n      }\n    ]\n  }\n]"
+            }
+          ]
+        },
+        {
           "name": "Get Driver Vehicle",
           "request": {
             "method": "GET",
@@ -895,19 +1030,33 @@
                 "type": "text"
               },
               {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              },
-              {
                 "key": "Accept-Language",
                 "value": "{{acceptLanguage}}",
                 "type": "text"
               }
             ],
             "body": {
-              "mode": "raw",
-              "raw": "{\n  \"vehicleType\": 1,\n  \"vehicleNumber\": \"ABC 1234\"\n}"
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "VehicleType",
+                  "value": "1",
+                  "type": "text",
+                  "description": "1 = Car, 2 = Motorcycle"
+                },
+                {
+                  "key": "VehicleNumber",
+                  "value": "ABC 1234",
+                  "type": "text",
+                  "description": "Vehicle plate number"
+                },
+                {
+                  "key": "VehicleLicenceFile",
+                  "type": "file",
+                  "src": "",
+                  "description": "Vehicle license document or photo"
+                }
+              ]
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/drivers/me/vehicle",
@@ -922,7 +1071,7 @@
                 "vehicle"
               ]
             },
-            "description": "Updates the vehicle type (1 = Car, 2 = Motorcycle) and vehicle plate number for the authenticated driver."
+            "description": "Updates the vehicle type (1 = Car, 2 = Motorcycle), plate number, and optional vehicle license file for the authenticated driver (multipart/form-data or JSON)."
           }
         }
       ]

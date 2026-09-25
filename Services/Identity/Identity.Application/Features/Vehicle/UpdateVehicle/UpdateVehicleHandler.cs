@@ -8,6 +8,7 @@ namespace Identity.Application.Features.Drivers.Vehicle.UpdateVehicle;
 
 public sealed class UpdateVehicleHandler(
         IDriverRepository driverRepository,
+        IFileStorageService fileStorageService,
         IUnitOfWork unitOfWork)
     : IRequestHandler<UpdateVehicleCommand, Result>
 {
@@ -27,6 +28,14 @@ public sealed class UpdateVehicleHandler(
 
         driver.VehicleType = request.VehicleType;
         driver.VehicleNumber = request.VehicleNumber;
+
+        if (request.VehicleLicenceFile is not null && request.VehicleLicenceFile.Length > 0)
+        {
+            driver.VehicleLicenceImage = await fileStorageService.UploadAsync(
+                request.VehicleLicenceFile,
+                $"drivers/{driver.Id}/vehicle-licence",
+                cancellationToken);
+        }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

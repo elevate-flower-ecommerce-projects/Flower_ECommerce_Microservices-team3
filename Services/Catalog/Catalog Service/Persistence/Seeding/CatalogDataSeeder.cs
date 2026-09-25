@@ -408,6 +408,18 @@ public static class CatalogDataSeeder
             );
 
             await db.SaveChangesAsync();
+
+            // Seed initial Inventory if empty
+            if (!await db.Inventories.AnyAsync())
+            {
+                var defaultStoreId = Guid.Parse("01951234-5678-7000-8000-000000000001");
+                var allProducts = await db.Products.ToListAsync();
+                foreach (var product in allProducts)
+                {
+                    db.Inventories.Add(new Inventory(product.Id, defaultStoreId, 50));
+                }
+                await db.SaveChangesAsync();
+            }
         }
     }
 }

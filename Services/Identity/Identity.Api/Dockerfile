@@ -33,4 +33,9 @@ RUN dotnet publish "./Identity.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publi
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+USER root
+RUN mkdir -p /app/wwwroot/uploads /app/wwwroot/ProfilePictures \
+    && chown -R $APP_UID /app/wwwroot \
+    && chmod -R 777 /app/wwwroot
+USER $APP_UID
 ENTRYPOINT ["dotnet", "Identity.Api.dll"]

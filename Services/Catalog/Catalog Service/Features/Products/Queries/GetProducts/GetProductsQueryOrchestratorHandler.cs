@@ -106,7 +106,8 @@ public sealed class GetProductsQueryOrchestratorHandler(ISender sender)
                     stock.TryGetValue(
                         product.Id,
                         out var stockStatus)
-                    && stockStatus;
+                    ? stockStatus
+                    : product.InStock;
 
                 return product with
                 {

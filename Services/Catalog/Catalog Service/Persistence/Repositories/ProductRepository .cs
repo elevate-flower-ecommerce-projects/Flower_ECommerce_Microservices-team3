@@ -98,7 +98,7 @@ public sealed class ProductRepository : GenericRepository<Product>, IProductRepo
                 p.Price,
                 null,
                 null,
-                false))
+                p.Status == ProductStatus.InStock))
             .ToListAsync(cancellationToken);
 
         var pagination = new PaginationParams

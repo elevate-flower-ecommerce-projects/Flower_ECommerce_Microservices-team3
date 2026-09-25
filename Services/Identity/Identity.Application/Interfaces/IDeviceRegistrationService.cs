@@ -15,5 +15,17 @@ namespace Identity.Application.Interfaces
             Guid userId,
             string deviceId,
             CancellationToken cancellationToken = default);
+
+        Task<bool> UpdateFcmTokenAsync(
+            Guid userId,
+            string deviceId,
+            string fcmToken,
+            CancellationToken cancellationToken = default);
+
+        Task<bool> SetNotificationsEnabledAsync(
+            Guid userId,
+            string deviceId,
+            bool enabled,
+            CancellationToken cancellationToken = default);
     }
 }

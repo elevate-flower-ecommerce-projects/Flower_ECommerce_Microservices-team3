@@ -33,6 +33,8 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json.Serialization;
 using Flower.Identity.Features.Drivers.Vehicle.GetVehicle;
+using Identity.Api.Features.Countries;
+using Identity.Api.Features.Devices;
 using Identity.Api.Features.Vehicle;
 using Identity.Application.Features.VehicleTypes.GetVehicleTypes;
 
@@ -60,6 +62,7 @@ namespace Identity.Api
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ILoginRateLimiter, LoginRateLimiter>();
             builder.Services.AddScoped<IDeviceRegistrationService, DeviceRegistrationService>();
+            builder.Services.AddSingleton<ICountryDataProvider, CountryDataProvider>();
             builder.Services.AddMemoryCache();
 
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
@@ -169,6 +172,19 @@ namespace Identity.Api
             });
 
             var app = builder.Build();
+
+            try
+            {
+                var webHostEnv = app.Services.GetRequiredService<IWebHostEnvironment>();
+                var webRoot = webHostEnv.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                Directory.CreateDirectory(Path.Combine(webRoot, "uploads"));
+                Directory.CreateDirectory(Path.Combine(webRoot, "ProfilePictures"));
+            }
+            catch
+            {
+                // Fallback if environment directory permissions are restricted
+            }
+
             app.UseStaticFiles();
             app.UseExceptionHandler();
 
@@ -266,6 +282,8 @@ namespace Identity.Api
 
                         await FlowersAuthSeeder.SeedAsync(context, passwordService);
                         await FixedTestUsersSeeder.SeedAsync(context, passwordService);
+                        var countryProvider = services.GetRequiredService<ICountryDataProvider>();
+                        await countryProvider.SeedCountriesAsync();
                         logger.LogInformation("Database migration and seeding completed successfully.");
                         break;
                     }
@@ -305,7 +323,9 @@ namespace Identity.Api
             app.MapUpdateProfileEndpoint();
             app.MapGetVehicleEndpoint();
             app.MapGetVehicleTypesEndpoint();
+            app.MapGetCountriesEndpoint();
             app.MapUpdateVehicleEndpoint();
+            app.MapDeviceEndpoints();
             app.MapGetProfileEndpoint();
             app.MapGetDriverProfileEndpoint();
             app.MapGet("/", () => Results.Redirect("/swagger"));

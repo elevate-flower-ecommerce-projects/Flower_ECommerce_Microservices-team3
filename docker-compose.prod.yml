@@ -101,6 +101,7 @@ services:
   identity-api:
     image: ${DOCKER_USERNAME:-hossammokhtar}/flower-identity-api:latest
     container_name: flower_identity_api
+    user: "root"
     restart: unless-stopped
     depends_on:
       sqlserver:

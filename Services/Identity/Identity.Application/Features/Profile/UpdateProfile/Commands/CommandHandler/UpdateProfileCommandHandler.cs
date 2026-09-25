@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Blocks.Contracts.Interfaces;
 using Blocks.Domain.Errors;
 using Identity.Application.Features.Profile.DTOs;
@@ -38,7 +38,19 @@ namespace Identity.Application.Features.Profile.UpdateProfile.Commands.CommandHa
             }
 
             if (!string.IsNullOrWhiteSpace(request.Email))
-                user.Email = request.Email.Trim().ToLowerInvariant();
+            {
+                var newEmail = request.Email.Trim().ToLowerInvariant();
+                if (!string.Equals(user.Email, newEmail, StringComparison.OrdinalIgnoreCase))
+                {
+                    var emailExists = await userRepository.GetQueryable()
+                        .AnyAsync(u => u.Email == newEmail && u.Id != user.Id && u.DeletedAt == null, cancellationToken);
+                    if (emailExists)
+                    {
+                        return Result.Failure<ProfileResponseDTO>(Error.Conflict("Email is already in use by another account."));
+                    }
+                    user.Email = newEmail;
+                }
+            }
 
             if (!string.IsNullOrWhiteSpace(request.Phone))
                 user.Phone = request.Phone.Trim();
@@ -57,6 +69,7 @@ namespace Identity.Application.Features.Profile.UpdateProfile.Commands.CommandHa
                 user.PhotoUrl = photoUrl;
             }
 
+            userRepository.Update(user);
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
             var response = new ProfileResponseDTO(
