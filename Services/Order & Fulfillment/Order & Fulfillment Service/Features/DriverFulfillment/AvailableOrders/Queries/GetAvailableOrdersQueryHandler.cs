@@ -24,7 +24,7 @@ public sealed class GetAvailableOrdersQueryHandler(
 
         var query = orderRepository.GetQueryable()
             .AsNoTracking()
-            .Where(o => o.Status == OrderStatus.Preparing && o.AssignedDriverId == null);
+            .Where(o => (o.Status == OrderStatus.Preparing || o.Status == OrderStatus.Placed) && o.AssignedDriverId == null);
 
         var totalCount = await query.CountAsync(ct);
 

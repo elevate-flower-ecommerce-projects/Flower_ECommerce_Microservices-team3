@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Order___Fulfillment_Service.Entities.Enums;
 
 namespace Order___Fulfillment_Service.Services;
@@ -8,7 +9,11 @@ public sealed class PaymentServiceClient : IPaymentServiceClient
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<PaymentServiceClient> _logger;
-    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() }
+    };
 
     public PaymentServiceClient(HttpClient httpClient, ILogger<PaymentServiceClient> logger)
     {

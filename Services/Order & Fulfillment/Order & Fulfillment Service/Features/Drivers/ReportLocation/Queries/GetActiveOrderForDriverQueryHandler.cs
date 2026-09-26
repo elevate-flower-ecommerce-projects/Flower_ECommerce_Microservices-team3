@@ -12,6 +12,8 @@ namespace Order___Fulfillment_Service.Features.Drivers.ReportLocation.Queries
     {
         private static readonly HashSet<OrderStatus> LiveStatuses = new()
     {
+        OrderStatus.Placed,
+        OrderStatus.Preparing,
         OrderStatus.PickedUp,
         OrderStatus.OutForDelivery,
         OrderStatus.AwaitingDeliveryConfirmation

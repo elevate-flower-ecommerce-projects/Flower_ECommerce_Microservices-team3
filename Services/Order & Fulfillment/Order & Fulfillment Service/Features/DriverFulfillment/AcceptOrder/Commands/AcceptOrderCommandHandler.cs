@@ -24,9 +24,8 @@ public sealed class AcceptOrderCommandHandler(
             var hasActiveDelivery = await orderRepository.GetQueryable()
                 .AsNoTracking()
                 .AnyAsync(o => o.AssignedDriverId == request.DriverId
-                    && (o.Status == OrderStatus.PickedUp
-                     || o.Status == OrderStatus.OutForDelivery
-                     || o.Status == OrderStatus.AwaitingDeliveryConfirmation), ct);
+                    && o.Status != OrderStatus.Delivered
+                    && o.Status != OrderStatus.Cancelled, ct);
 
             if (hasActiveDelivery)
             {
@@ -37,11 +36,12 @@ public sealed class AcceptOrderCommandHandler(
             var now = DateTime.UtcNow;
             var rowsAffected = await dbContext.Orders
                 .Where(o => o.Id == request.OrderId
-                         && o.Status == OrderStatus.Preparing
+                         && (o.Status == OrderStatus.Preparing || o.Status == OrderStatus.Placed)
                          && o.AssignedDriverId == null)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(o => o.AssignedDriverId, request.DriverId)
                     .SetProperty(o => o.AssignedAt, now)
+                    .SetProperty(o => o.Status, OrderStatus.Preparing)
                     .SetProperty(o => o.UpdatedAt, now), ct);
 
             if (rowsAffected == 0)

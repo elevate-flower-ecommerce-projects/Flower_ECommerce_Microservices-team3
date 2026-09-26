@@ -208,8 +208,9 @@
               "script": {
                 "exec": [
                   "var jsonData = pm.response.json();",
-                  "if (jsonData && jsonData.data && jsonData.data.accessToken) {",
-                  "    pm.collectionVariables.set('bearerToken', jsonData.data.accessToken);",
+                  "var token = (jsonData && jsonData.data && jsonData.data.accessToken) ? jsonData.data.accessToken : (jsonData ? jsonData.accessToken : null);",
+                  "if (token) {",
+                  "    pm.collectionVariables.set('bearerToken', token);",
                   "    console.log('Saved accessToken to collection variable bearerToken');",
                   "}"
                 ],
@@ -287,8 +288,9 @@
               "script": {
                 "exec": [
                   "var jsonData = pm.response.json();",
-                  "if (jsonData && jsonData.data && jsonData.data.accessToken) {",
-                  "    pm.collectionVariables.set('bearerToken', jsonData.data.accessToken);",
+                  "var token = (jsonData && jsonData.data && jsonData.data.accessToken) ? jsonData.data.accessToken : (jsonData ? jsonData.accessToken : null);",
+                  "if (token) {",
+                  "    pm.collectionVariables.set('bearerToken', token);",
                   "    console.log('Saved Admin accessToken to collection variable bearerToken');",
                   "}"
                 ],
@@ -2199,6 +2201,21 @@
       "item": [
         {
           "name": "Get Available Orders for Driver",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.data && jsonData.data.items && jsonData.data.items.length > 0) {",
+                  "    pm.collectionVariables.set('orderId', jsonData.data.items[0].orderId);",
+                  "    console.log('Saved first available orderId: ' + jsonData.data.items[0].orderId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [

@@ -27,7 +27,7 @@ public record CreatePaymentSessionRequest(
 
 public record CardSessionResultDto(
     Guid OrderId,
-    OrderStatus Status,
+    string? Status,
     PaymentProvider PaymentProvider,
     string SessionId,
     string SessionUrl,

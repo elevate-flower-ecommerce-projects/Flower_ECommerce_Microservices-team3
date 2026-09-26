@@ -57,6 +57,7 @@ public sealed class UpdateOrderStatusCommandHandler(
             // 4. Validate allowed state transitions
             var isValidTransition = (orderInfo.Status, targetStatus.Value) switch
             {
+                (OrderStatus.Placed, OrderStatus.PickedUp) => true,
                 (OrderStatus.Preparing, OrderStatus.PickedUp) => true,
                 (OrderStatus.PickedUp, OrderStatus.OutForDelivery) => true,
                 (OrderStatus.OutForDelivery, OrderStatus.AwaitingDeliveryConfirmation) => true,
