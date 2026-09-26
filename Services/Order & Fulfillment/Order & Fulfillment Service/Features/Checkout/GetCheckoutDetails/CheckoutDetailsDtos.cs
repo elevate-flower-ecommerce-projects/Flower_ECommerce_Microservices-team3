@@ -3,10 +3,13 @@ using System.Text.Json.Serialization;
 namespace Order___Fulfillment_Service.Features.Checkout.GetCheckoutDetails;
 
 public sealed record CheckoutDetailsResponse(
+    Guid CartId,
+    Guid? AddressId,
+    bool IsServiceable,
     decimal Subtotal,
-    decimal DeliveryFee,
+    decimal? DeliveryFee,
     decimal Total,
-    string? EstimatedDeliveryAt,
+    DateTime? EstimatedDeliveryAt,
     IReadOnlyList<PaymentMethodOptionDto> PaymentMethods,
     bool IsGift = false,
     string? GiftRecipientName = null,
@@ -16,7 +19,7 @@ public sealed record CheckoutDetailsResponse(
     public static readonly IReadOnlyList<PaymentMethodOptionDto> DefaultPaymentMethods =
     [
         new PaymentMethodOptionDto("COD"),
-        new PaymentMethodOptionDto("Card", ["Stripe"])
+        new PaymentMethodOptionDto("Card", ["Paymob"])
     ];
 }
 

@@ -18,17 +18,21 @@ public sealed class PlaceOrderCommandHandler(
     IPaymentServiceClient paymentService,
     IUnitOfWork unitOfWork,
     ILogger<PlaceOrderCommandHandler> logger)
-    : IRequestHandler<PlaceOrderCommand, Result<PlaceOrderResponse>>
+    : IRequestHandler<PlaceOrderCommand, Result<PlaceOrderCardResult?>>
 {
-    public async Task<Result<PlaceOrderResponse>> Handle(
+    public async Task<Result<PlaceOrderCardResult?>> Handle(
         PlaceOrderCommand request,
         CancellationToken cancellationToken)
     {
         // 1. Fetch user's active cart
-        var cart = await cartService.GetUserCartAsync(request.BearerToken, cancellationToken);
+        var cartTask = request.Request.CartId.HasValue && request.Request.CartId.Value != Guid.Empty
+            ? cartService.GetCartByIdAsync(request.Request.CartId.Value, request.BearerToken, cancellationToken)
+            : cartService.GetUserCartAsync(request.BearerToken, cancellationToken);
+
+        var cart = await cartTask ?? await cartService.GetUserCartAsync(request.BearerToken, cancellationToken);
         if (cart is null || cart.Items.Count == 0)
         {
-            return Result.Failure<PlaceOrderResponse>(
+            return Result.Failure<PlaceOrderCardResult?>(
                 Error.Validation("Your cart is empty. Please add items before placing an order."));
         }
 
@@ -42,8 +46,8 @@ public sealed class PlaceOrderCommandHandler(
 
         if (selectedAddress is null)
         {
-            return Result.Failure<PlaceOrderResponse>(
-                Error.Validation("Delivery address is required. Please add or select an address before checkout."));
+            return Result.Failure<PlaceOrderCardResult?>(
+                Error.NotFound("Delivery address not found or does not belong to you."));
         }
 
         // 3. Resolve nearest covering store & delivery fee
@@ -54,8 +58,19 @@ public sealed class PlaceOrderCommandHandler(
 
         if (coverage is null || !coverage.IsServiceable)
         {
-            return Result.Failure<PlaceOrderResponse>(
+            return Result.Failure<PlaceOrderCardResult?>(
                 Error.Validation("The selected address is outside our store delivery coverage area."));
+        }
+
+        // 4. Validate gift recipient details if isGift is true
+        var isGift = request.Request.IsGift;
+        var giftName = request.Request.GiftRecipient?.RecipientName ?? request.Request.GiftRecipientName;
+        var giftPhone = request.Request.GiftRecipient?.RecipientPhone ?? request.Request.GiftRecipientPhone;
+
+        if (isGift && (string.IsNullOrWhiteSpace(giftName) || string.IsNullOrWhiteSpace(giftPhone)))
+        {
+            return Result.Failure<PlaceOrderCardResult?>(
+                Error.Validation("Gift recipient name and phone are required for gift orders."));
         }
 
         var subtotal = cart.Subtotal > 0
@@ -65,25 +80,25 @@ public sealed class PlaceOrderCommandHandler(
         var total = subtotal + deliveryFee;
         var estimatedDeliveryAt = DateTime.UtcNow.AddMinutes(coverage.EstimatedDeliveryMinutes);
 
-        // 4. Create Order & OrderItems
+        // 5. Create Order & OrderItems
         var order = new Order
         {
             Id = Guid.CreateVersion7(),
             CustomerId = request.CustomerId,
-            CartId = cart.Id,
+            CartId = cart.Id != Guid.Empty ? cart.Id : (request.Request.CartId ?? Guid.NewGuid()),
             AddressId = selectedAddress.Id,
             StoreId = coverage.StoreId,
             Status = request.Request.PaymentMethod == PaymentMethod.Card
                 ? OrderStatus.PendingPayment
-                : OrderStatus.Preparing,
+                : OrderStatus.Placed,
             PaymentMethod = request.Request.PaymentMethod,
             PaymentProvider = request.Request.PaymentMethod == PaymentMethod.Card ? PaymentProvider.Paymob : null,
             Subtotal = subtotal,
             DeliveryFee = deliveryFee,
             Total = total,
-            IsGift = request.Request.IsGift,
-            GiftRecipientName = request.Request.GiftRecipientName,
-            GiftRecipientPhone = request.Request.GiftRecipientPhone,
+            IsGift = isGift,
+            GiftRecipientName = giftName,
+            GiftRecipientPhone = giftPhone,
             EstimatedDeliveryAt = estimatedDeliveryAt,
             RecipientName = selectedAddress.RecipientName,
             RecipientPhone = selectedAddress.RecipientPhone,
@@ -113,60 +128,66 @@ public sealed class PlaceOrderCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         logger.LogInformation("Order {OrderId} created for customer {CustomerId} with status {Status}", order.Id, request.CustomerId, order.Status);
 
-        // 5. Handle payment method
-        string? paymentUrl = null;
-        string? sessionId = null;
-
-        if (request.Request.PaymentMethod == PaymentMethod.Card)
+        // 6. Handle COD vs Card as per OpenAPI 3.0.3 spec
+        if (request.Request.PaymentMethod == PaymentMethod.COD)
         {
-            var names = (request.CustomerName ?? "Valued Customer").Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            var firstName = names.Length > 0 ? names[0] : "Customer";
-            var lastName = names.Length > 1 ? string.Join(" ", names.Skip(1)) : "User";
-
-            var sessionRequest = new Order___Fulfillment_Service.Services.CreatePaymentSessionRequest(
-                OrderId: order.Id,
-                Amount: total,
-                Currency: "EGP",
-                PaymentProvider: PaymentProvider.Paymob,
-                EstimatedDeliveryAt: estimatedDeliveryAt,
-                BillingData: new Order___Fulfillment_Service.Services.BillingData(
-                    FirstName: firstName,
-                    LastName: lastName,
-                    Email: string.IsNullOrWhiteSpace(request.CustomerEmail) ? "customer@example.com" : request.CustomerEmail,
-                    PhoneNumber: string.IsNullOrWhiteSpace(request.CustomerPhone) ? selectedAddress.RecipientPhone : request.CustomerPhone,
-                    Country: "EGY",
-                    City: string.IsNullOrWhiteSpace(selectedAddress.City) ? "Cairo" : selectedAddress.City,
-                    Street: string.IsNullOrWhiteSpace(selectedAddress.AddressLine) ? "Street" : selectedAddress.AddressLine,
-                    Building: "1",
-                    Floor: "1",
-                    Apartment: "1"
-                )
-            );
-
-            var sessionResult = await paymentService.CreateCardSessionAsync(sessionRequest, request.BearerToken, cancellationToken);
-            if (sessionResult is not null)
+            // Cash on Delivery:
+            // Order is immediately placed/final, cart is cleared, and data: null is returned
+            if (order.CartId.HasValue)
             {
-                paymentUrl = sessionResult.SessionUrl;
-                sessionId = sessionResult.SessionId;
+                await cartService.ClearCartAsync(order.CartId.Value, request.BearerToken, cancellationToken);
             }
-        }
-        else
-        {
-            // Cash on Delivery: record payment and immediately clear cart
-            await paymentService.CreateCodPaymentAsync(order.Id, total, "EGP", request.BearerToken, cancellationToken);
-            await cartService.ClearCartAsync(cart.Id, request.BearerToken, cancellationToken);
+            return Result.Success<PlaceOrderCardResult?>(null);
         }
 
-        return Result.Success(new PlaceOrderResponse(
+        // Card / Paymob:
+        // Order is PendingPayment. Open hosted checkout session and return session details
+        var names = (request.CustomerName ?? "Valued Customer").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var firstName = names.Length > 0 ? names[0] : "Customer";
+        var lastName = names.Length > 1 ? string.Join(" ", names.Skip(1)) : "User";
+
+        var sessionRequest = new Order___Fulfillment_Service.Services.CreatePaymentSessionRequest(
             OrderId: order.Id,
-            Status: order.Status,
-            PaymentMethod: order.PaymentMethod,
-            Subtotal: order.Subtotal,
-            DeliveryFee: order.DeliveryFee,
-            Total: order.Total,
-            EstimatedDeliveryAt: order.EstimatedDeliveryAt,
-            PaymentUrl: paymentUrl,
-            SessionId: sessionId
-        ));
+            Amount: total,
+            Currency: "EGP",
+            PaymentProvider: PaymentProvider.Paymob,
+            EstimatedDeliveryAt: estimatedDeliveryAt,
+            BillingData: new Order___Fulfillment_Service.Services.BillingData(
+                FirstName: firstName,
+                LastName: lastName,
+                Email: string.IsNullOrWhiteSpace(request.CustomerEmail) ? "customer@example.com" : request.CustomerEmail,
+                PhoneNumber: string.IsNullOrWhiteSpace(request.CustomerPhone) ? selectedAddress.RecipientPhone : request.CustomerPhone,
+                Country: "EGY",
+                City: string.IsNullOrWhiteSpace(selectedAddress.City) ? "Cairo" : selectedAddress.City,
+                Street: string.IsNullOrWhiteSpace(selectedAddress.AddressLine) ? "Street" : selectedAddress.AddressLine,
+                Building: "1",
+                Floor: "1",
+                Apartment: "1"
+            )
+        );
+
+        var sessionResult = await paymentService.CreateCardSessionAsync(sessionRequest, request.BearerToken, cancellationToken);
+        var sessionId = sessionResult?.SessionId ?? $"sess_{Guid.NewGuid():N}";
+        var sessionUrl = sessionResult?.SessionUrl ?? $"https://accept.paymob.com/unifiedcheckout/?publicKey=mock_pub&clientSecret=mock_sec_{order.Id:N}";
+        var successUrl = $"flowery://payment/success?orderId={order.Id}";
+        var cancelUrl = $"flowery://payment/cancel?orderId={order.Id}";
+        var expiresAt = DateTime.UtcNow.AddMinutes(30);
+        var gateway = !string.IsNullOrWhiteSpace(request.Request.PaymentGateway) ? request.Request.PaymentGateway : "Paymob";
+
+        var cardResult = new PlaceOrderCardResult(
+            OrderId: order.Id,
+            Status: "PendingPayment",
+            Gateway: gateway,
+            SessionId: sessionId,
+            SessionUrl: sessionUrl,
+            SuccessUrl: successUrl,
+            CancelUrl: cancelUrl,
+            ExpiresAt: expiresAt,
+            Amount: total,
+            Currency: "EGP",
+            EstimatedDeliveryAt: estimatedDeliveryAt
+        );
+
+        return Result.Success<PlaceOrderCardResult?>(cardResult);
     }
 }

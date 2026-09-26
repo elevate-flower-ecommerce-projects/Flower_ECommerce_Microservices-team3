@@ -27,7 +27,7 @@ public sealed class EstimateDeliveryQueryHandler : IRequestHandler<EstimateDeliv
         if (address is null)
         {
             return Result.Failure<EstimateDeliveryResponse>(
-                Error.NotFound("Address not found."));
+                Error.NotFound("Address not found or does not belong to you."));
         }
 
         // 2. Check store coverage
@@ -39,12 +39,15 @@ public sealed class EstimateDeliveryQueryHandler : IRequestHandler<EstimateDeliv
         if (coverage is null || !coverage.IsServiceable)
         {
             return Result.Failure<EstimateDeliveryResponse>(
-                Error.Validation("Delivery is not available to this address. Please choose another address.", "addressId"));
+                Error.Validation("Address is outside any store's coverage area.", "addressId"));
         }
 
         // 3. Compute estimated delivery timestamp
-        var estimatedDeliveryAt = DateTime.UtcNow.AddMinutes(coverage.EstimatedDeliveryMinutes).ToString("g");
+        var estimatedDeliveryAt = DateTime.UtcNow.AddMinutes(coverage.EstimatedDeliveryMinutes);
 
-        return Result.Success(new EstimateDeliveryResponse(estimatedDeliveryAt));
+        return Result.Success(new EstimateDeliveryResponse(
+            DeliveryFee: coverage.DeliveryFee,
+            EstimatedDeliveryAt: estimatedDeliveryAt
+        ));
     }
 }

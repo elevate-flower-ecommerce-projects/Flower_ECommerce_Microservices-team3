@@ -8,6 +8,7 @@ using Payment_Service.Application.Abstractions;
 using Payment_Service.Features;
 using Payment_Service.Features.Commands.CreateCheckoutSession;
 using Payment_Service.Features.Commands.HandlePaymentWebhook;
+using Payment_Service.Features.Queries.PaymentStatus;
 using Payment_Service.Infrastructure;
 using Payment_Service.Infrastructure.Paymob;
 using Payment_Service.Persistence;
@@ -149,5 +150,6 @@ app.MapGet(
 app.MapCreateCheckoutSession();
 app.MapCreateCodPayment();
 app.MapHandlePaymentWebhook();
+app.MapPaymentStatusEndpoints();
 
 await app.RunAsync();

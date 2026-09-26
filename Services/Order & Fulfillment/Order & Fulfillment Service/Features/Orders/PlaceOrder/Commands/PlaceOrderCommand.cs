@@ -11,4 +11,4 @@ public sealed record PlaceOrderCommand(
     string CustomerPhone,
     string BearerToken,
     PlaceOrderRequest Request
-) : IRequest<Result<PlaceOrderResponse>>;
+) : IRequest<Result<PlaceOrderCardResult?>>;

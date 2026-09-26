@@ -23,12 +23,14 @@ public sealed class GetCheckoutDetailsQueryHandler : IRequestHandler<GetCheckout
         CancellationToken cancellationToken)
     {
         // 1. Concurrent parallel fetch for user cart and user addresses (Task.WhenAll)
-        var cartTask = _cartService.GetUserCartAsync(request.BearerToken, cancellationToken);
+        var cartTask = request.CartId.HasValue && request.CartId.Value != Guid.Empty
+            ? _cartService.GetCartByIdAsync(request.CartId.Value, request.BearerToken, cancellationToken)
+            : _cartService.GetUserCartAsync(request.BearerToken, cancellationToken);
         var addressesTask = _addressService.GetUserAddressesAsync(request.BearerToken, cancellationToken);
 
         await Task.WhenAll(cartTask, addressesTask);
 
-        var cart = await cartTask;
+        var cart = await cartTask ?? await _cartService.GetUserCartAsync(request.BearerToken, cancellationToken);
         var addresses = await addressesTask;
 
         // 2. Validate Cart
@@ -44,8 +46,9 @@ public sealed class GetCheckoutDetailsQueryHandler : IRequestHandler<GetCheckout
 
         // 3. Resolve default address & store coverage
         var defaultAddress = addresses.FirstOrDefault(a => a.IsDefault) ?? addresses.FirstOrDefault();
-        decimal deliveryFee = 0.00m;
-        string? estimatedDeliveryAt = null;
+        decimal? deliveryFee = null;
+        DateTime? estimatedDeliveryAt = null;
+        bool isServiceable = false;
 
         if (defaultAddress is not null)
         {
@@ -56,14 +59,19 @@ public sealed class GetCheckoutDetailsQueryHandler : IRequestHandler<GetCheckout
 
             if (coverage is not null && coverage.IsServiceable)
             {
+                isServiceable = true;
                 deliveryFee = coverage.DeliveryFee;
-                estimatedDeliveryAt = DateTime.UtcNow.AddMinutes(coverage.EstimatedDeliveryMinutes).ToString("g");
+                estimatedDeliveryAt = DateTime.UtcNow.AddMinutes(coverage.EstimatedDeliveryMinutes);
             }
         }
 
-        var total = subtotal + deliveryFee;
+        var total = subtotal + (deliveryFee ?? 0m);
+        var cartId = cart.Id != Guid.Empty ? cart.Id : (request.CartId ?? Guid.NewGuid());
 
         var response = new CheckoutDetailsResponse(
+            CartId: cartId,
+            AddressId: defaultAddress?.Id,
+            IsServiceable: isServiceable,
             Subtotal: subtotal,
             DeliveryFee: deliveryFee,
             Total: total,

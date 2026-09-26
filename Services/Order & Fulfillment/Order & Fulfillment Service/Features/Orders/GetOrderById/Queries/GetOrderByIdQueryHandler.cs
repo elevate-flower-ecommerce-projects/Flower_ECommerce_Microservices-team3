@@ -9,14 +9,13 @@ using Order___Fulfillment_Service.Features.Orders.GetOrderById.DTOs;
 namespace Order___Fulfillment_Service.Features.Orders.GetOrderById.Queries
 {
     public sealed class GetOrderByIdQueryHandler(
-    IGenericRepository<Order> orderRepository)
-    : IRequestHandler<GetOrderByIdQuery, Result<OrderDetailDto>>
+        IGenericRepository<Order> orderRepository)
+        : IRequestHandler<GetOrderByIdQuery, Result<OrderDetailDto>>
     {
         public async Task<Result<OrderDetailDto>> Handle(
             GetOrderByIdQuery request,
             CancellationToken cancellationToken)
         {
-           
             var order = await orderRepository.GetQueryable()
                 .AsNoTracking()
                 .Where(o => o.Id == request.OrderId
@@ -26,7 +25,7 @@ namespace Order___Fulfillment_Service.Features.Orders.GetOrderById.Queries
                     o.Id,
                     o.Status,
                     o.PaymentMethod,
-                    o.PaymentProvider,
+                    o.PaymentProvider != null ? o.PaymentProvider.ToString() : null,
                     o.Items.OrderBy(i => i.ProductName)
                            .Select(i => new OrderItemDto(
                                i.ProductId,
@@ -49,12 +48,13 @@ namespace Order___Fulfillment_Service.Features.Orders.GetOrderById.Queries
                     o.EstimatedDeliveryAt,
                     o.CreatedAt))
                 .FirstOrDefaultAsync(cancellationToken);
-           
+
             if (order is null)
             {
                 return Result.Failure<OrderDetailDto>(
                     Error.NotFound("Order not found."));
             }
+
             return Result.Success(order);
         }
     }

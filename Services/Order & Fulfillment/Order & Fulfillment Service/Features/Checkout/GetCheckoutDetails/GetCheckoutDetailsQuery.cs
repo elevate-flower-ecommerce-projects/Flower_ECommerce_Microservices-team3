@@ -5,5 +5,6 @@ namespace Order___Fulfillment_Service.Features.Checkout.GetCheckoutDetails;
 
 public sealed record GetCheckoutDetailsQuery(
     Guid CustomerId,
-    string? BearerToken = null
+    string? BearerToken = null,
+    Guid? CartId = null
 ) : IRequest<Result<CheckoutDetailsResponse>>;

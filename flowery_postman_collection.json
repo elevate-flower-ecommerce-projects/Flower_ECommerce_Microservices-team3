@@ -1663,13 +1663,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/checkout/details",
+              "raw": "{{baseUrl}}/checkout/details?cartId={{cartId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "checkout",
                 "details"
+              ],
+              "query": [
+                {
+                  "key": "cartId",
+                  "value": "{{cartId}}",
+                  "disabled": true,
+                  "description": "Optional cart ID"
+                }
               ]
             },
             "description": "Returns comprehensive checkout details for the authenticated customer: live cart subtotal, default delivery address, nearest covering store, delivery fee, grand total, estimated delivery time (ETA), supported payment methods, and gift options."
@@ -1739,18 +1747,19 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"addressId\": \"{{addressId}}\",\n  \"paymentMethod\": \"COD\",\n  \"notes\": \"Please ring the bell upon arrival\",\n  \"customerPhone\": \"+201012345678\"\n}"
+              "raw": "{\n  \"addressId\": \"{{addressId}}\",\n  \"paymentMethod\": \"COD\",\n  \"notes\": \"Please leave at the door\",\n  \"isGift\": false\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/orders",
+              "raw": "{{baseUrl}}/orders/place",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "orders"
+                "orders",
+                "place"
               ]
             },
-            "description": "Places an order using Cash on Delivery (COD). Validates cart and delivery coverage, calculates distance and fee, takes an order snapshot, transitions order to Preparing, and clears the cart."
+            "description": "Unified place order for Cash on Delivery (COD). Cart is cleared, order is placed immediately with status Placed, and data is returned as null with HTTP 201 Created."
           }
         },
         {
@@ -1776,18 +1785,19 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"addressId\": \"{{addressId}}\",\n  \"paymentMethod\": \"Card\",\n  \"notes\": \"Handle flowers with care\",\n  \"customerPhone\": \"+201012345678\"\n}"
+              "raw": "{\n  \"addressId\": \"{{addressId}}\",\n  \"paymentMethod\": \"Card\",\n  \"paymentGateway\": \"Paymob\",\n  \"notes\": \"Handle flowers with care\",\n  \"isGift\": true,\n  \"giftRecipientName\": \"Sara\",\n  \"giftRecipientPhone\": \"+201012345678\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/orders",
+              "raw": "{{baseUrl}}/orders/place",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "orders"
+                "orders",
+                "place"
               ]
             },
-            "description": "Places an order using Credit Card (Paymob). Validates cart and delivery coverage, creates a Paymob checkout intention session, sets order to PendingPayment, and returns the paymentUrl to redirect the user to."
+            "description": "Unified place order for Card (Paymob). Persists order as PendingPayment, creates a Paymob hosted checkout session, and returns sessionUrl and sessionId for client redirection."
           }
         },
         {
@@ -2022,12 +2032,11 @@
               "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"amount\": 250.00,\n  \"currency\": \"EGP\",\n  \"customerEmail\": \"customer@example.com\",\n  \"customerFirstName\": \"Ahmed\",\n  \"customerLastName\": \"Ali\",\n  \"customerPhone\": \"+201012345678\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/payment/payments/checkout-session",
+              "raw": "{{baseUrl}}/payments/checkout-session",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "payment",
                 "payments",
                 "checkout-session"
               ]
@@ -2061,17 +2070,92 @@
               "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"amount\": 250.00,\n  \"currency\": \"EGP\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/payment/payments/cod",
+              "raw": "{{baseUrl}}/payments/cod",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "payment",
                 "payments",
                 "cod"
               ]
             },
             "description": "Records a Cash on Delivery (COD) payment initiation for an order, setting status to Pending until driver collects payment upon delivery."
+          }
+        },
+        {
+          "name": "Get Payment Status by Order ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/orders/:orderId/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "orders",
+                ":orderId",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the order to check payment status for"
+                }
+              ]
+            },
+            "description": "Polls the current payment status for a specific order. Used by client apps when returning from Paymob checkout redirect."
+          }
+        },
+        {
+          "name": "Retry Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/orders/:orderId/retry",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "orders",
+                ":orderId",
+                "retry"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the order to retry card payment for"
+                }
+              ]
+            },
+            "description": "Generates a fresh Paymob checkout session for an order whose previous card payment attempt failed, was cancelled, or expired."
           }
         },
         {
@@ -2090,14 +2174,11 @@
               "raw": "{\n  \"type\": \"TRANSACTION\",\n  \"obj\": {\n    \"id\": 123456789,\n    \"success\": true,\n    \"pending\": false,\n    \"amount_cents\": 25000,\n    \"currency\": \"EGP\",\n    \"order\": {\n      \"id\": 987654321\n    },\n    \"data\": {\n      \"message\": \"Approved\"\n    },\n    \"is_refunded\": false,\n    \"is_voided\": false\n  }\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/payment/api/v1/payments/webhook",
+              "raw": "{{baseUrl}}/payments/webhook",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "payment",
-                "api",
-                "v1",
                 "payments",
                 "webhook"
               ]
