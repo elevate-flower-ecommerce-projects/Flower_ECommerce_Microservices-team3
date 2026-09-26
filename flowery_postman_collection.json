@@ -65,6 +65,12 @@
       "value": "01a03975-5bd9-7db4-8e83-599af35ee26c",
       "type": "string",
       "description": "Driver ID for driver profile and fulfillment operations"
+    },
+    {
+      "key": "cartId",
+      "value": "",
+      "type": "string",
+      "description": "Cart ID for cart and checkout operations"
     }
   ],
   "item": [
