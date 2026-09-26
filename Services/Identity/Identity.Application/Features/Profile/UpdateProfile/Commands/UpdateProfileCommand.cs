@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Identity.Application.Features.Profile.DTOs;
 using Identity.Domain.Enums;
 using MediatR;
@@ -13,7 +13,8 @@ namespace Identity.Application.Features.Profile.UpdateProfile.Commands
     string? Email,
     string? Phone,
     Gender? Gender,
-    IFormFile? Photo
+    IFormFile? Photo,
+    string? PhotoUrl = null
     ) : IRequest<Result<ProfileResponseDTO>>;
 }
 

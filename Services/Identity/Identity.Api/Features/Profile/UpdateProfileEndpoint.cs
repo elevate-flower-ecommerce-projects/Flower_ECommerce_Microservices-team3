@@ -15,6 +15,7 @@ public class UpdateProfileRequest
     public string? Phone { get; set; }
     public Gender? Gender { get; set; }
     public IFormFile? Photo { get; set; }
+    public string? PhotoUrl { get; set; }
 }
 
 public static class UpdateProfileEndpoint
@@ -38,6 +39,7 @@ public static class UpdateProfileEndpoint
             string? phone = null;
             Gender? gender = null;
             IFormFile? photo = null;
+            string? photoUrl = null;
 
             if (context.Request.HasFormContentType)
             {
@@ -45,6 +47,8 @@ public static class UpdateProfileEndpoint
                 fullName = form["fullName"].FirstOrDefault() ?? form["FullName"].FirstOrDefault();
                 email = form["email"].FirstOrDefault() ?? form["Email"].FirstOrDefault();
                 phone = form["phone"].FirstOrDefault() ?? form["Phone"].FirstOrDefault();
+                photoUrl = form["photoUrl"].FirstOrDefault() ?? form["PhotoUrl"].FirstOrDefault()
+                           ?? form["photo"].FirstOrDefault() ?? form["Photo"].FirstOrDefault();
 
                 var genderVal = form["gender"].FirstOrDefault() ?? form["Gender"].FirstOrDefault();
                 if (!string.IsNullOrWhiteSpace(genderVal))
@@ -61,6 +65,14 @@ public static class UpdateProfileEndpoint
 
                 photo = form.Files.GetFile("photo")
                      ?? form.Files.GetFile("Photo")
+                     ?? form.Files.GetFile("image")
+                     ?? form.Files.GetFile("Image")
+                     ?? form.Files.GetFile("file")
+                     ?? form.Files.GetFile("File")
+                     ?? form.Files.GetFile("profilePicture")
+                     ?? form.Files.GetFile("ProfilePicture")
+                     ?? form.Files.GetFile("avatar")
+                     ?? form.Files.GetFile("Avatar")
                      ?? (form.Files.Count > 0 ? form.Files[0] : null);
             }
             else if (context.Request.HasJsonContentType())
@@ -72,6 +84,7 @@ public static class UpdateProfileEndpoint
                     email = jsonBody.Email;
                     phone = jsonBody.Phone;
                     gender = jsonBody.Gender;
+                    photoUrl = jsonBody.PhotoUrl;
                 }
             }
 
@@ -81,7 +94,8 @@ public static class UpdateProfileEndpoint
                 email,
                 phone,
                 gender,
-                photo
+                photo,
+                photoUrl
             );
 
             var result = await mediator.Send(command, cancellationToken);
@@ -102,7 +116,14 @@ public static class UpdateProfileEndpoint
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status401Unauthorized);
 
+        app.MapPatch("/api/users/UpdateProfile", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
         app.MapPut("/api/users/profile", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
+        app.MapPatch("/api/users/profile", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
         app.MapPut("/api/v1/users/profile", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
+        app.MapPatch("/api/v1/users/profile", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
+        app.MapPut("/api/users/me", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
+        app.MapPatch("/api/users/me", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
+        app.MapPost("/api/users/profile/picture", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
+        app.MapPost("/api/users/UpdateProfilePicture", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
     }
 }

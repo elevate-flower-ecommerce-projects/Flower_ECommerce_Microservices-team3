@@ -185,6 +185,11 @@ namespace Identity.Api
                 // Fallback if environment directory permissions are restricted
             }
 
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.All
+            });
+
             app.UseStaticFiles();
             app.UseExceptionHandler();
 

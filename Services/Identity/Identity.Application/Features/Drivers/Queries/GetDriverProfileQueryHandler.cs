@@ -5,25 +5,31 @@ using Identity.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Identity.Application.Interfaces;
+
 namespace Identity.Application.Features.Drivers.Queries;
 
 public sealed class GetDriverProfileQueryHandler(
-    IGenericRepository<User> userRepository)
+    IGenericRepository<User> userRepository,
+    IFileService fileService)
     : IRequestHandler<GetDriverProfileQuery, DriverProfileResponse?>
 {
     public async Task<DriverProfileResponse?> Handle(
         GetDriverProfileQuery request,
         CancellationToken cancellationToken)
     {
-        return await userRepository.GetQueryable()
+        var driver = await userRepository.GetQueryable()
             .AsNoTracking()
             .Where(u => u.Id == request.DriverId && u.Role == UserRole.Driver && u.DeletedAt == null)
-            .Select(u => new DriverProfileResponse(
-                u.Id,
-                u.FirstName,
-                u.LastName,
-                u.Phone,
-                u.PhotoUrl))
             .FirstOrDefaultAsync(cancellationToken);
+
+        if (driver is null) return null;
+
+        return new DriverProfileResponse(
+            driver.Id,
+            driver.FirstName,
+            driver.LastName,
+            driver.Phone,
+            fileService.GetPublicUrl(driver.PhotoUrl));
     }
 }

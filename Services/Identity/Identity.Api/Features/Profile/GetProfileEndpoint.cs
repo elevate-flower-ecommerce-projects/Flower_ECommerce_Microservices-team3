@@ -1,4 +1,4 @@
-﻿using Identity.Application.Features.Profile.GetProfile.Queries;
+using Identity.Application.Features.Profile.GetProfile.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -11,7 +11,7 @@ public static class GetProfileEndpoint
 {
     public static void MapGetProfileEndpoint(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/users/GetProfile", async (HttpContext context, IMediator mediator) =>
+        var handler = async (HttpContext context, IMediator mediator) =>
         {
             var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -26,7 +26,21 @@ public static class GetProfileEndpoint
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.NotFound(result.Error);
-        })
-        .RequireAuthorization();
+        };
+
+        app.MapGet("/api/users/GetProfile", handler)
+            .RequireAuthorization()
+            .WithName("GetProfile")
+            .WithTags("User Profile")
+            .WithSummary("Get Current User Profile")
+            .Produces<Identity.Application.Features.Profile.DTOs.ProfileResponseDTO>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound);
+
+        app.MapGet("/api/users/profile", handler).ExcludeFromDescription().RequireAuthorization();
+        app.MapGet("/api/v1/users/profile", handler).ExcludeFromDescription().RequireAuthorization();
+        app.MapGet("/api/users/me", handler).ExcludeFromDescription().RequireAuthorization();
+        app.MapGet("/users/me/profile", handler).ExcludeFromDescription().RequireAuthorization();
+        app.MapGet("/users/me", handler).ExcludeFromDescription().RequireAuthorization();
     }
 }
