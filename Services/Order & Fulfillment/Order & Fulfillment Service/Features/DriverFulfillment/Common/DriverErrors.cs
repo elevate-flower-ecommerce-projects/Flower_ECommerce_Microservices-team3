@@ -21,4 +21,7 @@ public static class DriverErrors
 
     public static Error DriverUnauthorized()
         => Error.Unauthorized("Driver is not authenticated.");
+
+    public static Error OrderAwaitingCustomerConfirmation()
+        => Error.Conflict("Order is awaiting customer delivery confirmation. The customer must confirm receipt.");
 }

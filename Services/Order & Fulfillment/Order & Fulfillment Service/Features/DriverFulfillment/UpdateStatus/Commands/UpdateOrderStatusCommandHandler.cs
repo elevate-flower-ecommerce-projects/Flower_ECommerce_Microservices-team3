@@ -38,13 +38,22 @@ public sealed class UpdateOrderStatusCommandHandler(
                 return Result.Failure(DriverErrors.OrderNotAssignedToYou());
             }
 
-            // 3. Map DriverStatusUpdate to OrderStatus
+            // 3. Check if order is already awaiting customer confirmation
+            if (orderInfo.Status == OrderStatus.AwaitingDeliveryConfirmation)
+            {
+                return Result.Failure(DriverErrors.OrderAwaitingCustomerConfirmation());
+            }
+
+            // 4. Map DriverStatusUpdate to OrderStatus
+            // Note: Drivers cannot directly mark an order as Delivered.
+            // When a driver completes delivery handover (Delivered or AwaitingDeliveryConfirmation),
+            // the order transitions to AwaitingDeliveryConfirmation. Only the customer can finalize to Delivered.
             var targetStatus = request.NewStatus switch
             {
                 DriverStatusUpdate.PickedUp => OrderStatus.PickedUp,
                 DriverStatusUpdate.OutForDelivery => OrderStatus.OutForDelivery,
                 DriverStatusUpdate.AwaitingDeliveryConfirmation => OrderStatus.AwaitingDeliveryConfirmation,
-                DriverStatusUpdate.Delivered => OrderStatus.Delivered,
+                DriverStatusUpdate.Delivered => OrderStatus.AwaitingDeliveryConfirmation,
                 _ => (OrderStatus?)null
             };
 
@@ -54,15 +63,13 @@ public sealed class UpdateOrderStatusCommandHandler(
                     orderInfo.Status.ToString(), request.NewStatus.ToString()));
             }
 
-            // 4. Validate allowed state transitions
+            // 5. Validate allowed state transitions
             var isValidTransition = (orderInfo.Status, targetStatus.Value) switch
             {
                 (OrderStatus.Placed, OrderStatus.PickedUp) => true,
                 (OrderStatus.Preparing, OrderStatus.PickedUp) => true,
                 (OrderStatus.PickedUp, OrderStatus.OutForDelivery) => true,
                 (OrderStatus.OutForDelivery, OrderStatus.AwaitingDeliveryConfirmation) => true,
-                (OrderStatus.OutForDelivery, OrderStatus.Delivered) => true,
-                (OrderStatus.AwaitingDeliveryConfirmation, OrderStatus.Delivered) => true,
                 _ => false
             };
 

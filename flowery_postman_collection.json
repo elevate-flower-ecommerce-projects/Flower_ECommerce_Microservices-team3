@@ -212,6 +212,15 @@
                   "if (token) {",
                   "    pm.collectionVariables.set('bearerToken', token);",
                   "    console.log('Saved accessToken to collection variable bearerToken');",
+                  "    var roles = (jsonData && jsonData.data && jsonData.data.roles) ? jsonData.data.roles : (jsonData ? jsonData.roles : []);",
+                  "    var email = pm.request.body && pm.request.body.raw ? JSON.parse(pm.request.body.raw).email : '';",
+                  "    if ((roles && roles.includes('Driver')) || (email && email.toLowerCase().includes('driver'))) {",
+                  "        pm.collectionVariables.set('driverBearerToken', token);",
+                  "        console.log('Saved driver accessToken to driverBearerToken');",
+                  "    } else {",
+                  "        pm.collectionVariables.set('customerBearerToken', token);",
+                  "        console.log('Saved customer accessToken to customerBearerToken');",
+                  "    }",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -1929,6 +1938,20 @@
         },
         {
           "name": "Confirm Order Delivery",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var customerToken = pm.collectionVariables.get('customerBearerToken');",
+                  "if (customerToken) {",
+                  "    pm.request.headers.upsert({ key: 'Authorization', value: 'Bearer ' + customerToken });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -2417,6 +2440,20 @@
         },
         {
           "name": "Update Order Status (Driver)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var driverToken = pm.collectionVariables.get('driverBearerToken');",
+                  "if (driverToken) {",
+                  "    pm.request.headers.upsert({ key: 'Authorization', value: 'Bearer ' + driverToken });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PATCH",
             "header": [
@@ -2459,7 +2496,7 @@
                 }
               ]
             },
-            "description": "Transitions the order delivery status. Valid driver transitions: PickedUp, OutForDelivery, AwaitingDeliveryConfirmation, Delivered."
+            "description": "Transitions the order delivery status. Valid driver flow: PickedUp -> OutForDelivery -> AwaitingDeliveryConfirmation. Note: When driver completes handover (sending AwaitingDeliveryConfirmation or Delivered), the order enters AwaitingDeliveryConfirmation and remains ACTIVE for the driver. The driver cannot claim another order until the customer confirms delivery via POST /orders/:orderId/confirm-delivery (which sets Delivered)."
           }
         },
         {
