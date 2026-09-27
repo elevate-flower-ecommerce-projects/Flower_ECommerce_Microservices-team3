@@ -9,7 +9,7 @@ namespace Payment_Service.Infrastructure.Paymob
         public string ApiKey { get; set; } = string.Empty;
         public string? HmacSecret { get; set; }
         public string Currency { get; set; } = "EGP";
-        public int IntegrationId { get; set; }
+        public int IntegrationId { get; set; } = 5950589;
         public string NotificationUrl { get; set; } = string.Empty;
     }
 }
