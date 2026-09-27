@@ -36,9 +36,27 @@ foreach (var secretsPath in secretsCandidates)
             var parts = trimmed.Split('=', 2);
             if (parts.Length == 2)
             {
-                var key = parts[0].Trim().Replace("__", ":");
+                var rawKey = parts[0].Trim();
+                var key = rawKey.Replace("__", ":");
                 var val = parts[1].Trim().Trim('"').Trim('\'');
                 builder.Configuration[key] = val;
+
+                if (rawKey.StartsWith("PAYMOB_", StringComparison.OrdinalIgnoreCase))
+                {
+                    var sub = rawKey.Substring(7).ToLowerInvariant();
+                    var mappedKey = sub switch
+                    {
+                        "base_url" => "Paymob:BaseUrl",
+                        "api_key" => "Paymob:ApiKey",
+                        "secret_key" => "Paymob:SecretKey",
+                        "public_key" => "Paymob:PublicKey",
+                        "hmac_secret" => "Paymob:HmacSecret",
+                        "integration_id" => "Paymob:IntegrationId",
+                        "currency" => "Paymob:Currency",
+                        _ => null
+                    };
+                    if (mappedKey != null) builder.Configuration[mappedKey] = val;
+                }
             }
         }
         break;
@@ -72,7 +90,11 @@ builder.Services.Configure<PaymobOptions>(
 
 builder.Services.AddHttpClient<IPaymobClient, PaymobClient>(client =>
 {
-    var baseUrl = builder.Configuration["Paymob:BaseUrl"] ?? "https://accept.paymob.com/api/";
+    var baseUrl = builder.Configuration["Paymob:BaseUrl"] ?? "https://accept.paymob.com/";
+    if (baseUrl.EndsWith("/api/", StringComparison.OrdinalIgnoreCase) || baseUrl.EndsWith("/api", StringComparison.OrdinalIgnoreCase))
+    {
+        baseUrl = baseUrl.Substring(0, baseUrl.LastIndexOf("/api", StringComparison.OrdinalIgnoreCase)) + "/";
+    }
     if (!baseUrl.EndsWith('/'))
     {
         baseUrl += "/";
