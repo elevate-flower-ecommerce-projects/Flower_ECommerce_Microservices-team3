@@ -1,5 +1,5 @@
 using Blocks.Contracts.Common;
-using DomainError = Blocks.Domain.Errors.Error;
+using Blocks.Domain.Errors;
 using Identity.Application.Interfaces;
 using Identity.Domain.Entities;
 using Identity.Domain.Enums;
@@ -28,7 +28,7 @@ public sealed class SubmitDriverApplicationCommandHandler(
                 cancellationToken))
         {
             return Result.Failure<SubmitDriverApplicationResponse>(
-                DomainError.Conflict("AUTH_EMAIL_EXISTS"));
+                Error.Conflict("AUTH_EMAIL_EXISTS"));
         }
 
         // Check duplicate phone
@@ -39,7 +39,7 @@ public sealed class SubmitDriverApplicationCommandHandler(
                 cancellationToken))
         {
             return Result.Failure<SubmitDriverApplicationResponse>(
-                DomainError.Conflict("AUTH_PHONE_EXISTS"));
+                Error.Conflict("AUTH_PHONE_EXISTS"));
         }
 
         // Check duplicate National ID
@@ -48,7 +48,7 @@ public sealed class SubmitDriverApplicationCommandHandler(
                 cancellationToken))
         {
             return Result.Failure<SubmitDriverApplicationResponse>(
-                DomainError.Conflict("AUTH_NATIONAL_ID_EXISTS"));
+                Error.Conflict("AUTH_NATIONAL_ID_EXISTS"));
         }
 
         // Create User (Pending Driver)
