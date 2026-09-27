@@ -26,6 +26,7 @@ public sealed class GetVehicleHandler(IDriverRepository driverRepository)
         return Result.Success(
             new GetVehicleResponse(
                 driver.VehicleType,
-                driver.VehicleNumber));
+                driver.VehicleNumber,
+                driver.VehicleLicenceImage));
     }
 }

@@ -19,6 +19,7 @@ public sealed class GetVehicleTypesHandler
                 vehicleType.ToString()))
             .ToList();
 
-        return Result.Success();
+        return Task.FromResult(
+            Result.Success(vehicleTypes));
     }
 }

@@ -7,6 +7,7 @@ namespace Identity.Application.Features.Vehicle.GetVehicle
 {
     public sealed record GetVehicleResponse(
         VehicleType VehicleType,
-        string VehicleNumber
+        string VehicleNumber,
+        string? LicenseDocumentUrl
     );
 }

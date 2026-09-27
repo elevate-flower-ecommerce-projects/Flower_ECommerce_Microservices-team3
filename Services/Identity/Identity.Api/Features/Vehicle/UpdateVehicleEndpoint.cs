@@ -1,40 +1,42 @@
 ﻿using System.Security.Claims;
 using Identity.Application.Features.Vehicle.UpdateVehicle;
+using Identity.Domain.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Identity.Api.Features.Vehicle
+namespace Identity.Api.Features.Vehicle;
+
+public static class UpdateVehicleEndpoint
 {
-    public static class UpdateVehicleEndpoint
+    public static IEndpointRouteBuilder MapUpdateVehicleEndpoint(
+        this IEndpointRouteBuilder app)
     {
-        public static IEndpointRouteBuilder MapUpdateVehicleEndpoint(
-            this IEndpointRouteBuilder app)
-        {
-            app.MapPatch("/api/v1/drivers/me/vehicle",
-                async (
-                    UpdateVehicleRequest request,
-                    ClaimsPrincipal user,
-                    ISender sender,
-                    CancellationToken cancellationToken) =>
-                {
-                    var driverId = Guid.Parse(
-                        user.FindFirstValue(
-                            ClaimTypes.NameIdentifier)!);
+        app.MapPatch("/api/v1/drivers/me/vehicle",
+            async (
+                [FromForm] VehicleType vehicleType,
+                [FromForm] string vehicleNumber,
+                IFormFile licenseDocument,
+                ClaimsPrincipal user,
+                ISender sender,
+                CancellationToken cancellationToken) =>
+            {
+                var driverId = Guid.Parse(
+                    user.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-                    var command = new UpdateVehicleCommand(
-                        driverId,
-                        request.VehicleType,
-                        request.VehicleNumber);
+                var command = new UpdateVehicleCommand(
+                    driverId,
+                    vehicleType,
+                    vehicleNumber,
+                    licenseDocument);
 
-                    var result = await sender.Send(
-                        command,
-                        cancellationToken);
+                return await sender.Send(
+                    command,
+                    cancellationToken);
+            })
+            .DisableAntiforgery()
+            .WithTags("Vehicle")
+            .RequireAuthorization("Driver");
 
-                    return result;
-                })
-                .WithTags("Vehicle")
-                .RequireAuthorization();
-
-            return app;
-        }
+        return app;
     }
 }
