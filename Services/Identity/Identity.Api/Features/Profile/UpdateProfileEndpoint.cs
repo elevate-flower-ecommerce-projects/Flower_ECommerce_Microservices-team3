@@ -1,4 +1,4 @@
-﻿using Identity.Application.Features.Profile.UpdateProfile.Commands;
+using Identity.Application.Features.Profile.UpdateProfile.Commands;
 using Identity.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -15,16 +15,17 @@ public class UpdateProfileRequest
     public string? Phone { get; set; }
     public Gender? Gender { get; set; }
     public IFormFile? Photo { get; set; }
+    public string? PhotoUrl { get; set; }
 }
 
 public static class UpdateProfileEndpoint
 {
     public static void MapUpdateProfileEndpoint(this IEndpointRouteBuilder app)
     {
-        app.MapPut("/api/users/UpdateProfile", async (
-            [AsParameters] UpdateProfileRequest request,
+        var handler = async (
             HttpContext context,
-            IMediator mediator) =>
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
         {
             var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -33,22 +34,96 @@ public static class UpdateProfileEndpoint
                 return Results.Unauthorized();
             }
 
+            string? fullName = null;
+            string? email = null;
+            string? phone = null;
+            Gender? gender = null;
+            IFormFile? photo = null;
+            string? photoUrl = null;
+
+            if (context.Request.HasFormContentType)
+            {
+                var form = await context.Request.ReadFormAsync(cancellationToken);
+                fullName = form["fullName"].FirstOrDefault() ?? form["FullName"].FirstOrDefault();
+                email = form["email"].FirstOrDefault() ?? form["Email"].FirstOrDefault();
+                phone = form["phone"].FirstOrDefault() ?? form["Phone"].FirstOrDefault();
+                photoUrl = form["photoUrl"].FirstOrDefault() ?? form["PhotoUrl"].FirstOrDefault()
+                           ?? form["photo"].FirstOrDefault() ?? form["Photo"].FirstOrDefault();
+
+                var genderVal = form["gender"].FirstOrDefault() ?? form["Gender"].FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(genderVal))
+                {
+                    if (int.TryParse(genderVal, out var gInt) && Enum.IsDefined(typeof(Gender), gInt))
+                    {
+                        gender = (Gender)gInt;
+                    }
+                    else if (Enum.TryParse<Gender>(genderVal, true, out var gParsed))
+                    {
+                        gender = gParsed;
+                    }
+                }
+
+                photo = form.Files.GetFile("photo")
+                     ?? form.Files.GetFile("Photo")
+                     ?? form.Files.GetFile("image")
+                     ?? form.Files.GetFile("Image")
+                     ?? form.Files.GetFile("file")
+                     ?? form.Files.GetFile("File")
+                     ?? form.Files.GetFile("profilePicture")
+                     ?? form.Files.GetFile("ProfilePicture")
+                     ?? form.Files.GetFile("avatar")
+                     ?? form.Files.GetFile("Avatar")
+                     ?? (form.Files.Count > 0 ? form.Files[0] : null);
+            }
+            else if (context.Request.HasJsonContentType())
+            {
+                var jsonBody = await context.Request.ReadFromJsonAsync<UpdateProfileRequest>(cancellationToken: cancellationToken);
+                if (jsonBody is not null)
+                {
+                    fullName = jsonBody.FullName;
+                    email = jsonBody.Email;
+                    phone = jsonBody.Phone;
+                    gender = jsonBody.Gender;
+                    photoUrl = jsonBody.PhotoUrl;
+                }
+            }
+
             var command = new UpdateProfileCommand(
                 userId,
-                request.FullName,
-                request.Email,
-                request.Phone,
-                request.Gender,
-                request.Photo
+                fullName,
+                email,
+                phone,
+                gender,
+                photo,
+                photoUrl
             );
 
-            var result = await mediator.Send(command);
+            var result = await mediator.Send(command, cancellationToken);
 
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(result.Error);
-        })
-        .RequireAuthorization()
-        .DisableAntiforgery();
+        };
+
+        app.MapPut("/api/users/UpdateProfile", handler)
+            .RequireAuthorization()
+            .DisableAntiforgery()
+            .WithName("UpdateProfile")
+            .WithTags("User Profile")
+            .WithSummary("Update User Profile")
+            .WithDescription("Updates user profile details (FullName, Email, Phone, Gender, Photo) using multipart/form-data or JSON.")
+            .Produces<Identity.Application.Features.Profile.DTOs.ProfileResponseDTO>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized);
+
+        app.MapPatch("/api/users/UpdateProfile", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
+        app.MapPut("/api/users/profile", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
+        app.MapPatch("/api/users/profile", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
+        app.MapPut("/api/v1/users/profile", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
+        app.MapPatch("/api/v1/users/profile", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
+        app.MapPut("/api/users/me", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
+        app.MapPatch("/api/users/me", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
+        app.MapPost("/api/users/profile/picture", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
+        app.MapPost("/api/users/UpdateProfilePicture", handler).ExcludeFromDescription().RequireAuthorization().DisableAntiforgery();
     }
 }

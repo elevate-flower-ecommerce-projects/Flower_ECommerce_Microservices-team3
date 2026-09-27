@@ -10,6 +10,13 @@ public class UserDevice : BaseEntity
 
     public string FcmToken { get; set; } = string.Empty;
 
+    public bool IsActive { get; set; } = true;
+
+    public bool NotificationsEnabled { get; set; } = true;
+
+    public DateTime? RefreshTokenExpiresAt { get; set; }
+
+
     public DateTime UpdatedAt { get; set; }
 
     public User User { get; set; } = null!;

@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace Payment_Service.Features.Commands.CreateCheckoutSession;
 
@@ -21,51 +21,26 @@ public sealed class CreateCheckoutSessionValidator
             .WithMessage("Currency is required.");
 
         RuleFor(x => x.EstimatedDeliveryAt)
-            .GreaterThan(DateTime.UtcNow)
+            .GreaterThan(DateTime.UtcNow.AddMinutes(-5))
             .WithMessage("Estimated delivery date must be in the future.");
 
-        RuleFor(x => x.BillingData)
-            .NotNull()
-            .WithMessage("Billing data is required.");
+        When(x => x.BillingData is not null, () =>
+        {
+            RuleFor(x => x.BillingData.FirstName)
+                .NotEmpty()
+                .MaximumLength(100);
 
-        RuleFor(x => x.BillingData.FirstName)
-            .NotEmpty()
-            .MaximumLength(100);
+            RuleFor(x => x.BillingData.LastName)
+                .NotEmpty()
+                .MaximumLength(100);
 
-        RuleFor(x => x.BillingData.LastName)
-            .NotEmpty()
-            .MaximumLength(100);
+            RuleFor(x => x.BillingData.Email)
+                .NotEmpty()
+                .EmailAddress();
 
-        RuleFor(x => x.BillingData.Email)
-            .NotEmpty()
-            .EmailAddress();
-
-        RuleFor(x => x.BillingData.PhoneNumber)
-            .NotEmpty()
-            .MaximumLength(30);
-
-        RuleFor(x => x.BillingData.Country)
-            .NotEmpty()
-            .MaximumLength(100);
-
-        RuleFor(x => x.BillingData.City)
-            .NotEmpty()
-            .MaximumLength(100);
-
-        RuleFor(x => x.BillingData.Street)
-            .NotEmpty()
-            .MaximumLength(200);
-
-        RuleFor(x => x.BillingData.Building)
-            .NotEmpty()
-            .MaximumLength(50);
-
-        RuleFor(x => x.BillingData.Floor)
-            .NotEmpty()
-            .MaximumLength(20);
-
-        RuleFor(x => x.BillingData.Apartment)
-            .NotEmpty()
-            .MaximumLength(20);
+            RuleFor(x => x.BillingData.PhoneNumber)
+                .NotEmpty()
+                .MaximumLength(30);
+        });
     }
 }

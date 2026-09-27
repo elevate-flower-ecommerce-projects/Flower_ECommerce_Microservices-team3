@@ -6,5 +6,6 @@ namespace Order___Fulfillment_Service.Features.Checkout.EstimateDelivery;
 public sealed record EstimateDeliveryQuery(
     Guid CustomerId,
     Guid AddressId,
-    string? BearerToken = null
+    string? BearerToken = null,
+    Guid? CartId = null
 ) : IRequest<Result<EstimateDeliveryResponse>>;

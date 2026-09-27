@@ -494,6 +494,19 @@ namespace Identity.Infrastructure.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(512)");
 
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("NotificationsEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<DateTime?>("RefreshTokenExpiresAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -512,6 +525,9 @@ namespace Identity.Infrastructure.Migrations
 
                     b.HasIndex("UserId", "UpdatedAt")
                         .HasDatabaseName("IX_UserDevices_UserId_UpdatedAt");
+
+                    b.HasIndex("UserId", "IsActive", "NotificationsEnabled")
+                        .HasDatabaseName("IX_UserDevices_UserId_IsActive_NotificationsEnabled");
 
                     b.ToTable("UserDevices", (string)null);
                 });

@@ -1,4 +1,5 @@
 ﻿using Blocks.Contracts.Common;
+using Cart_Service.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Cart_Service.Persistence

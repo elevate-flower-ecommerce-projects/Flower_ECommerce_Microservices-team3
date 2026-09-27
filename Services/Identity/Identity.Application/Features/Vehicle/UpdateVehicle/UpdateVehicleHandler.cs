@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Blocks.Domain.Errors;
 using Identity.Application.Features.Vehicle.UpdateVehicle;
 using Identity.Application.Interfaces;
@@ -8,6 +8,7 @@ namespace Identity.Application.Features.Drivers.Vehicle.UpdateVehicle;
 
 public sealed class UpdateVehicleHandler(
         IDriverRepository driverRepository,
+        IFileStorageService fileStorageService,
         IUnitOfWork unitOfWork)
     : IRequestHandler<UpdateVehicleCommand, Result>
 {
@@ -15,7 +16,7 @@ public sealed class UpdateVehicleHandler(
         UpdateVehicleCommand request,
         CancellationToken cancellationToken)
     {
-        var driver = await driverRepository.GetByIdAsync(
+        var driver = await driverRepository.GetByDriverOrUserIdAsync(
             request.DriverId,
             cancellationToken);
 
@@ -27,6 +28,14 @@ public sealed class UpdateVehicleHandler(
 
         driver.VehicleType = request.VehicleType;
         driver.VehicleNumber = request.VehicleNumber;
+
+        if (request.VehicleLicenceFile is not null && request.VehicleLicenceFile.Length > 0)
+        {
+            driver.VehicleLicenceImage = await fileStorageService.UploadAsync(
+                request.VehicleLicenceFile,
+                $"drivers/{driver.Id}/vehicle-licence",
+                cancellationToken);
+        }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

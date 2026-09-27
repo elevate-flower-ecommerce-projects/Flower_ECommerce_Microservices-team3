@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Blocks.Contracts.Interfaces;
@@ -14,6 +14,10 @@ namespace Identity.Application.Interfaces
 
         Task<Driver?> GetByIdAsNoTrackingAsync(
             Guid driverId,
+            CancellationToken cancellationToken = default);
+
+        Task<Driver?> GetByDriverOrUserIdAsync(
+            Guid id,
             CancellationToken cancellationToken = default);
     }
 }

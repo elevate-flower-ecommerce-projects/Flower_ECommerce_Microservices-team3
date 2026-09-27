@@ -14,12 +14,6 @@ namespace Order___Fulfillment_Service.Features.Orders.ConfirmDelivery.Commands
         IUnitOfWork unitOfWork)
         : IRequestHandler<ConfirmOrderDeliveryCommand, Result<string>>
     {
-        private static readonly OrderStatus[] ConfirmableStatuses =
-        [
-            OrderStatus.OutForDelivery,
-            OrderStatus.AwaitingDeliveryConfirmation
-        ];
-
         public async Task<Result<string>> Handle(
             ConfirmOrderDeliveryCommand request,
             CancellationToken cancellationToken)
@@ -37,13 +31,22 @@ namespace Order___Fulfillment_Service.Features.Orders.ConfirmDelivery.Commands
                 return Result.Failure<string>(Error.Forbidden("You are not authorized to confirm this order."));
             }
 
-            if (!ConfirmableStatuses.Contains(order.Status))
+           
+            if (order.Status != OrderStatus.AwaitingDeliveryConfirmation)
             {
                 return Result.Failure<string>(
                     Error.Validation($"Order cannot be confirmed in its current status ({order.Status})."));
             }
 
+            // Safety check: ensure a driver is assigned
+            if (!order.AssignedDriverId.HasValue)
+            {
+                return Result.Failure<string>(
+                    Error.Validation("Order cannot be confirmed without an assigned driver."));
+            }
+
             order.Status = OrderStatus.Delivered;
+            order.UpdatedAt = DateTime.UtcNow;
             orderRepository.Update(order);
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -51,3 +54,4 @@ namespace Order___Fulfillment_Service.Features.Orders.ConfirmDelivery.Commands
         }
     }
 }
+

@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Order___Fulfillment_Service.Entities.Enums;
 
 namespace Order___Fulfillment_Service.Services;
@@ -8,7 +9,11 @@ public sealed class PaymentServiceClient : IPaymentServiceClient
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<PaymentServiceClient> _logger;
-    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() }
+    };
 
     public PaymentServiceClient(HttpClient httpClient, ILogger<PaymentServiceClient> logger)
     {
@@ -47,6 +52,41 @@ public sealed class PaymentServiceClient : IPaymentServiceClient
         {
             _logger.LogError(ex, "Failed to call Payment service to create session for order {OrderId}", request.OrderId);
             return null;
+        }
+    }
+
+    public async Task<bool> CreateCodPaymentAsync(
+        Guid orderId,
+        decimal amount,
+        string currency = "EGP",
+        string? bearerToken = null,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/payments/cod")
+            {
+                Content = JsonContent.Create(new { orderId, amount, currency })
+            };
+
+            if (!string.IsNullOrWhiteSpace(bearerToken))
+            {
+                httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+            }
+
+            using var response = await _httpClient.SendAsync(httpRequest, ct);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Payment service returned status code {StatusCode} for COD order {OrderId}", (int)response.StatusCode, orderId);
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to call Payment service to create COD for order {OrderId}", orderId);
+            return false;
         }
     }
 

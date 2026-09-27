@@ -10,13 +10,18 @@ namespace Address___Store_Coverage_Service.Features.NearestCoveringStore
     {
         public static IEndpointRouteBuilder MapFindNearestCoveringStoreEndpoint(this IEndpointRouteBuilder app)
         {
-            app.MapGet("/api/stores/nearest", async (
-                [FromQuery] double latitude,
-                [FromQuery] double longitude,
+            var handler = async (
+                [FromQuery] double? latitude,
+                [FromQuery] double? longitude,
+                [FromQuery] double? lat,
+                [FromQuery] double? lng,
                 IMediator mediator,
                 CancellationToken ct) =>
             {
-                var result = await mediator.Send(new FindNearestCoveringStoreQuery(latitude, longitude), ct);
+                var resolvedLat = latitude ?? lat ?? 0;
+                var resolvedLng = longitude ?? lng ?? 0;
+
+                var result = await mediator.Send(new FindNearestCoveringStoreQuery(resolvedLat, resolvedLng), ct);
 
                 if (result.IsFailure)
                 {
@@ -26,10 +31,16 @@ namespace Address___Store_Coverage_Service.Features.NearestCoveringStore
                 }
 
                 return Results.Ok(ApiResponse<NearestStoreDto>.Ok(result.Value));
-            })
-            .WithName("FindNearestCoveringStore")
-            .WithTags("Stores")
-            .AllowAnonymous();
+            };
+
+            app.MapGet("/api/stores/nearest", handler)
+                .WithName("FindNearestCoveringStore")
+                .WithTags("Stores")
+                .AllowAnonymous();
+
+            app.MapGet("/api/stores/nearest-store", handler).AllowAnonymous().ExcludeFromDescription();
+            app.MapGet("/stores/nearest", handler).AllowAnonymous().ExcludeFromDescription();
+            app.MapGet("/stores/nearest-store", handler).AllowAnonymous().ExcludeFromDescription();
 
             return app;
         }

@@ -8,6 +8,7 @@ using Payment_Service.Application.Abstractions;
 using Payment_Service.Features;
 using Payment_Service.Features.Commands.CreateCheckoutSession;
 using Payment_Service.Features.Commands.HandlePaymentWebhook;
+using Payment_Service.Features.Queries.PaymentStatus;
 using Payment_Service.Infrastructure;
 using Payment_Service.Infrastructure.Paymob;
 using Payment_Service.Persistence;
@@ -50,6 +51,15 @@ builder.Services.AddHttpClient<IPaymobClient, PaymobClient>(client =>
     }
     client.BaseAddress = new Uri(baseUrl);
     client.Timeout = TimeSpan.FromSeconds(30);
+});
+
+builder.Services.AddHttpClient<IOrderServiceClient, OrderServiceClient>(client =>
+{
+    var orderUrl = builder.Configuration["OrderService:BaseUrl"]
+                ?? builder.Configuration["Services:Order"]
+                ?? "http://order-service:8080";
+    client.BaseAddress = new Uri(orderUrl);
+    client.Timeout = TimeSpan.FromSeconds(15);
 });
 
 // Repositories & Unit of Work
@@ -140,5 +150,6 @@ app.MapGet(
 app.MapCreateCheckoutSession();
 app.MapCreateCodPayment();
 app.MapHandlePaymentWebhook();
+app.MapPaymentStatusEndpoints();
 
 await app.RunAsync();

@@ -23,9 +23,8 @@ public sealed class GetActiveOrderQueryHandler(
         var rawOrder = await orderRepository.GetQueryable()
             .AsNoTracking()
             .Where(o => o.AssignedDriverId == request.DriverId
-                     && (o.Status == OrderStatus.PickedUp
-                      || o.Status == OrderStatus.OutForDelivery
-                      || o.Status == OrderStatus.AwaitingDeliveryConfirmation))
+                     && o.Status != OrderStatus.Delivered
+                     && o.Status != OrderStatus.Cancelled)
             .Select(o => new
             {
                 o.Id,

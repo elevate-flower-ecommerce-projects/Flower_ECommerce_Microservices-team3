@@ -98,7 +98,7 @@ public sealed class ProductRepository : GenericRepository<Product>, IProductRepo
                 p.Price,
                 null,
                 null,
-                false))
+                p.Status == ProductStatus.InStock))
             .ToListAsync(cancellationToken);
 
         var pagination = new PaginationParams
@@ -111,5 +111,16 @@ public sealed class ProductRepository : GenericRepository<Product>, IProductRepo
             items,
             totalCount,
             pagination);
+    }
+
+    public async Task<Product?> GetProductDetailsByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Products
+            .AsNoTracking()
+            .Include(p => p.Images)
+            .Include(p => p.Includes)
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 }

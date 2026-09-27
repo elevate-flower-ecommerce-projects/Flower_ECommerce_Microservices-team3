@@ -3,11 +3,12 @@ using Blocks.Domain.Errors;
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Blocks.Contracts.Http;
 
-public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
+public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IHostEnvironment env) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
@@ -49,7 +50,10 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             ),
             _ => (
                 StatusCodes.Status500InternalServerError,
-                ApiResponse<object>.Fail(Error.Internal("An unexpected error occurred."))
+                ApiResponse<object>.Fail(Error.Internal(
+                    env.IsDevelopment()
+                        ? $"{exception.GetType().Name}: {exception.Message}{(exception.InnerException != null ? " ---> " + exception.InnerException.Message : string.Empty)}"
+                        : "An unexpected error occurred."))
             )
         };
 

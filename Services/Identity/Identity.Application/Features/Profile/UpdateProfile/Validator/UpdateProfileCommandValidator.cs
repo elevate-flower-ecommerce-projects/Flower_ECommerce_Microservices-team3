@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Interfaces;
+using Blocks.Contracts.Interfaces;
 using FluentValidation;
 using Identity.Application.Features.Profile.UpdateProfile.Commands;
 using Identity.Domain.Entities;
@@ -34,8 +34,8 @@ public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileComm
             .When(x => !string.IsNullOrWhiteSpace(x.Phone));
 
         RuleFor(x => x.Photo)
-            .Must(BeAValidImage!).WithMessage("Only JPEG, PNG, and JPG images are allowed.")
-            .Must(file => file!.Length <= 5 * 1024 * 1024).WithMessage("Photo must not exceed 5 MB.")
+            .Must(BeAValidImage!).WithMessage("Only image files (JPEG, PNG, JPG, WEBP, GIF, BMP) are allowed.")
+            .Must(file => file!.Length <= 10 * 1024 * 1024).WithMessage("Photo must not exceed 10 MB.")
             .When(x => x.Photo != null);
     }
 
@@ -59,8 +59,10 @@ public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileComm
     private bool BeAValidImage(IFormFile file)
     {
         if (file == null) return false;
-        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif" };
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-        return allowedExtensions.Contains(extension);
+        if (allowedExtensions.Contains(extension)) return true;
+        if (!string.IsNullOrEmpty(file.ContentType) && file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)) return true;
+        return false;
     }
 }

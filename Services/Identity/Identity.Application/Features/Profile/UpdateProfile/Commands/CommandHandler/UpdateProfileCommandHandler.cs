@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Blocks.Contracts.Interfaces;
 using Blocks.Domain.Errors;
 using Identity.Application.Features.Profile.DTOs;
@@ -38,7 +38,19 @@ namespace Identity.Application.Features.Profile.UpdateProfile.Commands.CommandHa
             }
 
             if (!string.IsNullOrWhiteSpace(request.Email))
-                user.Email = request.Email.Trim().ToLowerInvariant();
+            {
+                var newEmail = request.Email.Trim().ToLowerInvariant();
+                if (!string.Equals(user.Email, newEmail, StringComparison.OrdinalIgnoreCase))
+                {
+                    var emailExists = await userRepository.GetQueryable()
+                        .AnyAsync(u => u.Email == newEmail && u.Id != user.Id && u.DeletedAt == null, cancellationToken);
+                    if (emailExists)
+                    {
+                        return Result.Failure<ProfileResponseDTO>(Error.Conflict("Email is already in use by another account."));
+                    }
+                    user.Email = newEmail;
+                }
+            }
 
             if (!string.IsNullOrWhiteSpace(request.Phone))
                 user.Phone = request.Phone.Trim();
@@ -56,8 +68,24 @@ namespace Identity.Application.Features.Profile.UpdateProfile.Commands.CommandHa
                 var photoUrl = await fileService.UploadFileAsync(request.Photo, "ProfilePictures", cancellationToken);
                 user.PhotoUrl = photoUrl;
             }
+            else if (!string.IsNullOrWhiteSpace(request.PhotoUrl))
+            {
+                if (request.PhotoUrl.StartsWith("data:image", StringComparison.OrdinalIgnoreCase) ||
+                    (request.PhotoUrl.Length > 200 && !request.PhotoUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase)))
+                {
+                    var uploadedUrl = await fileService.UploadBase64Async(request.PhotoUrl, "ProfilePictures", cancellationToken);
+                    user.PhotoUrl = uploadedUrl;
+                }
+                else
+                {
+                    user.PhotoUrl = request.PhotoUrl;
+                }
+            }
 
+            userRepository.Update(user);
             await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            var resolvedPhotoUrl = fileService.GetPublicUrl(user.PhotoUrl);
 
             var response = new ProfileResponseDTO(
                 user.Id,
@@ -65,7 +93,7 @@ namespace Identity.Application.Features.Profile.UpdateProfile.Commands.CommandHa
                 user.Email,
                 user.Phone,
                 user.Gender.ToString(),
-                user.PhotoUrl
+                resolvedPhotoUrl
             );
 
             return Result.Success(response);

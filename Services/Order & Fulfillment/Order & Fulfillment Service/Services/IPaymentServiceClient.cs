@@ -27,7 +27,7 @@ public record CreatePaymentSessionRequest(
 
 public record CardSessionResultDto(
     Guid OrderId,
-    OrderStatus Status,
+    string? Status,
     PaymentProvider PaymentProvider,
     string SessionId,
     string SessionUrl,
@@ -43,6 +43,13 @@ public interface IPaymentServiceClient
 {
     Task<CardSessionResultDto?> CreateCardSessionAsync(
         CreatePaymentSessionRequest request,
+        string? bearerToken = null,
+        CancellationToken ct = default);
+
+    Task<bool> CreateCodPaymentAsync(
+        Guid orderId,
+        decimal amount,
+        string currency = "EGP",
         string? bearerToken = null,
         CancellationToken ct = default);
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Identity.Application.Interfaces;
@@ -10,12 +10,9 @@ namespace Identity.Infrastructure.Persistence.Repositories
 {
     public class UserRepository : GenericRepository<User>, IUserRepository
     {
-        private readonly FlowersAuthDbContext _context;
-
         public UserRepository(FlowersAuthDbContext context)
             : base(context)
         {
-            _context = context;
         }
 
         public async Task<User?> GetByEmailAsync(

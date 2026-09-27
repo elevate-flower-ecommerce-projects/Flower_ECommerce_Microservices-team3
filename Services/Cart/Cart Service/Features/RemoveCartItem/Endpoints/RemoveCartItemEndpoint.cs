@@ -1,7 +1,7 @@
 using Blocks.Contracts.Http;
 using Blocks.Contracts.Security;
 using Blocks.Domain.Errors;
-using Cart_Service.Features.Cart.DTOs;
+using Cart_Service.Features.AddToCartItem;
 using Cart_Service.Features.RemoveCartItem.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +9,6 @@ using System.Globalization;
 using System.Security.Claims;
 
 namespace Cart_Service.Features.RemoveCartItem.Endpoints;
-
-// =========================================================================================================
-// [TEMPORARY BUILD] Temporary placeholder endpoint for DELETE /cart/items/{id} (SCRUM-25 / SCRUM-97) until intern finishes.
-// =========================================================================================================
 
 public static class RemoveCartItemEndpoint
 {
@@ -31,7 +27,7 @@ public static class RemoveCartItemEndpoint
             if (string.IsNullOrEmpty(customerIdClaim) || !Guid.TryParse(customerIdClaim, out var customerId))
             {
                 return Results.Json(
-                    ApiResponse<CartSummaryDto>.Fail(Error.Unauthorized("You are not authorized to access this resource.")),
+                    ApiResponse<CartSummaryResponse>.Fail(Error.Unauthorized("You are not authorized to access this resource.")),
                     statusCode: StatusCodes.Status401Unauthorized);
             }
 
@@ -44,21 +40,21 @@ public static class RemoveCartItemEndpoint
 
             if (result.IsSuccess)
             {
-                return Results.Ok(ApiResponse<CartSummaryDto>.Ok(result.Value, "Cart line removed successfully"));
+                return Results.Ok(ApiResponse<CartSummaryResponse>.Ok(result.Value, "Cart line removed successfully"));
             }
 
             return Results.Json(
-                ApiResponse<CartSummaryDto>.Fail(result.Error!),
+                ApiResponse<CartSummaryResponse>.Fail(result.Error!),
                 statusCode: result.Error!.StatusCode);
         })
         .WithName("RemoveCartItem")
         .WithTags("Cart")
         .WithSummary("Remove Item from Cart (SCRUM-25 / SCRUM-97)")
         .WithDescription("Removes a single line from the authenticated user's cart and returns the updated cart summary.")
-        .Produces<ApiResponse<CartSummaryDto>>(StatusCodes.Status200OK)
-        .Produces<ApiResponse<CartSummaryDto>>(StatusCodes.Status401Unauthorized)
-        .Produces<ApiResponse<CartSummaryDto>>(StatusCodes.Status404NotFound)
-        .Produces<ApiResponse<CartSummaryDto>>(StatusCodes.Status500InternalServerError)
+        .Produces<ApiResponse<CartSummaryResponse>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<CartSummaryResponse>>(StatusCodes.Status401Unauthorized)
+        .Produces<ApiResponse<CartSummaryResponse>>(StatusCodes.Status404NotFound)
+        .Produces<ApiResponse<CartSummaryResponse>>(StatusCodes.Status500InternalServerError)
         .RequireAuthorization();
 
         // Also map /api/cart/items/{id} for compatibility
@@ -75,7 +71,7 @@ public static class RemoveCartItemEndpoint
             if (string.IsNullOrEmpty(customerIdClaim) || !Guid.TryParse(customerIdClaim, out var customerId))
             {
                 return Results.Json(
-                    ApiResponse<CartSummaryDto>.Fail(Error.Unauthorized("You are not authorized to access this resource.")),
+                    ApiResponse<CartSummaryResponse>.Fail(Error.Unauthorized("You are not authorized to access this resource.")),
                     statusCode: StatusCodes.Status401Unauthorized);
             }
 
@@ -88,11 +84,11 @@ public static class RemoveCartItemEndpoint
 
             if (result.IsSuccess)
             {
-                return Results.Ok(ApiResponse<CartSummaryDto>.Ok(result.Value, "Cart line removed successfully"));
+                return Results.Ok(ApiResponse<CartSummaryResponse>.Ok(result.Value, "Cart line removed successfully"));
             }
 
             return Results.Json(
-                ApiResponse<CartSummaryDto>.Fail(result.Error!),
+                ApiResponse<CartSummaryResponse>.Fail(result.Error!),
                 statusCode: result.Error!.StatusCode);
         })
         .ExcludeFromDescription()

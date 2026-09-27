@@ -65,6 +65,12 @@
       "value": "01a03975-5bd9-7db4-8e83-599af35ee26c",
       "type": "string",
       "description": "Driver ID for driver profile and fulfillment operations"
+    },
+    {
+      "key": "cartId",
+      "value": "",
+      "type": "string",
+      "description": "Cart ID for cart and checkout operations"
     }
   ],
   "item": [
@@ -78,8 +84,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
             }
           }
         },
@@ -90,8 +100,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/identity/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["identity", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "identity",
+                "health"
+              ]
             }
           }
         },
@@ -102,8 +117,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalog/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalog",
+                "health"
+              ]
             }
           }
         },
@@ -114,8 +134,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/cart/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["cart", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "health"
+              ]
             }
           }
         },
@@ -126,8 +151,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/address/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "health"
+              ]
             }
           }
         },
@@ -138,8 +168,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/order/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["order", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order",
+                "health"
+              ]
             }
           }
         },
@@ -150,8 +185,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/payment/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["payment", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment",
+                "health"
+              ]
             }
           }
         }
@@ -168,8 +208,9 @@
               "script": {
                 "exec": [
                   "var jsonData = pm.response.json();",
-                  "if (jsonData && jsonData.data && jsonData.data.accessToken) {",
-                  "    pm.collectionVariables.set('bearerToken', jsonData.data.accessToken);",
+                  "var token = (jsonData && jsonData.data && jsonData.data.accessToken) ? jsonData.data.accessToken : (jsonData ? jsonData.accessToken : null);",
+                  "if (token) {",
+                  "    pm.collectionVariables.set('bearerToken', token);",
                   "    console.log('Saved accessToken to collection variable bearerToken');",
                   "}"
                 ],
@@ -197,8 +238,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           }
         },
@@ -224,8 +270,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             }
           }
         },
@@ -237,8 +288,9 @@
               "script": {
                 "exec": [
                   "var jsonData = pm.response.json();",
-                  "if (jsonData && jsonData.data && jsonData.data.accessToken) {",
-                  "    pm.collectionVariables.set('bearerToken', jsonData.data.accessToken);",
+                  "var token = (jsonData && jsonData.data && jsonData.data.accessToken) ? jsonData.data.accessToken : (jsonData ? jsonData.accessToken : null);",
+                  "if (token) {",
+                  "    pm.collectionVariables.set('bearerToken', token);",
                   "    console.log('Saved Admin accessToken to collection variable bearerToken');",
                   "}"
                 ],
@@ -266,8 +318,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/admin-login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "admin-login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin-login"
+              ]
             }
           }
         },
@@ -293,8 +350,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "refresh"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
             }
           }
         },
@@ -330,8 +392,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/change-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "change-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "change-password"
+              ]
             }
           }
         },
@@ -357,8 +424,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/forgot-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "forgot-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
             }
           }
         },
@@ -384,8 +456,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/verify-otp",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "verify-otp"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "verify-otp"
+              ]
             }
           }
         },
@@ -411,8 +488,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/reset-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "reset-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
             }
           }
         },
@@ -545,6 +627,86 @@
             },
             "description": "Updates the profile of the authenticated user (name, email, phone, gender, photo upload)."
           }
+        },
+        {
+          "name": "Update Device FCM Token",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"device-12345\",\n  \"fcmToken\": \"fcm_test_push_token_sample\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/devices/fcm-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "devices",
+                "fcm-token"
+              ]
+            },
+            "description": "Updates the FCM push notification token for the user's active device."
+          }
+        },
+        {
+          "name": "Set Device Notifications (Enable / Disable)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"device-12345\",\n  \"enabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/devices/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "devices",
+                "notifications"
+              ]
+            },
+            "description": "Enables or disables push notifications for the user's active device."
+          }
         }
       ]
     },
@@ -634,8 +796,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/drivers/applications",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "drivers", "applications"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "applications"
+              ]
             }
           }
         },
@@ -662,8 +830,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/admin/drivers/applications?page=1&pageSize=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "drivers", "applications"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "drivers",
+                "applications"
+              ],
               "query": [
                 {
                   "key": "Status",
@@ -706,8 +881,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/admin/drivers/applications/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "drivers", "applications", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "drivers",
+                "applications",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -740,8 +923,17 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/admin/drivers/applications/:id/approve",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "drivers", "applications", ":id", "approve"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "drivers",
+                "applications",
+                ":id",
+                "approve"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -783,8 +975,17 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/admin/drivers/applications/:id/reject",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "drivers", "applications", ":id", "reject"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "drivers",
+                "applications",
+                ":id",
+                "reject"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -826,6 +1027,173 @@
             },
             "description": "Returns a driver's public profile (first name, last name, phone, photo URL). Used for service calls and display."
           }
+        },
+        {
+          "name": "Get Vehicle Types",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vehicle-types",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vehicle-types"
+              ]
+            },
+            "description": "Returns available vehicle types (1 = Car, 2 = Motorcycle) for driver registration and profile management."
+          }
+        },
+        {
+          "name": "Get Countries",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/countries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "countries"
+              ]
+            },
+            "description": "Returns all 250 countries matching Flutter schema: isoCode, name, phoneCode, flag emoji, currency, latitude, longitude, and timezones (zoneName, gmtOffset, gmtOffsetName, abbreviation, tzName). Optional ?wrapped=true returns ApiResponse wrapper."
+          },
+          "response": [
+            {
+              "name": "200 OK - Country List",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/countries",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "countries"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"isoCode\": \"AF\",\n    \"name\": \"Afghanistan\",\n    \"phoneCode\": \"93\",\n    \"flag\": \"🇦🇫\",\n    \"currency\": \"AFN\",\n    \"latitude\": \"33.00000000\",\n    \"longitude\": \"65.00000000\",\n    \"timezones\": [\n      {\n        \"zoneName\": \"Asia/Kabul\",\n        \"gmtOffset\": 16200,\n        \"gmtOffsetName\": \"UTC+04:30\",\n        \"abbreviation\": \"AFT\",\n        \"tzName\": \"Afghanistan Time\"\n      }\n    ]\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Driver Vehicle",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/drivers/me/vehicle",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "drivers",
+                "me",
+                "vehicle"
+              ]
+            },
+            "description": "Retrieves the vehicle type and vehicle plate number for the authenticated driver."
+          }
+        },
+        {
+          "name": "Update Driver Vehicle",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "VehicleType",
+                  "value": "1",
+                  "type": "text",
+                  "description": "1 = Car, 2 = Motorcycle"
+                },
+                {
+                  "key": "VehicleNumber",
+                  "value": "ABC 1234",
+                  "type": "text",
+                  "description": "Vehicle plate number"
+                },
+                {
+                  "key": "VehicleLicenceFile",
+                  "type": "file",
+                  "src": "",
+                  "description": "Vehicle license document or photo"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/drivers/me/vehicle",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "drivers",
+                "me",
+                "vehicle"
+              ]
+            },
+            "description": "Updates the vehicle type (1 = Car, 2 = Motorcycle), plate number, and optional vehicle license file for the authenticated driver (multipart/form-data or JSON)."
+          }
         }
       ]
     },
@@ -863,8 +1231,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/catalog/home/sections",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "home", "sections"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalog",
+                "home",
+                "sections"
+              ]
             }
           }
         },
@@ -897,8 +1271,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/catalog/occasions?pageNumber=1&pageSize=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "occasions"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalog",
+                "occasions"
+              ],
               "query": [
                 {
                   "key": "pageNumber",
@@ -941,8 +1320,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/catalog/products?categoryId={{categoryId}}&occasionId={{occasionId}}&keyword=&sortBy=PriceLowToHigh&page=1&pageSize=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "products"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalog",
+                "products"
+              ],
               "query": [
                 {
                   "key": "categoryId",
@@ -991,8 +1375,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/catalog/products/:productId",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "products", ":productId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalog",
+                "products",
+                ":productId"
+              ],
               "variable": [
                 {
                   "key": "productId",
@@ -1031,8 +1421,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/catalog/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalog", "categories"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalog",
+                "categories"
+              ]
             }
           }
         }
@@ -1059,8 +1454,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/cart/cart",
-              "host": ["{{baseUrl}}"],
-              "path": ["cart", "cart"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "cart"
+              ]
             }
           }
         },
@@ -1090,10 +1490,57 @@
               "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 1\n}"
             },
             "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cart",
+                "items"
+              ]
+            },
+            "description": "Adds a product to the authenticated customer's cart or increments quantity if it already exists. Returns the updated CartSummaryResponse."
+          }
+        },
+        {
+          "name": "Add Item to Cart (Legacy Route)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 1\n}"
+            },
+            "url": {
               "raw": "{{baseUrl}}/cart/cart/items",
-              "host": ["{{baseUrl}}"],
-              "path": ["cart", "cart", "items"]
-            }
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "cart",
+                "items"
+              ]
+            },
+            "description": "Legacy/Gateway prefix route for adding an item to the authenticated customer's cart."
           }
         },
         {
@@ -1118,8 +1565,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/cart/api/cart/items/:productId",
-              "host": ["{{baseUrl}}"],
-              "path": ["cart", "api", "cart", "items", ":productId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "api",
+                "cart",
+                "items",
+                ":productId"
+              ],
               "variable": [
                 {
                   "key": "productId",
@@ -1147,8 +1602,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/cart/cart/items/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["cart", "cart", "items", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "cart",
+                "items",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -1156,6 +1618,35 @@
                 }
               ]
             }
+          }
+        },
+        {
+          "name": "Clear Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cart/cart",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cart",
+                "cart"
+              ]
+            },
+            "description": "Clears all items from the customer's cart."
           }
         }
       ]
@@ -1180,13 +1671,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/checkout/details",
+              "raw": "{{baseUrl}}/checkout/details?cartId={{cartId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "checkout",
                 "details"
+              ],
+              "query": [
+                {
+                  "key": "cartId",
+                  "value": "{{cartId}}",
+                  "disabled": true,
+                  "description": "Optional cart ID"
+                }
               ]
             },
             "description": "Returns comprehensive checkout details for the authenticated customer: live cart subtotal, default delivery address, nearest covering store, delivery fee, grand total, estimated delivery time (ETA), supported payment methods, and gift options."
@@ -1233,6 +1732,82 @@
     {
       "name": "Orders",
       "item": [
+        {
+          "name": "Place Order (Cash on Delivery)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressId\": \"{{addressId}}\",\n  \"paymentMethod\": \"COD\",\n  \"notes\": \"Please leave at the door\",\n  \"isGift\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/place",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "place"
+              ]
+            },
+            "description": "Unified place order for Cash on Delivery (COD). Cart is cleared, order is placed immediately with status Placed, and data is returned as null with HTTP 201 Created."
+          }
+        },
+        {
+          "name": "Place Order (Card / Paymob)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressId\": \"{{addressId}}\",\n  \"paymentMethod\": \"Card\",\n  \"paymentGateway\": \"Paymob\",\n  \"notes\": \"Handle flowers with care\",\n  \"isGift\": true,\n  \"giftRecipientName\": \"Sara\",\n  \"giftRecipientPhone\": \"+201012345678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/place",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "place"
+              ]
+            },
+            "description": "Unified place order for Card (Paymob). Persists order as PendingPayment, creates a Paymob hosted checkout session, and returns sessionUrl and sessionId for client redirection."
+          }
+        },
         {
           "name": "Get Customer Orders",
           "request": {
@@ -1388,6 +1963,51 @@
             },
             "description": "Customer confirms receipt of their order when status is AwaitingDeliveryConfirmation. Transitions the order status to Delivered."
           }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Changed my mind\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/:orderId/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                ":orderId",
+                "cancel"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}"
+                }
+              ]
+            },
+            "description": "Allows customer to cancel an order before it has been picked up or dispatched for delivery."
+          }
         }
       ]
     },
@@ -1420,12 +2040,11 @@
               "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"amount\": 250.00,\n  \"currency\": \"EGP\",\n  \"customerEmail\": \"customer@example.com\",\n  \"customerFirstName\": \"Ahmed\",\n  \"customerLastName\": \"Ali\",\n  \"customerPhone\": \"+201012345678\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/payment/payments/checkout-session",
+              "raw": "{{baseUrl}}/payments/checkout-session",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "payment",
                 "payments",
                 "checkout-session"
               ]
@@ -1459,17 +2078,92 @@
               "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"amount\": 250.00,\n  \"currency\": \"EGP\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/payment/payments/cod",
+              "raw": "{{baseUrl}}/payments/cod",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "payment",
                 "payments",
                 "cod"
               ]
             },
             "description": "Records a Cash on Delivery (COD) payment initiation for an order, setting status to Pending until driver collects payment upon delivery."
+          }
+        },
+        {
+          "name": "Get Payment Status by Order ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/orders/:orderId/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "orders",
+                ":orderId",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the order to check payment status for"
+                }
+              ]
+            },
+            "description": "Polls the current payment status for a specific order. Used by client apps when returning from Paymob checkout redirect."
+          }
+        },
+        {
+          "name": "Retry Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/orders/:orderId/retry",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "orders",
+                ":orderId",
+                "retry"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the order to retry card payment for"
+                }
+              ]
+            },
+            "description": "Generates a fresh Paymob checkout session for an order whose previous card payment attempt failed, was cancelled, or expired."
           }
         },
         {
@@ -1488,14 +2182,11 @@
               "raw": "{\n  \"type\": \"TRANSACTION\",\n  \"obj\": {\n    \"id\": 123456789,\n    \"success\": true,\n    \"pending\": false,\n    \"amount_cents\": 25000,\n    \"currency\": \"EGP\",\n    \"order\": {\n      \"id\": 987654321\n    },\n    \"data\": {\n      \"message\": \"Approved\"\n    },\n    \"is_refunded\": false,\n    \"is_voided\": false\n  }\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/payment/api/v1/payments/webhook",
+              "raw": "{{baseUrl}}/payments/webhook",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "payment",
-                "api",
-                "v1",
                 "payments",
                 "webhook"
               ]
@@ -1510,6 +2201,21 @@
       "item": [
         {
           "name": "Get Available Orders for Driver",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.data && jsonData.data.items && jsonData.data.items.length > 0) {",
+                  "    pm.collectionVariables.set('orderId', jsonData.data.items[0].orderId);",
+                  "    console.log('Saved first available orderId: ' + jsonData.data.items[0].orderId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [
@@ -1809,8 +2515,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/api/areas",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "api", "areas"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "api",
+                "areas"
+              ]
             }
           }
         },
@@ -1820,17 +2532,24 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/address/api/stores/nearest-store?lat=30.0444&lng=31.2357",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "api", "stores", "nearest-store"],
+              "raw": "{{baseUrl}}/address/api/stores/nearest-store?lat=30.0511&lng=31.3656",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "api",
+                "stores",
+                "nearest-store"
+              ],
               "query": [
                 {
                   "key": "lat",
-                  "value": "30.0444"
+                  "value": "30.0511"
                 },
                 {
                   "key": "lng",
-                  "value": "31.2357"
+                  "value": "31.3656"
                 }
               ]
             }
@@ -1865,13 +2584,35 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/users/me/addresses",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "users", "me", "addresses"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "users",
+                "me",
+                "addresses"
+              ]
             }
           }
         },
         {
           "name": "Create Address",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.data && jsonData.data.id) {",
+                  "    pm.collectionVariables.set('addressId', jsonData.data.id);",
+                  "    console.log('Saved addressId: ' + jsonData.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -1888,12 +2629,19 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"recipientName\": \"Layla Hassan\",\n  \"phone\": \"01111111101\",\n  \"addressLine\": \"123 Tahrir Square, Downtown\",\n  \"cityId\": \"00000000-0000-0000-0000-000000000001\",\n  \"areaId\": \"00000000-0000-0000-0000-000000000002\",\n  \"latitude\": 30.0444,\n  \"longitude\": 31.2357,\n  \"label\": \"Home\"\n}"
+              "raw": "{\n  \"recipientName\": \"Layla Hassan\",\n  \"phone\": \"01011111101\",\n  \"addressLine\": \"123 Abbas El Akkad, Nasr City\",\n  \"cityId\": \"c1000000-0000-0000-0000-000000000039\",\n  \"areaId\": \"a1000000-0000-0000-0000-000000000001\",\n  \"latitude\": 30.0511,\n  \"longitude\": 31.3656,\n  \"label\": \"Home\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/address/users/me/addresses",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "users", "me", "addresses"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "users",
+                "me",
+                "addresses"
+              ]
             }
           }
         },
@@ -1910,8 +2658,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/users/me/addresses/:addressId",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "users", "me", "addresses", ":addressId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "users",
+                "me",
+                "addresses",
+                ":addressId"
+              ],
               "variable": [
                 {
                   "key": "addressId",
@@ -1934,8 +2690,17 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/users/me/addresses/:addressId/default",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "users", "me", "addresses", ":addressId", "default"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "users",
+                "me",
+                "addresses",
+                ":addressId",
+                "default"
+              ],
               "variable": [
                 {
                   "key": "addressId",
@@ -1967,8 +2732,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/address/users/me/addresses/:addressId",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "users", "me", "addresses", ":addressId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "users",
+                "me",
+                "addresses",
+                ":addressId"
+              ],
               "variable": [
                 {
                   "key": "addressId",
@@ -1991,8 +2764,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/users/me/addresses/:addressId",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "users", "me", "addresses", ":addressId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "users",
+                "me",
+                "addresses",
+                ":addressId"
+              ],
               "variable": [
                 {
                   "key": "addressId",
@@ -2015,8 +2796,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/admin/stores?page=1&pageSize=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "admin", "stores"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "admin",
+                "stores"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -2052,8 +2839,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/address/admin/stores",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "admin", "stores"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "admin",
+                "stores"
+              ]
             }
           }
         },
@@ -2070,8 +2863,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/admin/stores/:storeId",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "admin", "stores", ":storeId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "admin",
+                "stores",
+                ":storeId"
+              ],
               "variable": [
                 {
                   "key": "storeId",
@@ -2103,8 +2903,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/address/admin/stores/:storeId",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "admin", "stores", ":storeId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "admin",
+                "stores",
+                ":storeId"
+              ],
               "variable": [
                 {
                   "key": "storeId",
@@ -2127,8 +2934,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/admin/stores/:storeId",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "admin", "stores", ":storeId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "admin",
+                "stores",
+                ":storeId"
+              ],
               "variable": [
                 {
                   "key": "storeId",
@@ -2151,8 +2965,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/address/admin/stores/:storeId/coverage-area",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "admin", "stores", ":storeId", "coverage-area"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "admin",
+                "stores",
+                ":storeId",
+                "coverage-area"
+              ],
               "variable": [
                 {
                   "key": "storeId",
@@ -2184,8 +3006,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/address/admin/stores/:storeId/coverage-area",
-              "host": ["{{baseUrl}}"],
-              "path": ["address", "admin", "stores", ":storeId", "coverage-area"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "address",
+                "admin",
+                "stores",
+                ":storeId",
+                "coverage-area"
+              ],
               "variable": [
                 {
                   "key": "storeId",

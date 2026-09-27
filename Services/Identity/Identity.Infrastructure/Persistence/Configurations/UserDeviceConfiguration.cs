@@ -22,6 +22,17 @@ namespace Identity.Infrastructure.Persistence.Configurations
                 .HasMaxLength(512)
                 .IsUnicode(false);
 
+            builder.Property(x => x.IsActive)
+                .IsRequired()
+                .HasDefaultValue(true);
+
+            builder.Property(x => x.NotificationsEnabled)
+                .IsRequired()
+                .HasDefaultValue(true);
+
+            builder.Property(x => x.RefreshTokenExpiresAt)
+                .IsRequired(false);
+
             builder.Property(x => x.UpdatedAt)
                 .IsRequired();
 
@@ -38,6 +49,10 @@ namespace Identity.Infrastructure.Persistence.Configurations
             builder.HasIndex(x => new { x.UserId, x.UpdatedAt })
                 .HasDatabaseName("IX_UserDevices_UserId_UpdatedAt");
 
+           
+            builder.HasIndex(x => new { x.UserId, x.IsActive, x.NotificationsEnabled })
+                .HasDatabaseName("IX_UserDevices_UserId_IsActive_NotificationsEnabled");
+
             builder.HasOne(x => x.User)
                 .WithMany()
                 .HasForeignKey(x => x.UserId)
@@ -45,3 +60,4 @@ namespace Identity.Infrastructure.Persistence.Configurations
         }
     }
 }
+

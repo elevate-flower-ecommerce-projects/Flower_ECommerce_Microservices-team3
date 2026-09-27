@@ -24,7 +24,8 @@ namespace Cart_Service.Persistence.Repositories
 
         public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
+            return await _dbSet.Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken = default)

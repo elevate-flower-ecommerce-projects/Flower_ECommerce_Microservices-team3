@@ -13,6 +13,7 @@ namespace Payment_Service.Features.Commands.HandlePaymentWebhook;
 public sealed class HandlePaymentWebhookHandler(
     IPaymentRepository paymentRepository,
     FlowersPaymentDbContext dbContext,
+    IOrderServiceClient orderServiceClient,
     IUnitOfWork unitOfWork)
     : IRequestHandler<HandlePaymentWebhookCommand, Result>
 {
@@ -83,6 +84,9 @@ public sealed class HandlePaymentWebhookHandler(
         {
             payment.Status = PaymentStatus.Paid;
             payment.PaidAt = DateTime.UtcNow;
+
+            // Notify Order & Fulfillment service that the order has been paid
+            await orderServiceClient.MarkOrderAsPaidAsync(payment.OrderId, cancellationToken);
         }
         else if (request.Cancelled)
         {
