@@ -369,7 +369,6 @@ FodyWeavers.xsd.claude/
 
 # Keep the folder structure if needed
 !**/wwwroot/ProfilePictures/.gitkeep
-/docker-compose.prod.yml
 
 # Secrets files (Never commit to Git)
 secrets
