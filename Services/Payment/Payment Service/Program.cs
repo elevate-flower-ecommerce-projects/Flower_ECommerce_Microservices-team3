@@ -17,6 +17,34 @@ using Payment_Service.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load secrets from single 'secrets' file if present
+var secretsCandidates = new[]
+{
+    Path.Combine(Directory.GetCurrentDirectory(), "secrets"),
+    Path.Combine(Directory.GetCurrentDirectory(), "../../secrets"),
+    Path.Combine(Directory.GetCurrentDirectory(), "../../../secrets"),
+    Path.Combine(AppContext.BaseDirectory, "secrets")
+};
+foreach (var secretsPath in secretsCandidates)
+{
+    if (File.Exists(secretsPath))
+    {
+        foreach (var line in File.ReadAllLines(secretsPath))
+        {
+            var trimmed = line.Trim();
+            if (string.IsNullOrWhiteSpace(trimmed) || trimmed.StartsWith('#')) continue;
+            var parts = trimmed.Split('=', 2);
+            if (parts.Length == 2)
+            {
+                var key = parts[0].Trim().Replace("__", ":");
+                var val = parts[1].Trim().Trim('"').Trim('\'');
+                builder.Configuration[key] = val;
+            }
+        }
+        break;
+    }
+}
+
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
