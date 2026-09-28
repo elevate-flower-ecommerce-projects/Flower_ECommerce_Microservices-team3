@@ -376,3 +376,4 @@ secrets.*
 *.secrets.*
 /scratch_test.cs
 /flutter-team-bundle/
+/flutter-team-bundle.zip
