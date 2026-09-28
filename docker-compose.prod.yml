@@ -176,9 +176,6 @@ services:
   # ────────────────────────────────────────────────────────────────────────────
   order-service:
     image: ${DOCKER_USERNAME:-hossammokhtar}/flower-order-service:latest
-    build:
-      context: .
-      dockerfile: Services/Order & Fulfillment/Order & Fulfillment Service/Dockerfile
     container_name: flower_order_service
     restart: unless-stopped
     depends_on:
@@ -207,9 +204,6 @@ services:
   # ────────────────────────────────────────────────────────────────────────────
   payment-service:
     image: ${DOCKER_USERNAME:-hossammokhtar}/flower-payment-service:latest
-    build:
-      context: .
-      dockerfile: Services/Payment/Payment Service/Dockerfile
     container_name: flower_payment_service
     restart: unless-stopped
     depends_on:
