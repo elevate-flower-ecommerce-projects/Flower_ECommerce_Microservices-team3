@@ -375,3 +375,4 @@ secrets
 secrets.*
 *.secrets.*
 /scratch_test.cs
+/flutter-team-bundle/
