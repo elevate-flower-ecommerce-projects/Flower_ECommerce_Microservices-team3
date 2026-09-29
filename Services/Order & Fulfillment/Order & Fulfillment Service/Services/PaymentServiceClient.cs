@@ -46,7 +46,7 @@ public sealed class PaymentServiceClient : IPaymentServiceClient
             }
 
             var envelope = await response.Content.ReadFromJsonAsync<PaymentApiResponseEnvelope<CardSessionResultDto>>(JsonOptions, ct);
-            return envelope?.Success == true ? envelope.Data : null;
+            return envelope?.IsOk == true ? envelope.Data : null;
         }
         catch (Exception ex)
         {
@@ -93,6 +93,9 @@ public sealed class PaymentServiceClient : IPaymentServiceClient
     private sealed class PaymentApiResponseEnvelope<T>
     {
         public bool Success { get; init; }
+        public bool IsSuccess { get; init; }
         public T? Data { get; init; }
+
+        public bool IsOk => Success || IsSuccess || Data != null;
     }
 }

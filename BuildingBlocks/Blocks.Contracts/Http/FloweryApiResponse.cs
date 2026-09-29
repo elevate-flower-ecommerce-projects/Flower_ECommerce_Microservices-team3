@@ -7,6 +7,8 @@ public sealed class FloweryApiResponse<T>
 {
     public T? Data { get; init; }
     public bool IsSuccess { get; init; }
+    [System.Text.Json.Serialization.JsonPropertyName("success")]
+    public bool Succeeded => IsSuccess;
     public string Message { get; init; } = string.Empty;
     public string MessageLocalized { get; init; } = string.Empty;
     public string StatusCode { get; init; } = "Success";
