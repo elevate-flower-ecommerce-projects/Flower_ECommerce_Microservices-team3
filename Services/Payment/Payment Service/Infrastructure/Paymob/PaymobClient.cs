@@ -11,13 +11,18 @@ public sealed class PaymobClient(HttpClient httpClient, IOptions<PaymobOptions> 
     private readonly HttpClient _httpClient = httpClient;
     private readonly PaymobOptions _options = options.Value;
 
+    private static readonly System.Text.Json.JsonSerializerOptions IntentionJsonOptions = new()
+    {
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+    };
+
     public async Task<PaymobIntentionResponse> CreateIntentionAsync(
         PaymobIntentionRequest request,
         CancellationToken cancellationToken = default)
     {
         using var httpRequest = new HttpRequestMessage(HttpMethod.Post, "v1/intention/")
         {
-            Content = JsonContent.Create(request)
+            Content = JsonContent.Create(request, options: IntentionJsonOptions)
         };
 
         if (!string.IsNullOrWhiteSpace(_options.SecretKey))
@@ -27,11 +32,15 @@ public sealed class PaymobClient(HttpClient httpClient, IOptions<PaymobOptions> 
         }
 
         using var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new HttpRequestException($"Paymob returned {(int)response.StatusCode} {response.ReasonPhrase}: {errorBody}");
+        }
 
         var result =
             await response.Content.ReadFromJsonAsync<PaymobIntentionResponse>(
-                cancellationToken);
+                cancellationToken: cancellationToken);
 
         return result
             ?? throw new InvalidOperationException(

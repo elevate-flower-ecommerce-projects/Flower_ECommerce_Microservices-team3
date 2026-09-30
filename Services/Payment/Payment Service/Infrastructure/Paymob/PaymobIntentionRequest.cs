@@ -23,9 +23,11 @@ public sealed class PaymobIntentionRequest
     public PaymobBillingData BillingData { get; set; } = null!;
 
     [JsonPropertyName("redirection_url")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? RedirectionUrl { get; set; }
 
     [JsonPropertyName("notification_url")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? NotificationUrl { get; set; }
 }
 
@@ -41,5 +43,6 @@ public sealed class PaymobItem
     public int Quantity { get; set; } = 1;
 
     [JsonPropertyName("description")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Description { get; set; }
 }

@@ -84,7 +84,7 @@ public sealed class PaymentGateway(
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Paymob intention creation failed or credentials unconfigured. Falling back to sandbox checkout session.");
+            logger.LogError(ex, "Paymob intention creation failed: {Message}. Falling back to sandbox checkout session.", ex.Message);
         }
 
         var mockSessionId = $"sess_{Guid.NewGuid():N}";
