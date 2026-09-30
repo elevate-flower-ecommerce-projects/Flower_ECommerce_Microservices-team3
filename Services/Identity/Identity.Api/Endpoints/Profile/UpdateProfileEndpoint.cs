@@ -112,6 +112,7 @@ public static class UpdateProfileEndpoint
             .WithTags("User Profile")
             .WithSummary("Update User Profile")
             .WithDescription("Updates user profile details (FullName, Email, Phone, Gender, Photo) using multipart/form-data or JSON.")
+            .Accepts(typeof(UpdateProfileRequest), "multipart/form-data", "application/json")
             .Produces<Identity.Application.Features.Profile.DTOs.ProfileResponseDTO>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status401Unauthorized);
