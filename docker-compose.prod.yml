@@ -215,6 +215,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=FlowersPaymentDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
+      OrderService__BaseUrl: "http://order-service:8080"
     ports:
       - "5260:8080"
     networks:

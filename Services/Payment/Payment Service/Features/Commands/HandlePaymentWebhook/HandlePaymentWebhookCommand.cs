@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using MediatR;
 
 namespace Payment_Service.Features.Commands.HandlePaymentWebhook
@@ -12,6 +12,8 @@ namespace Payment_Service.Features.Commands.HandlePaymentWebhook
         string Currency,
         bool Success,
         bool Pending,
-        bool Cancelled
+        bool Cancelled,
+        string? PaymobOrderId = null,
+        string? MerchantOrderId = null
     ) : IRequest<Result>;
 }

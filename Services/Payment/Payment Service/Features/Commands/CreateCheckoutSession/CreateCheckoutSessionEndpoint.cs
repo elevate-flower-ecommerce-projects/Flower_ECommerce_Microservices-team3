@@ -31,12 +31,18 @@ public static class CreateCheckoutSessionEndpoint
                 ? request.EstimatedDeliveryAt.Value
                 : DateTime.UtcNow.AddMinutes(45);
 
+            var redirectionUrl = !string.IsNullOrWhiteSpace(request.RedirectionUrl)
+                ? request.RedirectionUrl
+                : request.SuccessUrl;
+
             var command = new CreateCheckoutSessionCommand(
                 request.OrderId,
                 request.Amount,
                 string.IsNullOrWhiteSpace(request.Currency) ? "EGP" : request.Currency,
                 eta,
-                billing);
+                billing,
+                redirectionUrl,
+                request.NotificationUrl);
 
             var result = await sender.Send(
                 command,

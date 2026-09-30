@@ -22,7 +22,9 @@ public record CreatePaymentSessionRequest(
     string Currency,
     PaymentProvider PaymentProvider,
     DateTime EstimatedDeliveryAt,
-    BillingData BillingData
+    BillingData BillingData,
+    string? RedirectionUrl = null,
+    string? NotificationUrl = null
 );
 
 public record CardSessionResultDto(

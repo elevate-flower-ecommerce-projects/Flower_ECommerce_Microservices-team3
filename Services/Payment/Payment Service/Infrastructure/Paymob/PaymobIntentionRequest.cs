@@ -21,6 +21,12 @@ public sealed class PaymobIntentionRequest
 
     [JsonPropertyName("billing_data")]
     public PaymobBillingData BillingData { get; set; } = null!;
+
+    [JsonPropertyName("redirection_url")]
+    public string? RedirectionUrl { get; set; }
+
+    [JsonPropertyName("notification_url")]
+    public string? NotificationUrl { get; set; }
 }
 
 public sealed class PaymobItem

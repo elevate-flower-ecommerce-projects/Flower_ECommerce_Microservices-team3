@@ -22,6 +22,14 @@ public sealed class PaymentGateway(
     {
         var amountInCents = Convert.ToInt32(request.Amount * 100);
 
+        var redirectionUrl = !string.IsNullOrWhiteSpace(request.RedirectionUrl)
+            ? request.RedirectionUrl
+            : $"flowery://payment/success?orderId={request.OrderId}";
+
+        var notificationUrl = !string.IsNullOrWhiteSpace(request.NotificationUrl)
+            ? request.NotificationUrl
+            : (!string.IsNullOrWhiteSpace(_options.NotificationUrl) ? _options.NotificationUrl : null);
+
         var paymobRequest = new PaymobIntentionRequest
         {
             Amount = amountInCents,
@@ -50,7 +58,9 @@ public sealed class PaymentGateway(
                 Building = request.BillingData?.Building ?? "1",
                 Floor = request.BillingData?.Floor ?? "1",
                 Apartment = request.BillingData?.Apartment ?? "1"
-            }
+            },
+            RedirectionUrl = redirectionUrl,
+            NotificationUrl = notificationUrl
         };
 
         try
@@ -68,7 +78,8 @@ public sealed class PaymentGateway(
                     response.Id,
                     response.ClientSecret,
                     response.Order?.Id.ToString() ?? string.Empty,
-                    paymentUrl);
+                    paymentUrl,
+                    redirectionUrl);
             }
         }
         catch (Exception ex)
@@ -85,6 +96,7 @@ public sealed class PaymentGateway(
             mockSessionId,
             mockClientSecret,
             request.OrderId.ToString(),
-            fallbackPaymentUrl);
+            fallbackPaymentUrl,
+            redirectionUrl);
     }
 }

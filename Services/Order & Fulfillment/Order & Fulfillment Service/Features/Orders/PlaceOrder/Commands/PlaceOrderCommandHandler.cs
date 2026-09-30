@@ -146,6 +146,9 @@ public sealed class PlaceOrderCommandHandler(
         var firstName = names.Length > 0 ? names[0] : "Customer";
         var lastName = names.Length > 1 ? string.Join(" ", names.Skip(1)) : "User";
 
+        var successUrl = $"flowery://payment/success?orderId={order.Id}";
+        var cancelUrl = $"flowery://payment/cancel?orderId={order.Id}";
+
         var sessionRequest = new Order___Fulfillment_Service.Services.CreatePaymentSessionRequest(
             OrderId: order.Id,
             Amount: total,
@@ -163,14 +166,13 @@ public sealed class PlaceOrderCommandHandler(
                 Building: "1",
                 Floor: "1",
                 Apartment: "1"
-            )
+            ),
+            RedirectionUrl: successUrl
         );
 
         var sessionResult = await paymentService.CreateCardSessionAsync(sessionRequest, request.BearerToken, cancellationToken);
         var sessionId = sessionResult?.SessionId ?? $"sess_{Guid.NewGuid():N}";
         var sessionUrl = sessionResult?.SessionUrl ?? $"https://accept.paymob.com/unifiedcheckout/?publicKey=mock_pub&clientSecret=mock_sec_{order.Id:N}";
-        var successUrl = $"flowery://payment/success?orderId={order.Id}";
-        var cancelUrl = $"flowery://payment/cancel?orderId={order.Id}";
         var expiresAt = DateTime.UtcNow.AddMinutes(30);
         var gateway = !string.IsNullOrWhiteSpace(request.Request.PaymentGateway) ? request.Request.PaymentGateway : "Paymob";
 

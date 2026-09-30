@@ -25,6 +25,9 @@ public static class HandlePaymentWebhookEndpoint
             bool pending = false;
             bool cancelled = false;
 
+            string paymobOrderId = string.Empty;
+            string merchantOrderId = string.Empty;
+
             // Check if Paymob native format { "type": "TRANSACTION", "obj": { ... } }
             if (root.TryGetProperty("obj", out var obj))
             {
@@ -41,7 +44,42 @@ public static class HandlePaymentWebhookEndpoint
 
                 if (obj.TryGetProperty("order", out var orderEl))
                 {
-                    intentionId = orderEl.ToString();
+                    if (orderEl.ValueKind == JsonValueKind.Object)
+                    {
+                        if (orderEl.TryGetProperty("id", out var ordIdEl))
+                        {
+                            paymobOrderId = ordIdEl.ToString();
+                            intentionId = paymobOrderId;
+                        }
+
+                        if (orderEl.TryGetProperty("merchant_order_id", out var merchEl))
+                        {
+                            merchantOrderId = merchEl.GetString() ?? string.Empty;
+                        }
+                    }
+                    else if (orderEl.ValueKind is JsonValueKind.Number or JsonValueKind.String)
+                    {
+                        paymobOrderId = orderEl.ToString();
+                        intentionId = paymobOrderId;
+                    }
+                }
+
+                if (obj.TryGetProperty("special_reference", out var specEl))
+                {
+                    var specStr = specEl.GetString();
+                    if (!string.IsNullOrWhiteSpace(specStr))
+                    {
+                        merchantOrderId = specStr;
+                    }
+                }
+
+                if (obj.TryGetProperty("intention_id", out var intEl))
+                {
+                    var intStr = intEl.GetString();
+                    if (!string.IsNullOrWhiteSpace(intStr))
+                    {
+                        intentionId = intStr;
+                    }
                 }
 
                 if (obj.TryGetProperty("success", out var successEl) && successEl.ValueKind is JsonValueKind.True or JsonValueKind.False)
@@ -97,7 +135,9 @@ public static class HandlePaymentWebhookEndpoint
                 currency,
                 success,
                 pending,
-                cancelled);
+                cancelled,
+                paymobOrderId,
+                merchantOrderId);
 
             var result = await sender.Send(command, cancellationToken);
 

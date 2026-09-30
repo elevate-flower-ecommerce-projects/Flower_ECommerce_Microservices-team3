@@ -17,5 +17,9 @@ public sealed record CreateCheckoutSessionRequest(
     string? Street = null,
     string? Building = null,
     string? Floor = null,
-    string? Apartment = null
+    string? Apartment = null,
+    string? RedirectionUrl = null,
+    string? NotificationUrl = null,
+    string? SuccessUrl = null,
+    string? CancelUrl = null
 );

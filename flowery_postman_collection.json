@@ -2190,6 +2190,53 @@
           }
         },
         {
+          "name": "Confirm Payment (Client Return)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearerToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{acceptLanguage}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"success\": true,\n  \"transactionId\": \"123456789\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/orders/:orderId/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "orders",
+                ":orderId",
+                "confirm"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}",
+                  "description": "GUID of the order to confirm payment for"
+                }
+              ]
+            },
+            "description": "Explicitly confirms a successful card payment after returning from the Paymob checkout redirect. Updates order status to Preparing and clears the cart."
+          }
+        },
+        {
           "name": "Paymob Payment Webhook Callback",
           "request": {
             "method": "POST",
@@ -2202,7 +2249,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"type\": \"TRANSACTION\",\n  \"obj\": {\n    \"id\": 123456789,\n    \"success\": true,\n    \"pending\": false,\n    \"amount_cents\": 25000,\n    \"currency\": \"EGP\",\n    \"order\": {\n      \"id\": 987654321\n    },\n    \"data\": {\n      \"message\": \"Approved\"\n    },\n    \"is_refunded\": false,\n    \"is_voided\": false\n  }\n}"
+              "raw": "{\n  \"type\": \"TRANSACTION\",\n  \"obj\": {\n    \"id\": 123456789,\n    \"success\": true,\n    \"pending\": false,\n    \"amount_cents\": 25000,\n    \"currency\": \"EGP\",\n    \"order\": {\n      \"id\": 987654321,\n      \"merchant_order_id\": \"{{orderId}}\"\n    },\n    \"special_reference\": \"{{orderId}}\",\n    \"data\": {\n      \"message\": \"Approved\"\n    },\n    \"is_refunded\": false,\n    \"is_voided\": false\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/payments/webhook",

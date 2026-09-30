@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,6 +10,8 @@ namespace Blocks.Contracts.Payment
         string Currency,
         PaymentProvider Provider,
         DateTime EstimatedDeliveryAt,
-        BillingData BillingData
+        BillingData BillingData,
+        string? RedirectionUrl = null,
+        string? NotificationUrl = null
     );
 }

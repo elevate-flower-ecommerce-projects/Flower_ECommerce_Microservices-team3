@@ -33,10 +33,24 @@ public sealed class HandlePaymentWebhookHandler(
             }
         }
 
-        // 2. Find payment by Intention ID, Paymob Order ID, or system OrderId
+        // 2. Find payment by PaymobOrderId, MerchantOrderId, Intention ID, or TransactionId
         Payment? payment = null;
 
-        if (!string.IsNullOrWhiteSpace(request.IntentionId))
+        if (!string.IsNullOrWhiteSpace(request.PaymobOrderId))
+        {
+            payment = await paymentRepository.GetByPaymobOrderIdAsync(
+                request.PaymobOrderId,
+                cancellationToken);
+        }
+
+        if (payment is null && !string.IsNullOrWhiteSpace(request.MerchantOrderId) && Guid.TryParse(request.MerchantOrderId, out var merchantGuid))
+        {
+            payment = await paymentRepository.GetByOrderIdAsync(
+                merchantGuid,
+                cancellationToken);
+        }
+
+        if (payment is null && !string.IsNullOrWhiteSpace(request.IntentionId))
         {
             payment = await paymentRepository.GetByPaymobIntentionIdAsync(
                 request.IntentionId,

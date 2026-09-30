@@ -1,4 +1,4 @@
-﻿using Blocks.Contracts.Common;
+using Blocks.Contracts.Common;
 using Blocks.Contracts.Payment;
 using MediatR;
 
@@ -9,5 +9,7 @@ public sealed record CreateCheckoutSessionCommand(
     decimal Amount,
     string Currency,
     DateTime EstimatedDeliveryAt,
-    BillingData BillingData
+    BillingData BillingData,
+    string? RedirectionUrl = null,
+    string? NotificationUrl = null
 ) : IRequest<Result<CreateCheckoutSessionResponse>>;

@@ -32,10 +32,8 @@ public static class MarkPaidEndpoint
 
             await unitOfWork.SaveChangesAsync(ct);
 
-            if (order.CartId.HasValue)
-            {
-                await cartService.ClearCartAsync(order.CartId.Value, ct: ct);
-            }
+            var cartId = order.CartId ?? Guid.Empty;
+            await cartService.ClearCartAsync(cartId, order.CustomerId, ct: ct);
 
             return Results.Ok(new { message = "Order marked as paid and moved to Preparing status successfully." });
         })

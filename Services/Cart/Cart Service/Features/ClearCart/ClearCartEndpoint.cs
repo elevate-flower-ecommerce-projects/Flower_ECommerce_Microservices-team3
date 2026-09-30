@@ -16,16 +16,20 @@ public static class ClearCartEndpoint
     {
         var handler = async (
             [FromQuery] Guid? cartId,
+            [FromQuery] Guid? customerId,
             FlowersCartDbContext db,
             ClaimsPrincipal user,
             CancellationToken ct) =>
         {
-            Guid? customerId = null;
-            var customerIdClaim = user.FindFirstValue(FlowerClaimTypes.CustomerId)
-                                  ?? user.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!string.IsNullOrEmpty(customerIdClaim) && Guid.TryParse(customerIdClaim, out var parsedCustomerId))
+            Guid? resolvedCustomerId = customerId;
+            if (!resolvedCustomerId.HasValue || resolvedCustomerId.Value == Guid.Empty)
             {
-                customerId = parsedCustomerId;
+                var customerIdClaim = user.FindFirstValue(FlowerClaimTypes.CustomerId)
+                                      ?? user.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!string.IsNullOrEmpty(customerIdClaim) && Guid.TryParse(customerIdClaim, out var parsedCustomerId))
+                {
+                    resolvedCustomerId = parsedCustomerId;
+                }
             }
 
             Entities.Cart? cart = null;
@@ -36,11 +40,12 @@ public static class ClearCartEndpoint
                     .Include(c => c.Items)
                     .FirstOrDefaultAsync(c => c.Id == cartId.Value, ct);
             }
-            else if (customerId.HasValue)
+
+            if (cart is null && resolvedCustomerId.HasValue && resolvedCustomerId.Value != Guid.Empty)
             {
                 cart = await db.Carts
                     .Include(c => c.Items)
-                    .FirstOrDefaultAsync(c => c.CustomerId == customerId.Value, ct);
+                    .FirstOrDefaultAsync(c => c.CustomerId == resolvedCustomerId.Value, ct);
             }
 
             if (cart is null)

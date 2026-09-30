@@ -61,7 +61,9 @@ public sealed class CreateCheckoutSessionHandler(
                     request.Currency,
                     PaymentProvider.Paymob,
                     request.EstimatedDeliveryAt,
-                    request.BillingData),
+                    request.BillingData,
+                    request.RedirectionUrl,
+                    request.NotificationUrl),
                 cancellationToken);
 
         // 5. Store Paymob identifiers
@@ -83,6 +85,9 @@ public sealed class CreateCheckoutSessionHandler(
             ? checkoutSession.IntentionId
             : payment.Id.ToString();
 
+        var successUrl = checkoutSession.RedirectionUrl ?? $"flowery://payment/success?orderId={payment.OrderId}";
+        var cancelUrl = $"flowery://payment/cancel?orderId={payment.OrderId}";
+
         return Result<CreateCheckoutSessionResponse>.Success(
             new CreateCheckoutSessionResponse(
                 OrderId: payment.OrderId,
@@ -92,6 +97,9 @@ public sealed class CreateCheckoutSessionHandler(
                 SessionUrl: checkoutSession.PaymentUrl,
                 PaymentProvider: PaymentProvider.Paymob,
                 Status: payment.Status.ToString(),
+                SuccessUrl: successUrl,
+                CancelUrl: cancelUrl,
+                ExpiresAt: DateTime.UtcNow.AddMinutes(30),
                 Amount: payment.Amount,
                 Currency: payment.Currency,
                 EstimatedDeliveryAt: request.EstimatedDeliveryAt));

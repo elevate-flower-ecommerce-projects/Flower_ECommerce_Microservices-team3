@@ -83,11 +83,20 @@ public sealed class CartServiceClient : ICartServiceClient
         }
     }
 
-    public async Task<bool> ClearCartAsync(Guid cartId, string? bearerToken = null, CancellationToken ct = default)
+    public Task<bool> ClearCartAsync(Guid cartId, string? bearerToken = null, CancellationToken ct = default)
+    {
+        return ClearCartAsync(cartId, null, bearerToken, ct);
+    }
+
+    public async Task<bool> ClearCartAsync(Guid cartId, Guid? customerId, string? bearerToken = null, CancellationToken ct = default)
     {
         try
         {
-            using var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/cart?cartId={cartId}");
+            var url = customerId.HasValue && customerId.Value != Guid.Empty
+                ? $"/api/cart?cartId={cartId}&customerId={customerId.Value}"
+                : $"/api/cart?cartId={cartId}";
+
+            using var request = new HttpRequestMessage(HttpMethod.Delete, url);
             if (!string.IsNullOrWhiteSpace(bearerToken))
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
@@ -98,7 +107,7 @@ public sealed class CartServiceClient : ICartServiceClient
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to clear cart {CartId} in Cart service", cartId);
+            _logger.LogError(ex, "Failed to clear cart {CartId} (customer: {CustomerId}) in Cart service", cartId, customerId);
             return false;
         }
     }

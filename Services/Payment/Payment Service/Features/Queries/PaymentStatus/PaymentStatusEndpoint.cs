@@ -2,6 +2,7 @@ using Blocks.Contracts.Http;
 using Blocks.Contracts.Payment;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Payment_Service.Application.Abstractions;
 using Payment_Service.Entities;
@@ -16,6 +17,11 @@ public sealed record PaymentStatusResultDto(
     string PaymentStatus,
     DateTime? EstimatedDeliveryAt,
     DateTime UpdatedAt
+);
+
+public sealed record ConfirmPaymentRequestDto(
+    bool Success = true,
+    string? TransactionId = null
 );
 
 public sealed record RetryCardResultDto(
@@ -36,10 +42,16 @@ public static class PaymentStatusEndpoint
 {
     public static IEndpointRouteBuilder MapPaymentStatusEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        // 1. Get Payment / Order Status
+        // 1. Get Payment / Order Status (with optional sync from Paymob redirect query params)
         endpoints.MapGet("/payments/orders/{orderId}/status", async (
             Guid orderId,
+            [FromQuery] bool? success,
+            [FromQuery] string? transactionId,
+            [FromQuery] bool? sync,
             IPaymentRepository paymentRepository,
+            IPaymobClient paymobClient,
+            IOrderServiceClient orderServiceClient,
+            IUnitOfWork unitOfWork,
             CancellationToken ct) =>
         {
             var payment = await paymentRepository.GetByOrderIdAsync(orderId, ct);
@@ -57,9 +69,46 @@ public static class PaymentStatusEndpoint
                     "تم جلب حالة الدفع بنجاح."));
             }
 
+            // If payment is pending, check if client provided success status from redirect or inquire Paymob
+            if (payment.Status == Payment_Service.Entities.Enums.PaymentStatus.Pending)
+            {
+                if (success == true)
+                {
+                    payment.Status = Payment_Service.Entities.Enums.PaymentStatus.Paid;
+                    payment.PaidAt = DateTime.UtcNow;
+                    if (!string.IsNullOrWhiteSpace(transactionId))
+                    {
+                        payment.PaymobTransactionId = transactionId;
+                    }
+
+                    paymentRepository.Update(payment);
+                    await unitOfWork.SaveChangesAsync(ct);
+
+                    await orderServiceClient.MarkOrderAsPaidAsync(orderId, ct);
+                }
+                else if (sync == true || !string.IsNullOrWhiteSpace(payment.PaymobOrderId))
+                {
+                    var inquiry = await paymobClient.InquireTransactionAsync(payment.PaymobOrderId!, ct);
+                    if (inquiry is not null && inquiry.Success)
+                    {
+                        payment.Status = Payment_Service.Entities.Enums.PaymentStatus.Paid;
+                        payment.PaidAt = DateTime.UtcNow;
+                        if (!string.IsNullOrWhiteSpace(inquiry.TransactionId))
+                        {
+                            payment.PaymobTransactionId = inquiry.TransactionId;
+                        }
+
+                        paymentRepository.Update(payment);
+                        await unitOfWork.SaveChangesAsync(ct);
+
+                        await orderServiceClient.MarkOrderAsPaidAsync(orderId, ct);
+                    }
+                }
+            }
+
             var orderStatus = payment.Status switch
             {
-                Payment_Service.Entities.Enums.PaymentStatus.Paid => "Placed",
+                Payment_Service.Entities.Enums.PaymentStatus.Paid => "Preparing",
                 Payment_Service.Entities.Enums.PaymentStatus.Failed => "PaymentFailed",
                 Payment_Service.Entities.Enums.PaymentStatus.Cancelled => "Cancelled",
                 _ => "PendingPayment"
@@ -88,7 +137,105 @@ public static class PaymentStatusEndpoint
         .WithTags("Payments")
         .Produces<FloweryApiResponse<PaymentStatusResultDto>>(StatusCodes.Status200OK);
 
-        // 2. Retry Order Payment
+        // 2. Explicit Confirm Payment Endpoint (called by mobile app or frontend after gateway return)
+        endpoints.MapPost("/payments/orders/{orderId}/confirm", async (
+            Guid orderId,
+            [FromBody] ConfirmPaymentRequestDto? body,
+            IPaymentRepository paymentRepository,
+            IOrderServiceClient orderServiceClient,
+            IUnitOfWork unitOfWork,
+            CancellationToken ct) =>
+        {
+            var payment = await paymentRepository.GetByOrderIdAsync(orderId, ct);
+            if (payment is null)
+            {
+                return Results.NotFound(FloweryApiResponse<PaymentStatusResultDto>.Failure(
+                    "Payment record not found for this order.",
+                    "NotFound",
+                    "لم يتم العثور على سجل الدفع لهذا الطلب."));
+            }
+
+            var isSuccess = body?.Success ?? true;
+            if (isSuccess)
+            {
+                payment.Status = Payment_Service.Entities.Enums.PaymentStatus.Paid;
+                payment.PaidAt = DateTime.UtcNow;
+                if (!string.IsNullOrWhiteSpace(body?.TransactionId))
+                {
+                    payment.PaymobTransactionId = body.TransactionId;
+                }
+
+                paymentRepository.Update(payment);
+                await unitOfWork.SaveChangesAsync(ct);
+
+                await orderServiceClient.MarkOrderAsPaidAsync(orderId, ct);
+            }
+            else
+            {
+                payment.Status = Payment_Service.Entities.Enums.PaymentStatus.Failed;
+                paymentRepository.Update(payment);
+                await unitOfWork.SaveChangesAsync(ct);
+            }
+
+            return Results.Ok(FloweryApiResponse<PaymentStatusResultDto>.Success(
+                new PaymentStatusResultDto(
+                    OrderId: orderId,
+                    OrderStatus: isSuccess ? "Preparing" : "PaymentFailed",
+                    PaymentStatus: isSuccess ? "Succeeded" : "Failed",
+                    EstimatedDeliveryAt: null,
+                    UpdatedAt: payment.PaidAt ?? DateTime.UtcNow
+                ),
+                "Payment confirmed successfully.",
+                "تم تأكيد حالة الدفع بنجاح."));
+        })
+        .WithName("ConfirmOrderPayment")
+        .WithTags("Payments")
+        .Produces<FloweryApiResponse<PaymentStatusResultDto>>(StatusCodes.Status200OK)
+        .Produces<FloweryApiResponse<PaymentStatusResultDto>>(StatusCodes.Status404NotFound);
+
+        // 3. Browser Return / Callback Gateway Endpoint
+        endpoints.MapGet("/payments/callback", async (
+            [FromQuery] Guid? orderId,
+            [FromQuery] bool? success,
+            [FromQuery] string? id,
+            [FromQuery] string? transaction_id,
+            IPaymentRepository paymentRepository,
+            IOrderServiceClient orderServiceClient,
+            IUnitOfWork unitOfWork,
+            CancellationToken ct) =>
+        {
+            var isSuccess = success ?? true;
+            var txnId = !string.IsNullOrWhiteSpace(id) ? id : transaction_id;
+
+            if (orderId.HasValue && isSuccess)
+            {
+                var payment = await paymentRepository.GetByOrderIdAsync(orderId.Value, ct);
+                if (payment is not null && payment.Status != Payment_Service.Entities.Enums.PaymentStatus.Paid)
+                {
+                    payment.Status = Payment_Service.Entities.Enums.PaymentStatus.Paid;
+                    payment.PaidAt = DateTime.UtcNow;
+                    if (!string.IsNullOrWhiteSpace(txnId))
+                    {
+                        payment.PaymobTransactionId = txnId;
+                    }
+
+                    paymentRepository.Update(payment);
+                    await unitOfWork.SaveChangesAsync(ct);
+
+                    await orderServiceClient.MarkOrderAsPaidAsync(orderId.Value, ct);
+                }
+            }
+
+            var redirectTarget = isSuccess && orderId.HasValue
+                ? $"flowery://payment/success?orderId={orderId.Value}&id={txnId}"
+                : $"flowery://payment/cancel?orderId={orderId}&id={txnId}";
+
+            return Results.Redirect(redirectTarget);
+        })
+        .WithName("PaymentCallback")
+        .WithTags("Payments");
+
+        // 4. Retry Order Payment
         endpoints.MapPost("/payments/orders/{orderId}/retry", async (
             Guid orderId,
             IPaymentRepository paymentRepository,
@@ -116,7 +263,8 @@ public static class PaymentStatusEndpoint
                     Currency: currency,
                     Provider: PaymentProvider.Paymob,
                     EstimatedDeliveryAt: eta,
-                    BillingData: new BillingData("Customer", "User", "customer@example.com", "+201000000000", "EGY", "Cairo", "Street", "1", "1", "1")
+                    BillingData: new BillingData("Customer", "User", "customer@example.com", "+201000000000", "EGY", "Cairo", "Street", "1", "1", "1"),
+                    RedirectionUrl: $"flowery://payment/success?orderId={orderId}"
                 ),
                 ct);
 
