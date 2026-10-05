@@ -53,6 +53,11 @@ public static class ClearCartEndpoint
                 return Results.Ok(ApiResponse<string>.Ok("Cart is already empty."));
             }
 
+            if (cart.Items.Any())
+            {
+                db.CartItems.RemoveRange(cart.Items);
+            }
+
             cart.ClearItems();
             await db.SaveChangesAsync(ct);
 

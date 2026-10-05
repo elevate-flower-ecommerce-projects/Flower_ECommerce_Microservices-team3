@@ -13,7 +13,9 @@ public sealed record PlaceOrderRequest(
     string? Notes = null,
     string? CustomerPhone = null,
     string? GiftRecipientName = null,
-    string? GiftRecipientPhone = null
+    string? GiftRecipientPhone = null,
+    string? RedirectionUrl = null,
+    string? CancelUrl = null
 );
 
 public sealed record GiftRecipientDto(

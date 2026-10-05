@@ -24,7 +24,7 @@ public sealed class PaymentGateway(
 
         var redirectionUrl = !string.IsNullOrWhiteSpace(request.RedirectionUrl)
             ? request.RedirectionUrl
-            : $"flowery://payment/success?orderId={request.OrderId}";
+            : $"http://localhost:8080/payments/callback?orderId={request.OrderId}";
 
         var notificationUrl = !string.IsNullOrWhiteSpace(request.NotificationUrl)
             ? request.NotificationUrl
@@ -74,10 +74,14 @@ public sealed class PaymentGateway(
                 var paymentUrl = checkoutUrlBuilder.Build(
                     response.ClientSecret);
 
+                var paymobOrderId = response.IntentionOrderId > 0
+                    ? response.IntentionOrderId.ToString()
+                    : (response.Order?.Id > 0 ? response.Order.Id.ToString() : request.OrderId.ToString());
+
                 return new CreatePaymentSessionResult(
                     response.Id,
                     response.ClientSecret,
-                    response.Order?.Id.ToString() ?? string.Empty,
+                    paymobOrderId,
                     paymentUrl,
                     redirectionUrl);
             }

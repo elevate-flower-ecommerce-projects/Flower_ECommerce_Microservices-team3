@@ -4,12 +4,18 @@ using Blocks.Domain.Errors;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Order___Fulfillment_Service.Entities;
+using Order___Fulfillment_Service.Entities.Enums;
 using Order___Fulfillment_Service.Features.Orders.GetOrderById.DTOs;
+using Order___Fulfillment_Service.Persistence;
+using Order___Fulfillment_Service.Services;
 
 namespace Order___Fulfillment_Service.Features.Orders.GetOrderById.Queries
 {
     public sealed class GetOrderByIdQueryHandler(
-        IGenericRepository<Order> orderRepository)
+        IGenericRepository<Order> orderRepository,
+        IPaymentServiceClient paymentServiceClient,
+        ICartServiceClient cartService,
+        IUnitOfWork unitOfWork)
         : IRequestHandler<GetOrderByIdQuery, Result<OrderDetailDto>>
     {
         public async Task<Result<OrderDetailDto>> Handle(
@@ -17,37 +23,11 @@ namespace Order___Fulfillment_Service.Features.Orders.GetOrderById.Queries
             CancellationToken cancellationToken)
         {
             var order = await orderRepository.GetQueryable()
-                .AsNoTracking()
-                .Where(o => o.Id == request.OrderId
-                         && o.CustomerId == request.CustomerId 
-                         && o.DeletedAt == null)
-                .Select(o => new OrderDetailDto(
-                    o.Id,
-                    o.Status,
-                    o.PaymentMethod,
-                    o.PaymentProvider != null ? o.PaymentProvider.ToString() : null,
-                    o.Items.OrderBy(i => i.ProductName)
-                           .Select(i => new OrderItemDto(
-                               i.ProductId,
-                               i.ProductName,
-                               i.Quantity,
-                               i.UnitPrice))
-                           .ToList(),
-                    new OrderAddressDto(
-                        o.RecipientName,
-                        o.RecipientPhone,
-                        o.AddressLine,
-                        o.City,
-                        o.Area),
-                    o.Subtotal,
-                    o.DeliveryFee,
-                    o.Total,
-                    o.IsGift,
-                    o.GiftRecipientName,
-                    o.GiftRecipientPhone,
-                    o.EstimatedDeliveryAt,
-                    o.CreatedAt))
-                .FirstOrDefaultAsync(cancellationToken);
+                .Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.Id == request.OrderId
+                                       && o.CustomerId == request.CustomerId 
+                                       && o.DeletedAt == null,
+                                     cancellationToken);
 
             if (order is null)
             {
@@ -55,7 +35,50 @@ namespace Order___Fulfillment_Service.Features.Orders.GetOrderById.Queries
                     Error.NotFound("Order not found."));
             }
 
-            return Result.Success(order);
+            if (order.Status == OrderStatus.PendingPayment && order.PaymentMethod == PaymentMethod.Card)
+            {
+                var paymentStatus = await paymentServiceClient.GetPaymentStatusAsync(order.Id, ct: cancellationToken);
+                if (paymentStatus is not null &&
+                    (string.Equals(paymentStatus.PaymentStatus, "Succeeded", StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(paymentStatus.OrderStatus, "Preparing", StringComparison.OrdinalIgnoreCase)))
+                {
+                    order.Status = OrderStatus.Preparing;
+                    order.UpdatedAt = DateTime.UtcNow;
+                    await unitOfWork.SaveChangesAsync(cancellationToken);
+
+                    var cartId = order.CartId ?? Guid.Empty;
+                    await cartService.ClearCartAsync(cartId, order.CustomerId, ct: cancellationToken);
+                }
+            }
+
+            var dto = new OrderDetailDto(
+                order.Id,
+                order.Status,
+                order.PaymentMethod,
+                order.PaymentProvider != null ? order.PaymentProvider.ToString() : null,
+                order.Items.OrderBy(i => i.ProductName)
+                       .Select(i => new OrderItemDto(
+                           i.ProductId,
+                           i.ProductName,
+                           i.Quantity,
+                           i.UnitPrice))
+                       .ToList(),
+                new OrderAddressDto(
+                    order.RecipientName,
+                    order.RecipientPhone,
+                    order.AddressLine,
+                    order.City,
+                    order.Area),
+                order.Subtotal,
+                order.DeliveryFee,
+                order.Total,
+                order.IsGift,
+                order.GiftRecipientName,
+                order.GiftRecipientPhone,
+                order.EstimatedDeliveryAt,
+                order.CreatedAt);
+
+            return Result.Success(dto);
         }
     }
 }

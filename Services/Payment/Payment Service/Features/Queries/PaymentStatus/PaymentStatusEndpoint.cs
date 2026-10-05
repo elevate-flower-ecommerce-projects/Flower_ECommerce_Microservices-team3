@@ -86,9 +86,13 @@ public static class PaymentStatusEndpoint
 
                     await orderServiceClient.MarkOrderAsPaidAsync(orderId, ct);
                 }
-                else if (sync == true || !string.IsNullOrWhiteSpace(payment.PaymobOrderId))
+                else
                 {
-                    var inquiry = await paymobClient.InquireTransactionAsync(payment.PaymobOrderId!, ct);
+                    var inquiryTarget = !string.IsNullOrWhiteSpace(payment.PaymobOrderId)
+                        ? payment.PaymobOrderId
+                        : orderId.ToString();
+
+                    var inquiry = await paymobClient.InquireTransactionAsync(inquiryTarget, ct);
                     if (inquiry is not null && inquiry.Success)
                     {
                         payment.Status = Payment_Service.Entities.Enums.PaymentStatus.Paid;
@@ -199,6 +203,7 @@ public static class PaymentStatusEndpoint
             [FromQuery] bool? success,
             [FromQuery] string? id,
             [FromQuery] string? transaction_id,
+            [FromQuery(Name = "order")] string? paymobOrder,
             IPaymentRepository paymentRepository,
             IOrderServiceClient orderServiceClient,
             IUnitOfWork unitOfWork,
@@ -207,30 +212,74 @@ public static class PaymentStatusEndpoint
             var isSuccess = success ?? true;
             var txnId = !string.IsNullOrWhiteSpace(id) ? id : transaction_id;
 
-            if (orderId.HasValue && isSuccess)
+            Payment? payment = null;
+            if (orderId.HasValue)
             {
-                var payment = await paymentRepository.GetByOrderIdAsync(orderId.Value, ct);
-                if (payment is not null && payment.Status != Payment_Service.Entities.Enums.PaymentStatus.Paid)
+                payment = await paymentRepository.GetByOrderIdAsync(orderId.Value, ct);
+            }
+
+            if (payment is null && !string.IsNullOrWhiteSpace(paymobOrder))
+            {
+                payment = await paymentRepository.GetByPaymobOrderIdAsync(paymobOrder, ct);
+                if (payment is not null)
                 {
-                    payment.Status = Payment_Service.Entities.Enums.PaymentStatus.Paid;
-                    payment.PaidAt = DateTime.UtcNow;
-                    if (!string.IsNullOrWhiteSpace(txnId))
-                    {
-                        payment.PaymobTransactionId = txnId;
-                    }
-
-                    paymentRepository.Update(payment);
-                    await unitOfWork.SaveChangesAsync(ct);
-
-                    await orderServiceClient.MarkOrderAsPaidAsync(orderId.Value, ct);
+                    orderId = payment.OrderId;
                 }
             }
 
-            var redirectTarget = isSuccess && orderId.HasValue
-                ? $"flowery://payment/success?orderId={orderId.Value}&id={txnId}"
-                : $"flowery://payment/cancel?orderId={orderId}&id={txnId}";
+            if (payment is not null && isSuccess && payment.Status != Payment_Service.Entities.Enums.PaymentStatus.Paid)
+            {
+                payment.Status = Payment_Service.Entities.Enums.PaymentStatus.Paid;
+                payment.PaidAt = DateTime.UtcNow;
+                if (!string.IsNullOrWhiteSpace(txnId))
+                {
+                    payment.PaymobTransactionId = txnId;
+                }
 
-            return Results.Redirect(redirectTarget);
+                paymentRepository.Update(payment);
+                await unitOfWork.SaveChangesAsync(ct);
+
+                await orderServiceClient.MarkOrderAsPaidAsync(payment.OrderId, ct);
+            }
+
+            var resolvedOrderId = orderId ?? payment?.OrderId;
+            var redirectTarget = isSuccess && resolvedOrderId.HasValue
+                ? $"flowery://payment/success?orderId={resolvedOrderId.Value}&id={txnId}"
+                : $"flowery://payment/cancel?orderId={resolvedOrderId}&id={txnId}";
+
+            var html = $$"""
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>{{(isSuccess ? "Payment Successful" : "Payment Cancelled")}}</title>
+                <style>
+                    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f8fafc; }
+                    .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; max-width: 420px; width: 90%; }
+                    .icon { font-size: 64px; margin-bottom: 20px; color: {{(isSuccess ? "#10B981" : "#EF4444")}}; }
+                    h1 { margin: 0 0 12px; color: #1e293b; font-size: 24px; }
+                    p { margin: 0 0 28px; color: #64748b; font-size: 15px; line-height: 1.5; }
+                    .btn { display: inline-block; background: #D946EF; color: white; padding: 14px 28px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 15px; }
+                </style>
+            </head>
+            <body>
+                <div class="card">
+                    <div class="icon">{{(isSuccess ? "✓" : "✗")}}</div>
+                    <h1>{{(isSuccess ? "Payment Successful!" : "Payment Cancelled")}}</h1>
+                    <p>{{(isSuccess ? "Your payment was processed successfully. Returning to the Flowery app..." : "The payment was not completed. You can try again from the app.")}}</p>
+                    <a class="btn" href="{{redirectTarget}}">Return to Flowery App</a>
+                </div>
+                <script>
+                    setTimeout(function() {
+                        window.location.href = "{{redirectTarget}}";
+                    }, 800);
+                </script>
+            </body>
+            </html>
+            """;
+
+            return Results.Content(html, "text/html");
         })
         .WithName("PaymentCallback")
         .WithTags("Payments");

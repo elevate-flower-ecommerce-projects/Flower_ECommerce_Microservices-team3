@@ -75,9 +75,14 @@ public sealed class PaymobClient(HttpClient httpClient, IOptions<PaymobOptions> 
             }
 
             var authToken = tokenEl.GetString();
+            if (string.IsNullOrWhiteSpace(authToken))
+            {
+                return null;
+            }
 
-            object inqPayload = int.TryParse(paymobOrderId, out var intOrderId)
-                ? new { auth_token = authToken, order_id = intOrderId }
+            var isNumeric = long.TryParse(paymobOrderId, out var longOrderId);
+            object inqPayload = isNumeric
+                ? new { auth_token = authToken, order_id = longOrderId }
                 : (object)new { auth_token = authToken, merchant_order_id = paymobOrderId };
 
             using var inqReq = new HttpRequestMessage(HttpMethod.Post, "api/ecommerce/orders/transaction_inquiry")
@@ -85,26 +90,76 @@ public sealed class PaymobClient(HttpClient httpClient, IOptions<PaymobOptions> 
                 Content = JsonContent.Create(inqPayload)
             };
             using var inqRes = await _httpClient.SendAsync(inqReq, cancellationToken);
-            if (!inqRes.IsSuccessStatusCode)
+
+            System.Text.Json.JsonDocument? inqDoc = null;
+            if (inqRes.IsSuccessStatusCode)
             {
-                return null;
+                inqDoc = await inqRes.Content.ReadFromJsonAsync<System.Text.Json.JsonDocument>(cancellationToken: cancellationToken);
+            }
+            else if (isNumeric)
+            {
+                // Fallback to merchant_order_id if order_id was not found
+                using var retryReq = new HttpRequestMessage(HttpMethod.Post, "api/ecommerce/orders/transaction_inquiry")
+                {
+                    Content = JsonContent.Create(new { auth_token = authToken, merchant_order_id = paymobOrderId })
+                };
+                using var retryRes = await _httpClient.SendAsync(retryReq, cancellationToken);
+                if (retryRes.IsSuccessStatusCode)
+                {
+                    inqDoc = await retryRes.Content.ReadFromJsonAsync<System.Text.Json.JsonDocument>(cancellationToken: cancellationToken);
+                }
             }
 
-            var inqDoc = await inqRes.Content.ReadFromJsonAsync<System.Text.Json.JsonDocument>(cancellationToken: cancellationToken);
             if (inqDoc is null) return null;
 
             var root = inqDoc.RootElement;
             bool success = false;
             string? txId = null;
 
-            if (root.TryGetProperty("success", out var succEl) && succEl.ValueKind is System.Text.Json.JsonValueKind.True or System.Text.Json.JsonValueKind.False)
+            if (root.TryGetProperty("success", out var succEl))
             {
-                success = succEl.GetBoolean();
+                success = succEl.ValueKind switch
+                {
+                    System.Text.Json.JsonValueKind.True => true,
+                    System.Text.Json.JsonValueKind.False => false,
+                    System.Text.Json.JsonValueKind.String => bool.TryParse(succEl.GetString(), out var b) && b,
+                    System.Text.Json.JsonValueKind.Number => succEl.GetInt32() == 1,
+                    _ => false
+                };
             }
 
             if (root.TryGetProperty("id", out var idEl))
             {
                 txId = idEl.ToString();
+            }
+
+            if (!success && root.TryGetProperty("transactions", out var txArray) && txArray.ValueKind == System.Text.Json.JsonValueKind.Array)
+            {
+                foreach (var tx in txArray.EnumerateArray())
+                {
+                    bool itemSuccess = false;
+                    if (tx.TryGetProperty("success", out var txSuccEl))
+                    {
+                        itemSuccess = txSuccEl.ValueKind switch
+                        {
+                            System.Text.Json.JsonValueKind.True => true,
+                            System.Text.Json.JsonValueKind.False => false,
+                            System.Text.Json.JsonValueKind.String => bool.TryParse(txSuccEl.GetString(), out var b) && b,
+                            System.Text.Json.JsonValueKind.Number => txSuccEl.GetInt32() == 1,
+                            _ => false
+                        };
+                    }
+
+                    if (itemSuccess)
+                    {
+                        success = true;
+                        if (tx.TryGetProperty("id", out var tId))
+                        {
+                            txId = tId.ToString();
+                        }
+                        break;
+                    }
+                }
             }
 
             return new PaymobInquiryResult(success, txId, paymobOrderId);

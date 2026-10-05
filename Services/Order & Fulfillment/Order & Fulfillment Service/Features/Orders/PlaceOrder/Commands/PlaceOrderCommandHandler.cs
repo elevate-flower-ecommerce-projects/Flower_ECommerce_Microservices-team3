@@ -146,8 +146,15 @@ public sealed class PlaceOrderCommandHandler(
         var firstName = names.Length > 0 ? names[0] : "Customer";
         var lastName = names.Length > 1 ? string.Join(" ", names.Skip(1)) : "User";
 
-        var successUrl = $"flowery://payment/success?orderId={order.Id}";
-        var cancelUrl = $"flowery://payment/cancel?orderId={order.Id}";
+        var defaultCallbackUrl = $"http://localhost:8080/payments/callback?orderId={order.Id}";
+        var redirectionUrl = !string.IsNullOrWhiteSpace(request.Request.RedirectionUrl)
+            ? request.Request.RedirectionUrl
+            : defaultCallbackUrl;
+
+        var successUrl = redirectionUrl;
+        var cancelUrl = !string.IsNullOrWhiteSpace(request.Request.CancelUrl)
+            ? request.Request.CancelUrl
+            : $"flowery://payment/cancel?orderId={order.Id}";
 
         var sessionRequest = new Order___Fulfillment_Service.Services.CreatePaymentSessionRequest(
             OrderId: order.Id,
@@ -167,7 +174,7 @@ public sealed class PlaceOrderCommandHandler(
                 Floor: "1",
                 Apartment: "1"
             ),
-            RedirectionUrl: successUrl
+            RedirectionUrl: redirectionUrl
         );
 
         var sessionResult = await paymentService.CreateCardSessionAsync(sessionRequest, request.BearerToken, cancellationToken);

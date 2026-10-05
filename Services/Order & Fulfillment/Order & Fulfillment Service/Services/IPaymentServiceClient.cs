@@ -41,6 +41,14 @@ public record CardSessionResultDto(
     DateTime? EstimatedDeliveryAt = null
 );
 
+public sealed record PaymentStatusDto(
+    Guid OrderId,
+    string OrderStatus,
+    string PaymentStatus,
+    DateTime? EstimatedDeliveryAt,
+    DateTime UpdatedAt
+);
+
 public interface IPaymentServiceClient
 {
     Task<CardSessionResultDto?> CreateCardSessionAsync(
@@ -52,6 +60,11 @@ public interface IPaymentServiceClient
         Guid orderId,
         decimal amount,
         string currency = "EGP",
+        string? bearerToken = null,
+        CancellationToken ct = default);
+
+    Task<PaymentStatusDto?> GetPaymentStatusAsync(
+        Guid orderId,
         string? bearerToken = null,
         CancellationToken ct = default);
 }

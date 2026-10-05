@@ -90,6 +90,36 @@ public sealed class PaymentServiceClient : IPaymentServiceClient
         }
     }
 
+    public async Task<PaymentStatusDto?> GetPaymentStatusAsync(
+        Guid orderId,
+        string? bearerToken = null,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/payments/orders/{orderId}/status?sync=true");
+            if (!string.IsNullOrWhiteSpace(bearerToken))
+            {
+                httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+            }
+
+            using var response = await _httpClient.SendAsync(httpRequest, ct);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Payment service returned status code {StatusCode} for order status check {OrderId}", (int)response.StatusCode, orderId);
+                return null;
+            }
+
+            var envelope = await response.Content.ReadFromJsonAsync<PaymentApiResponseEnvelope<PaymentStatusDto>>(JsonOptions, ct);
+            return envelope?.IsOk == true ? envelope.Data : null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to call Payment service to get status for order {OrderId}", orderId);
+            return null;
+        }
+    }
+
     private sealed class PaymentApiResponseEnvelope<T>
     {
         public bool Success { get; init; }
